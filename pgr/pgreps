@@ -1,0 +1,24 @@
+#!/usr/bin/perl -Wall
+
+sub usage
+{
+	die "Usage: $0 {one or more data-file names}\n";
+}
+
+usage if (@ARGV < 1);
+
+foreach $dfilename (@ARGV) {
+	$epsfilename = $dfilename;
+	$epsfilename =~ s/\.txt$//;
+	$epsfilename =~ s/$/.eps/;
+	$cmd = "pgr -ymax 10 -o $epsfilename $dfilename";
+	printf "Running %s ... ", $cmd;
+	$rc = system($cmd);
+	if ($rc == 0) {
+		printf "done.\n";
+	}
+	else {
+		printf "ABEND:  rc = $rc.\n";
+		exit(1);
+	}
+}

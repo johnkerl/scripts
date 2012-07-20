@@ -1,0 +1,29 @@
+#!/usr/bin/perl -Wall
+use line_term_lib;
+
+$numeric = 0;
+if ((@ARGV > 0) && ($ARGV[0]) eq "-n") {
+	$numeric = 1;
+	shift @ARGV;
+}
+while ($line=<>) {
+	($line, $term) = split_line_ending($line);
+	$line =~ s/^\s+//;
+	$line =~ s/\s+$//;
+	@fields = split /\s+/, $line;
+	if ($numeric) {
+		@fields = sort {$a <=> $b} @fields;
+	}
+	else {
+		@fields = sort @fields;
+	}
+	$i = 0;
+	for my $field (@fields) {
+		if ($i > 0) {
+			printf " ";
+		}
+		printf $field;
+		$i++;
+	}
+	printf "$term";
+}

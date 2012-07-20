@@ -1,0 +1,93 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# 2007-06-28
+# kerl.john.r@gmail.com
+# ================================================================
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+import sackmat_m
+import stats_m
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage: %s [options] {file name}" % (sys.argv[0])
+	print >> sys.stderr, "Use \"-\" as file name to read from standard input."
+	print >> sys.stderr, "Options:"
+	print >> sys.stderr, "  -lo    {value}:  specify lower bound (else taken from data mininum)."
+	print >> sys.stderr, "  -hi    {value}:  specify upper bound (else taken from data maxinum)."
+	print >> sys.stderr, "  -nbins {value}:  specify number of bins (default %d)." % (num_bins)
+	print >> sys.stderr, "  -center:         Use centered bins."
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+# Set defaults.
+have_spec_lo =  0
+have_spec_hi =  0
+lo           =  0
+hi           =  0
+num_bins     = 20
+center       =  0
+
+# ----------------------------------------------------------------
+# Parse command line.
+argi = 1
+argc = len(sys.argv)
+while ((argi < argc) and (sys.argv[argi][0] == '-')):
+	if (sys.argv[argi] == '-'):
+		break
+	elif (sys.argv[argi] == '--'):
+		break
+	elif (sys.argv[argi] == '--help'):
+		usage()
+	elif (sys.argv[argi] == '-h'):
+		usage()
+
+	elif (sys.argv[argi] == '-lo'):
+		argi += 1
+		if ((argc - argi) < 1): usage()
+		have_spec_lo = 1
+		lo = float(sys.argv[argi])
+
+	elif (sys.argv[argi] == '-hi'):
+		argi += 1
+		if ((argc - argi) < 1): usage()
+		have_spec_hi = 1
+		hi = float(sys.argv[argi])
+
+	elif (sys.argv[argi] == '-nbins'):
+		argi += 1
+		if ((argc - argi) < 1): usage()
+		num_bins = int(sys.argv[argi])
+
+	elif (sys.argv[argi] == '-center'):
+		center = 1
+
+	else:
+		usage()
+	argi += 1
+
+if (argc - argi) == 0:
+	file_name = '-'
+elif (argc - argi) == 1:
+	file_name = sys.argv[argi]
+else:
+	usage()
+
+# ----------------------------------------------------------------
+farray = sackmat_m.read_column_vector(float, file_name)
+
+if (not have_spec_lo):
+	lo = stats_m.find_min(farray)
+if (not have_spec_hi):
+	hi = stats_m.find_max(farray)
+
+bins   = stats_m.make_histogram(farray, lo, hi, num_bins)
+labels = stats_m.make_histogram_labels(lo, hi, num_bins, center)
+for i in range(0, num_bins):
+	print labels[i], bins[i]

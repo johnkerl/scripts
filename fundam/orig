@@ -1,0 +1,11 @@
+#! /bin/sh
+
+if [ $# -lt 1 ]; then
+	echo "Usage:  `basename $0` {file names to back up}" 1>&2
+	exit 1
+fi
+
+for fn
+do
+	cp $fn ${fn}.orig && chmod u+w ${fn}.orig
+done

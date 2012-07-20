@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+
+use line_term_lib;
+$lno = 0;
+while ($line = <>) {
+	$lno++;
+	($line, $term) = split_line_ending($line);
+	chomp $line;
+	print $line . $term;
+	if ($lno == 1) {
+		$iscom = 0;
+		$iscom = 1 if ($line =~ m/^#/);
+		$line =~ s/[^ \t]/-/g;
+		$line =~ s/^./#/ if ($iscom);
+		print $line . $term;
+	}
+}

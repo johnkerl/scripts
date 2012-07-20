@@ -1,0 +1,54 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2008-09-11
+# ================================================================
+
+import sys
+import random
+import re
+
+cvs = 'cvcvcvc'
+num   = 1
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage: %s [option] [count]"
+	print >> sys.stderr, "Options: five, seven, [cv]+ pattern."
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+argc = len(sys.argv)
+for argi in range(1, argc):
+	if (sys.argv[argi] == '-h'):
+		usage()
+	elif (sys.argv[argi] == '--help'):
+		usage()
+	elif (sys.argv[argi] == 'five'):
+		cvs = 'cvcvc'
+	elif (sys.argv[argi] == 'seven'):
+		cvs = 'cvcvcvc'
+	elif (re.match('[cvb]+', sys.argv[argi])):
+		cvs = sys.argv[argi]
+	else:
+		num = int(sys.argv[argi])
+
+v = ['a','e','i','o','u','y']
+c = [ 'b','c','d','f','g','h','j','k','l','m','n','p','q','r','s', \
+	't','v','w','x','z' ]
+
+for i in range(0, num):
+	word = ""
+	for j in range(0, len(cvs)):
+		if (cvs[j] == 'c'):
+			word += random.choice(c)
+		elif (cvs[j] == 'v'):
+			word += random.choice(v)
+		elif (cvs[j] == 'b'):
+			word += random.choice(v+c)
+		else:
+			print "b0rk"
+			sys.exit(1)
+	print word

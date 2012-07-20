@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ "$#" -eq 1 ]; then
+    export TZ="$1"
+    if [ "$TZ" = "ny" ]; then export TZ="America/New_York"; fi
+    if [ "$TZ" = "NY" ]; then export TZ="America/New_York"; fi
+fi
+
+# E.g. Thu Dec 02 2010 04:12:58 PM GMT
+#date "+%a %b %d %Y %I:%M:%S %p %Z"  # 12-hour clock
+
+# E.g. Thu Dec 02 2010 16:13:36 GMT
+date  "+%a %b %d %Y %H:%M:%S %Z"  # 24-hour clock

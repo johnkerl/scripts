@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+
+$sum = 0;
+$count = 0;
+
+if (@ARGV) {
+	for my $num (@ARGV) {
+		$sum += $num;
+		$count++;
+	}
+}
+else {
+	while ($line=<>) {
+		chomp $line;
+		my @nums = split /\s+/, $line;
+		for my $num (@nums) {
+			$sum += $num;
+			$count++;
+		}
+	}
+}
+
+if ($count == 0) {
+	print "empty\n";
+}
+else {
+	print $sum/$count, "\n";
+}

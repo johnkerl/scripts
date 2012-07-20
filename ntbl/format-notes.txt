@@ -1,0 +1,99 @@
+================================================================
+* UTs ...
+
+  - test against 5 hand-edited files (csv, jkhs, jkhe, jkvs, jkve)
+
+  - options:
+    > csv: just one
+	> jkh: aligned or not; spenc or not
+	> jkv: spenc or not
+
+  - test pipe-compositions:
+
+	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    c2h    test.csv  | h2v    == c2v    test.csv
+    c2h -e test.csv  | h2v    == c2v -e test.csv
+    c2h    test.csv  | h2v -e == c2v -e test.csv
+    c2h -e test.csv  | h2v -d == c2v    test.csv
+
+    c2h    test.csv  | h2c    ==        test.csv
+    c2h -e test.csv  | h2c -d == cat
+
+	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    c2v    test.csv  | v2h    == c2h    test.csv
+    c2v -e test.csv  | v2h    == c2h -e test.csv
+    c2v    test.csv  | v2h -e == c2h -e test.csv
+    c2v -e test.csv  | v2h -d ==        test.csv
+
+    c2v    test.csv  | v2c    == cat    test.csv
+    c2v -e test.csv  | v2c    == cat    test.csv
+
+	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    h2c    test.jkhe | c2v    == h2v
+    h2c    test.jkhe | c2h    == cat
+
+	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    h2v    test.jkhe | v2c    == h2c
+    h2v    test.jkhe | v2h    == cat
+
+	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    v2c    test.jkve | c2h    == v2h
+    v2c    test.jkve | c2v    == cat
+
+	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    v2h    test.jkve | h2c    == v2c
+    v2h    test.jkve | h2v    == cat
+
+	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+----------------------------------------------------------------
+Formats:
+* CSV -- standard comma-separated values
+* JKH -- space-delimited; maybe aligned, or not; still horizontal like CSV
+* JKV -- vertical; aligned
+
+Transformations:
+* CSV <--> JKH:  c2h, h2c
+* CSV  --> JKV:  c2v
+* CSV <--  JKV:  v2c *if* there are no spaces in the values.
+* JKH <--> JKV:  h2v, v2h?
+
+Encodings:
+* comma %2c
+* space %20
+* tab   %09
+
+----------------------------------------------------------------
+CSV FORMAT
+
+* may have spaces/tabs
+* commas are encoded as %2c
+* null = ""
+
+Example:
+
+  abc,def,ghi
+  1 2,3 45,6 7 8
+  %2d,,999
+
+----------------------------------------------------------------
+JKH FORMAT
+
+* spaces/tabs are encoded as %20/%09
+* may have commas
+* null = "_"
+
+  abc   def    ghi
+  ---   ---    ---
+  1%202 3%2045 6%207%208
+  ,     _      999
+
+----------------------------------------------------------------
+JKV FORMAT
+
+* maybe spaces/tabs
+* null = "_"
+
+  abc 1 2  ,
+  def 3 45 _
+  ghi 6 7  8 999

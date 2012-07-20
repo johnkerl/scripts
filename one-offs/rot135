@@ -1,0 +1,6 @@
+#!/usr/bin/perl
+
+while ($line = <>) {
+	$line =~ tr/a-mn-zA-MN-Z0-45-9/n-za-mN-ZA-M5-90-4/;
+	print $line;
+}

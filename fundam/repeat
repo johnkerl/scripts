@@ -1,0 +1,28 @@
+#!/usr/bin/ruby1.9.2
+
+# ==============================================================================
+# John Kerl sometime in the mid-200x's?
+# Ported to Ruby 2012-07-11.
+# ==============================================================================
+
+@@us = File.basename $0
+
+# ------------------------------------------------------------------------------
+def usage()
+	$stderr.puts " Usage: #{@@us} {count} {command ...}"
+	exit 1
+end
+
+# ------------------------------------------------------------------------------
+$stdout.sync = true
+$stderr.sync = true
+
+usage unless ARGV.length >= 2;
+usage unless ARGV[0] =~ /^[0-9]+$/
+count = ARGV.shift.to_i;
+usage unless count > 0;
+cmd = ARGV.join(' ')
+
+(1..count).each do |i|
+	system(cmd)
+end

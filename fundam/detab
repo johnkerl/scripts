@@ -1,0 +1,36 @@
+#! /usr/bin/perl
+
+use line_term_lib;
+$tab_width = 8;
+if (@ARGV) {
+	if ($ARGV[0] =~ m/^[\/-]/) {
+		$tab_width = $ARGV[0];
+		$tab_width =~ s/^.//;
+		shift @ARGV;
+	}
+}
+
+while ($line = <>) {
+	($line, $term) = split_line_ending($line);
+	my @chars = split //, $line;
+
+	my $output_char_count = 0;
+
+	for my $input_char_count (0 .. $#chars) {
+		my $char= $chars[$input_char_count];
+
+		if ($char eq "\t") {
+			print " ";
+			$output_char_count++;
+			while (($output_char_count % $tab_width) != 0) {
+				print " ";
+				$output_char_count++;
+			}
+		}
+		else {
+			print $char;
+			$output_char_count++;
+		}
+	}
+	print $term;
+}

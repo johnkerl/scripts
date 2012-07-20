@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+
+$usage_string = "Usage: $0 {seconds}\n";
+die $usage_string unless (@ARGV);
+
+foreach $arg (@ARGV) {
+
+	$secs  =     $arg % 60;
+	$arg   = int($arg / 60);
+
+	$mins  =     $arg % 60;
+	$arg   = int($arg / 60);
+
+	$hours =     $arg % 24;
+	$arg   = int($arg / 24);
+
+	$days  =     $arg;
+
+	printf "%ud %uh %um %us\n", $days, $hours, $mins, $secs;
+
+}

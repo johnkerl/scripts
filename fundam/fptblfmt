@@ -1,0 +1,33 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# 2010-03-27
+# kerl.john.r@gmail.com
+# ================================================================
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+import tabutil_m
+
+format    = '%11.7f'
+file_name = '-'
+
+argc = len(sys.argv)
+if argc == 1:
+	pass
+elif argc == 2:
+	format    = sys.argv[1]
+elif argc == 3:
+	format    = sys.argv[1]
+	file_name = sys.argv[2]
+else:
+	print >> sys.stderr, "Usage: %s {format [file name]}" % (sys.argv[0])
+	print >> sys.stderr, "Use \"-\" as file name, or omit, to read from stdin."
+	sys.exit(1)
+
+columns = tabutil_m.float_columns_from_file(file_name)
+tabutil_m.float_columns_to_file(columns, '-', format)

@@ -1,0 +1,110 @@
+#!/usr/bin/ruby -Wall
+
+# ==============================================================================
+# Given a file name, reads the first #-commented line of the file, strips the #
+# off the start of the line, and executes the rest -- with the name of the file
+# added as a final argument.
+#
+# John Kerl 2011-02-10
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+def usage
+    $stderr.puts "Usage: #{$0} [-n] {one or file names ...}"
+    $stderr.puts <<-EOF
+Reads the first #-commented line of each file, stripping the # off the start of
+the line, and executing the rest -- with the name of the file added as a final
+argument.  If more than one file name is specified, the files are executed
+sequentially.  E.g. "#{$0} *.prefs.  With -n, just echoes the command instead
+of executing it."
+    EOF
+    exit 1
+end
+
+# ------------------------------------------------------------------------------
+def main
+	run_it = true
+	if ARGV.length >= 1 and ARGV[0] == '-n'
+		run_it = false
+		ARGV.shift
+	end
+	if ARGV.length < 1
+		usage
+	end
+
+	our_rc = 0
+	ARGV.each do |file_name|
+		rc = do_one_file_name(file_name, run_it)
+		if rc != true
+			our_rc = 1
+		end
+	end
+	exit our_rc
+end
+
+# ------------------------------------------------------------------------------
+def do_one_file_name(file_name, run_it)
+	if ! File.exists?(file_name)
+		$stderr.puts "Can't find \"#{file_name}\"."
+		return false
+	end
+
+	cmd = get_cmd_from_file_name(file_name)
+	if cmd == ""
+		$stderr.puts "Didn't find a hash-commented line in \"#{file_name}\"."
+		return false
+	else
+		file_path = file_name
+		if file_path.match(/^\//).nil? and file_path.match(/^~/).nil?
+			file_path = Dir.pwd + "/" + file_name
+		end
+		if run_it
+			return system(cmd + " " + file_path)
+			# Don't print a message -- let the failed command do that.
+		else
+			puts cmd + " " + file_path
+			return true
+		end
+	end
+end
+
+# ------------------------------------------------------------------------------
+def get_cmd_from_file_name(file_name)
+	cmd = ""
+	File.readlines(file_name).each do |line|
+		# Read only hash-commented line(s).
+		next if line !~ /^#/
+		line.sub!(/^#/, "")
+
+		# The trailing carriage return is not useful to us.
+		line.chomp!
+
+		# If this hash-commented line ends with a backslash, look for another.
+		# Note: this logic has the odd property that the continuations go to
+		# the next hashed line, not the next line in the file.  E.g. if the
+		# file looks like this:
+		#   # /path/to/command -arg -arg \
+		#   data here
+		#   data here
+		#   data here
+		#   # -arg -arg rest of command
+		# then we'll return "/path/to/command -arg -arg -arg -arg rest of
+		# command".
+
+		needs_continuation = false
+		if line =~ /\\$/
+			line.sub!(/\\$/, "")
+			needs_continuation = true
+		end
+
+		# Concatenate continued lines.
+		cmd += line
+
+		break if !needs_continuation
+	end
+	cmd.sub!(/^\s+/, "")
+	return cmd
+end
+
+# ==============================================================================
+main

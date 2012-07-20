@@ -1,0 +1,68 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# 2007-06-28
+# kerl.john.r@gmail.com
+# ================================================================
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+import tabutil_m
+import stats_m
+
+have_stats = False
+argc = len(sys.argv)
+if argc == 1:
+	file_name = '-'
+elif argc == 2:
+	file_name = sys.argv[1]
+elif argc == 3:
+	mean  = float(sys.argv[1])
+	sigma = float(sys.argv[2])
+	have_stats = True
+	file_name = '-'
+elif argc == 4:
+	mean  = float(sys.argv[1])
+	sigma = float(sys.argv[2])
+	have_stats = True
+	file_name = sys.argv[3]
+else:
+	print >> sys.stderr, "Usage: %s {mean} {sigma} [file name]" % (sys.argv[0])
+	print >> sys.stderr, "Or:    %s [file name]" % (sys.argv[0])
+	print >> sys.stderr, "If the file name is omitted, input are taken from stdin."
+	print >> sys.stderr, "If mean and sigma are omitted, statistics are taken from the input data."
+	sys.exit(1)
+
+columns = tabutil_m.float_columns_from_file(file_name)
+
+num_rows = len(columns[0])
+num_cols = len(columns)
+
+if have_stats:
+	means  = [mean]  * num_cols
+	sigmas = [sigma] * num_cols
+else:
+	means  = [0] * num_cols
+	sigmas = [0] * num_cols
+	for j in xrange(0, num_cols):
+		means[j]  = stats_m.find_mean(columns[j])
+		sigmas[j] = stats_m.find_stddev(columns[j], means[j])
+
+means_nsigmas = [0] * num_cols
+means_psigmas = [0] * num_cols
+for j in xrange(0, num_cols):
+	means_nsigmas[j] = means[j] - sigmas[j]
+	means_psigmas[j] = means[j] + sigmas[j]
+
+for j in xrange(0, num_cols):
+	print '$\mu-\sigma$ $\mu$ $\mu+\sigma$ $x_i$',
+print
+
+for i in xrange(0, num_rows):
+	for j in xrange(0, num_cols):
+		print means_nsigmas[j], means[j], means_psigmas[j], columns[j][i]
+	print

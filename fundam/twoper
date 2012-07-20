@@ -1,0 +1,21 @@
+#!/usr/bin/perl -w
+
+# John Kerl
+# kerl.john.r@gmail.com
+# 2006-05-26
+
+$parity = 0;
+while ($line = <>) {
+    chomp $line;
+    print $line;
+    if ($parity) {
+        print "\n";
+    }
+    else {
+        print " ";
+    }
+    $parity = !$parity;
+}
+if ($parity) {
+    print "\n";
+}

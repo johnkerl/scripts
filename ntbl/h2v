@@ -1,0 +1,163 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# We convert from JKH to JKV format as follows:
+# * split on whitespace
+# * print transposed
+# * left-justify all output columns (which were input rows)
+#
+# Please see format-notes.txt in this directory for more information.
+#
+# John Kerl, 2012-03-31
+# ================================================================
+
+@@us     = File.basename($0)
+@@ourdir = File.dirname($0)
+
+require 'getoptlong'
+
+# ================================================================
+def main()
+	$head_count = nil
+	$decode_whitespace = false
+	$encode_whitespace = false
+
+	getopt = GetoptLong.new(
+		[ '-d', '--decode', GetoptLong::NO_ARGUMENT ],
+		[ '-e', '--encode', GetoptLong::NO_ARGUMENT ],
+		[ '-h', '--head',   GetoptLong::REQUIRED_ARGUMENT ]
+	)
+	getopt.each do |opt, arg|
+		case opt
+			when "-d";
+				$decode_whitespace = true
+			when "-e";
+				$encode_whitespace = true
+			when "-h";
+				if arg.match(/^\d+$/)
+					$head_count = arg.to_i
+				else
+					$stderr.puts("#{@@us}:  can't parse \"#{arg}\" " \
+						+ "as non-negative integer.")
+					exit 1
+				end
+				if $head_count < 1
+					$stderr.puts("#{@@us}:  head_count must be >= 1; " \
+						+ "got #{$head_count}.")
+					exit 1
+				end
+		end
+	end
+	filenames = ARGV
+
+	ok = true
+	if filenames.length == 0
+		ok &= do_stdin()
+	else
+		filenames.each{|filename| ok &= do_file(filename)}
+	end
+end
+
+# ----------------------------------------------------------------
+def line_to_fields(input_line)
+	input_line.chomp.split(/\s+/).collect{|field|
+		if $decode_whitespace
+			field.gsub(/%20/, ' ').gsub(/%09/, '\t')
+		else
+			field
+		end
+	}
+end
+
+# ----------------------------------------------------------------
+def get_head_lines_from_handle(handle, head_count)
+	lines = []
+	line_number = 0
+	non_dashes_line_number = 0
+	while (line = handle.gets)
+		line_number += 1
+		unless (line_number == 2) and (line.match(/^[\s-]+$/))
+			non_dashes_line_number += 1
+			lines << line
+		end
+		break if non_dashes_line_number > $head_count
+	end
+	lines
+end
+
+# ----------------------------------------------------------------
+# Non-streaming, since we need to read all lines to find the maximum column
+# widths.
+def do_stdin()
+	lines = []
+	if $head_count.nil?
+		lines = $stdin.readlines
+	else
+		lines = get_head_lines_from_handle($stdin, $head_count)
+	end
+	do_lines(lines)
+	return true
+end
+
+# ----------------------------------------------------------------
+# Non-streaming, since we need to read all lines to find the maximum column
+# widths.
+def do_file(filename)
+	if ! File.exists?(filename)
+		$stderr.puts "Can't find \"#{filename}\"."
+		return false
+	end
+	lines = []
+	if $head_count.nil?
+		lines = File.readlines(filename)
+	else
+		handle = File.new(filename, 'r')
+		lines = get_head_lines_from_handle(handle, $head_count)
+		handle.close
+	end
+	do_lines(lines)
+	return true
+end
+
+# ----------------------------------------------------------------
+def do_lines(lines)
+
+	# Read, split, and store lines, finding maximum field width for each input
+	# row (output column).
+	fields_list = []
+	max_num_cols = 0
+	row_max_widths = {}
+	row_number = 0
+	lines.each_with_index do |input_line, line_number|
+
+		# Omit the dashes line
+		next if (line_number == 1) and (input_line.match(/^[\s-]+$/))
+
+		fields = line_to_fields(input_line)
+		fields_list << fields
+		if $encode_whitespace
+			fields.collect{|field| field.gsub(/ /, '%20').gsub(/\t/, '%09')}
+		end
+		max_num_cols = [max_num_cols, fields.length].max
+		row_max_widths[row_number] = fields.collect{|field|field.length}.max
+		row_number += 1
+	end
+	num_rows = row_number
+
+	# Print transposed
+	for j in (0..(max_num_cols-1)) do
+		transposed_fields = []
+		for i in (0..(num_rows-1)) do
+			cell = fields_list[i][j]
+			cell = "" if cell.nil?
+			transposed_fields << cell.ljust(row_max_widths[i])
+		end
+		puts transposed_fields.join(' ')
+	end
+
+	return true
+end
+
+# ================================================================
+# Top-down programming style, please.
+main()

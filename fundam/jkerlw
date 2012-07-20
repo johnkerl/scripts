@@ -1,0 +1,3 @@
+#!/bin/sh
+
+ps auxxw | grep "^$USER" | dspc

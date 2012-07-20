@@ -1,0 +1,20 @@
+#!/usr/bin/perl -Wall
+use line_term_lib;
+
+while ($line=<>) {
+	($line, $term) = split_line_ending($line);
+	#$line = lc($line);
+	$line =~ s/[\.,;:\*_?!'"\[\]()]//g;
+	@words = split /\s+/, $line;
+	next unless $line =~ m/[a-zA-Z]/;
+	for my $word (@words) {
+		next unless $word =~ m/[a-zA-Z]/;
+		#print "$word";
+		$counts{$word}++;
+	}
+}
+
+for my $key (sort keys %counts) {
+	#printf "%-20s %d%s", $key, $counts{$key}, $term;
+	printf "%7d %s%s", $counts{$key}, $key, $term;
+}

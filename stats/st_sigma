@@ -1,0 +1,31 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# 2007-06-28
+# kerl.john.r@gmail.com
+# ================================================================
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+import tabutil_m
+import stats_m
+
+argc = len(sys.argv)
+if argc == 1:
+	file_name = '-'
+elif argc == 2:
+	file_name = sys.argv[1]
+else:
+	print >> sys.stderr, "Usage: %s {file name}" % (sys.argv[0])
+	sys.exit(1)
+
+farrays = tabutil_m.float_columns_from_file(file_name)
+
+for farray in farrays:
+	mean = stats_m.find_mean(farray)
+	sampstddev = stats_m.find_stddev(farray, mean)
+	print sampstddev

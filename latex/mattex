@@ -1,0 +1,93 @@
+#!/usr/bin/perl -w
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2004/07/29
+#
+# This turns plain ASCII matrices into LaTeX matrices.
+#
+# Sample input:
+#
+#   1  2  3  4
+#   5  6  7  8
+#   8  9 10 11
+#
+# Sample output:
+#
+#   \begin{array}{rrrr}
+#     1 & 2 &  3 &  4 \\
+#     5 & 6 &  7 &  8 \\
+#     8 & 9 & 10 & 11 \\
+#   \end{array}
+#
+# ================================================================
+
+$maxcols = 0;
+$align = "r";
+
+while ((@ARGV >= 1) && ($ARGV[0] =~ m/^-/)) {
+	if ($ARGV[0] eq "-l") {
+		$align = "l";
+	}
+	elsif ($ARGV[0] eq "-c") {
+		$align = "c";
+	}
+	elsif ($ARGV[0] eq "-r") {
+		$align = "r";
+	}
+	else {
+		die "$0:  Unrecognized option \"$ARGV[0]\".\n";
+	}
+	shift @ARGV;
+}
+
+@lines=<>;
+
+for my $line (@lines) {
+	chomp $line;
+	$line =~ s/^\s+//;
+	my @fields = split /\s+/, $line;
+	$maxcols = @fields if (@fields > $maxcols);
+}
+
+for ($j = 0; $j < $maxcols; $j++) {
+	$widths[$j] = 0;
+}
+for my $line (@lines) {
+	chomp $line;
+	$line =~ s/^\s+//;
+	my @fields = split /\s+/, $line;
+	$j = 0;
+	for my $field (@fields) {
+		$len = length($field);
+		$widths[$j] = $len if $len > $widths[$j];
+		$j++;
+	}
+}
+
+$i = 0;
+print "\\left[\\begin{array}{";
+for ($j = 0; $j < $maxcols; $j++) {
+	print "$align";
+}
+print "}\n";
+for my $line (@lines) {
+	chomp $line;
+	$line =~ s/^\s+//;
+
+	my @fields = split /\s+/, $line;
+
+	print "\t";
+	$j = 0;
+	for my $field (@fields) {
+		if ($j > 0) {
+			print " & ";
+		}
+		printf "%*s", $widths[$j], $field;
+		$j++;
+	}
+
+	$i++;
+	print " \\\\\n";
+}
+print "\\end{array}\\right]\n";

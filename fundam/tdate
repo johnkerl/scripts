@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ "$#" -eq 1 ]; then
+    export TZ="$1"
+    if [ "$TZ" = "ny" ]; then export TZ="America/New_York"; fi
+    if [ "$TZ" = "NY" ]; then export TZ="America/New_York"; fi
+fi
+
+echo "\\emph{`date +%c`}"

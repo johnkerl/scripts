@@ -1,0 +1,64 @@
+#!/usr/bin/perl -w
+
+$left = 0;
+$width = -1;
+
+while ((@ARGV >= 1) && ($ARGV[0] =~ m/^-/)) {
+	if ($ARGV[0] eq "-l") {
+		$left = 1;
+	}
+	elsif ($ARGV[0] eq "-r") {
+		$left = 0;
+	}
+	elsif ($ARGV[0] eq "-w") {
+		shift @ARGV;
+		die "$0:  Missing argument to -w.\n" unless @ARGV;
+		$width = $ARGV[0];
+	}
+	else {
+		die "$0:  Unrecognized option \"$ARGV[0]\".\n";
+	}
+	shift @ARGV;
+}
+
+@lines=<>;
+
+if ($width == -1) {
+	$maxwidth = 0;
+	for my $line (@lines) {
+		chomp $line;
+		$line =~ s/^\s+//;
+		my @fields = split /\s+/, $line;
+		for my $field (@fields) {
+			$len = length($field);
+			$maxwidth = $len if $len > $maxwidth;
+		}
+	}
+	$width = $maxwidth;
+}
+
+for my $line (@lines) {
+	chomp $line;
+	$line =~ s/^\s+//;
+	my @fields = split /\s+/, $line;
+	$i = 0;
+	for my $field (@fields) {
+		if ($i > 0) {
+			print " ";
+		}
+		if ($left) {
+			if ($i == (@fields - 1)) {
+				# Avoid trailing spaces
+				print $field;
+			}
+			else {
+				printf "%-*s", $width, $field;
+			}
+		}
+		else {
+			printf "%*s", $width, $field;
+		}
+		$i++;
+	}
+	print "\n";
+}

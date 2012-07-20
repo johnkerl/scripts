@@ -1,0 +1,27 @@
+#! /bin/sh
+# A keystroke-saver for sed -n '{start},{end}p'.
+# Takes line numbers, patterns, etc. as args.
+
+me=`basename $0`
+
+usage () {
+  echo "Usage:  $me {start-line-number} {end-line-number} [file-name]" 1>&2
+  echo "  Prints lines start through end of file-name." 1>&2
+  exit 1
+}
+
+if [ $# = 2 -o $# = 3 ] ; then
+  start_line=$1
+  end_line=$2
+  shift; shift
+  sed -n "$start_line","$end_line"'p'  $@
+elif [ $# -gt 3 ] ; then
+  start_line=$1
+  end_line=$2
+  shift; shift
+  for arg; do
+    sed -n "$start_line","$end_line"'p'  $arg
+  done
+else
+  usage
+fi

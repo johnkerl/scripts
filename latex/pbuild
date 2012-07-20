@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $0 {basename}" 1>&2
+	exit 1
+fi
+
+for name in $*; do
+	dbuild $name && dvips -o $name.ps $name.dvi && ps2pdf $name.ps
+done

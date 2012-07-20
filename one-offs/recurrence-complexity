@@ -1,0 +1,31 @@
+#!/usr/bin/ruby
+
+def A(n)
+	if n <= 1
+		1
+	else
+		1+A(n-1)
+	end
+end
+
+def B(n)
+	if n <= 2
+		1
+	else
+		1+B(n-1)+B(n-2)
+	end
+end
+
+def C(n)
+	if n <= 3
+		1
+	else
+		1+C(n-1)+C(n-2)+C(n-3)
+	end
+end
+
+nmax=10
+nmax = ARGV[0].to_i if ARGV.length == 1
+(1..nmax).each do |n|
+    puts "#{n} #{A(n)} #{B(n)} #{C(n)}"
+end

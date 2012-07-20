@@ -1,0 +1,12 @@
+#!/usr/bin/perl -w
+
+die "Usage: $0 {file name}\n" unless @ARGV == 1;
+
+$name = $ARGV[0];
+chomp $name;
+$name = uc $name;
+$name =~ s/.H$/_H/;
+$name =~ s/.*\///;
+print "#ifndef $name\n";
+print "#define $name\n";
+print "#endif // $name\n";

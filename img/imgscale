@@ -1,0 +1,28 @@
+#!/usr/bin/python -Wall
+
+import sys, Image
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage: %s {fraction, e.g 0.5} {one or more image file names ...}"
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+argc = len(sys.argv)
+if argc < 3:
+	usage()
+fraction = float(sys.argv[1])
+
+for argi in range(2, argc):
+	img_file_name = sys.argv[argi]
+
+	try:
+		im = Image.open(img_file_name)
+		(width, height) = im.size
+		nwidth  = int(fraction*width)
+		nheight = int(fraction*height)
+		im2 = im.resize((nwidth, nheight))
+		im2.save(img_file_name)
+		print '%6d %6d %s' % (nheight, nwidth, img_file_name)
+	except:
+		print "%s: Couldn't read %s." % (sys.argv[0], img_file_name)

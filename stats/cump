@@ -1,0 +1,66 @@
+#!/usr/bin/python -Wall
+
+from __future__ import division
+from math import sqrt
+import sys
+import random
+import stats_m
+
+# ----------------------------------------------------------------
+def print_corrunifs(eta, NY, Nt, Ntherm):
+	s = sqrt((1+eta)/(1-eta))
+	a = 0.5 * (1 - s)
+	b = 0.5 * (1 + s)
+	etac   = 1.0 - eta
+
+	Ys = [0.0] * Nt
+
+	for j in range(0, Nt):
+		Ys[j] = random.uniform(a, b)
+	for k in range(0, Ntherm):
+		for j in range(0, NY):
+			U = random.uniform(a, b)
+			Ys[j] = eta * Ys[j] + etac * U
+
+	for k in range(0, Nt):
+		for j in range(0, NY):
+			U = random.uniform(a, b)
+			Ys[j] = eta * Ys[j] + etac * U
+			print '%11.7f' % (Ys[j]),
+		print
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, 'Usage: %s [eta [NY [Nt [Ntherm]]]]' \
+		% (sys.argv[0])
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+eta = 0.9
+NY = 1
+Nt = 10000
+Ntherm = 1000
+
+argc = len(sys.argv)
+if argc == 1:
+	pass
+elif argc == 2:
+	if sys.argv[1] == '-h':
+		usage()
+	eta  = float(sys.argv[1])
+elif argc == 3:
+	eta  = float(sys.argv[1])
+	NY     = int(sys.argv[2])
+elif argc == 4:
+	eta  = float(sys.argv[1])
+	NY     = int(sys.argv[2])
+	Nt     = int(sys.argv[3])
+elif argc == 5:
+	eta  = float(sys.argv[1])
+	NY     = int(sys.argv[2])
+	Nt     = int(sys.argv[3])
+	Ntherm = int(sys.argv[4])
+else:
+	usage()
+
+print_corrunifs(eta, NY, Nt, Ntherm)

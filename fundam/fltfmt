@@ -1,0 +1,86 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2009-08-27 :)
+# ================================================================
+
+import sys
+import re
+import sackmat_m
+
+default_format = '%11.7f'
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, 'Usage: %s [-fmt newfmt] [numbers ...]' \
+		% (sys.argv[0])
+	print >> sys.stderr, '  Default format is %s.' % (default_format)
+	print >> sys.stderr, '  Newfmt can be %11.7f, %9.6e, etc.'
+	print >> sys.stderr, \
+'  If numbers are on the command line, they are reformatted and printed out;'
+	print >> sys.stderr, \
+'  otherwise, numbers are read from stdin, reformatted, and printed out.'
+	print >> sys.stderr, \
+'  If multiple formats are specified, e.g. %s -fmt \'%%.3f %%.9e\', they are ' \
+% (sys.argv[0])
+	print >> sys.stderr, \
+'  applied to the number cyclically.'
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+# Examples:
+#
+#        0 1 2 3
+# pyfltfmt 1.2 3.4 5.6
+#
+#        0    1      2 3 4 5
+# pyfltfmt -fmt %11.7f 1.2 3.4 5.6
+
+fmts = [default_format]
+argc = len(sys.argv)
+argb = 1
+if argc >= 2:
+	if sys.argv[1] == '-h' or sys.argv[1] == '--help':
+		usage()
+	if argc == 2 and sys.argv[1] == '-fmt':
+		usage() # Need another argument.
+if argc >= 3:
+	if sys.argv[1] == '-fmt':
+		# xxx to list ... re.split?
+		string = sys.argv[2]
+		string = re.sub(r'^\s+', '', string)
+		string = re.sub(r'\s+$', '', string)
+		fmts   = re.split(r'\s+', string)
+		argb = 3
+
+num_fmts = len(fmts)
+
+if argb < argc: # Read from the command line
+	number_i = 0
+	for argi in range(argb, argc):
+		string = sys.argv[argi]
+		try:
+			number = float(sys.argv[argi])
+		except:
+			print >> sys.stderr, "Couldn't read \"%s\" as float." % (string)
+			sys.exit(1)
+		print fmts[number_i % num_fmts] % number,
+		number_i += 1
+	print
+
+else: # Read from stdin
+	while True:
+		line = sys.stdin.readline()
+		if line == '':
+			break
+		# Call row_vector_from_string one line at a time, rather than using
+		# sackmat's read_matrix -- that would make the code smaller, but
+		# would not allow ragged input, which I do want to allow here.
+		numbers = sackmat_m.row_vector_from_string(line, float)
+		number_i = 0
+		for number in numbers:
+			print fmts[number_i % num_fmts] % number,
+			number_i += 1
+		print

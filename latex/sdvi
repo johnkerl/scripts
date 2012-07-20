@@ -1,0 +1,4 @@
+#! /bin/sh
+
+xdvi -s 4 -expert $@ &
+#$HOME/bin/mp-xdvi/w2 -s 7 -expert -bg white $@ &

@@ -1,0 +1,67 @@
+#!/usr/bin/ruby1.9.2
+
+# ==============================================================================
+# John Kerl
+# Written in Perl sometime in the 1990s ... ported to Ruby 2012-06-12.
+# Usage: chop [-200] filename
+# Or:    chop [-200] filename1 filename2
+# Or:    somecmd | chop [-200]
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Ruby stty size ... found on the web.
+TIOCGWINSZ = 0x5413
+def get_terminal_width
+	buf = [0,0,0,0].pack("SSSS")
+	rows, cols = 25, 80 # Default
+	handle = File.open("/dev/tty", "r")
+	if handle.ioctl(TIOCGWINSZ, buf) >= 0 then
+		# the other two are rows pixels & col pixels
+		rows, cols= buf.unpack("SSSS")[0..1]
+	end
+	handle.close
+	return cols
+end
+
+# ==============================================================================
+# Default chop width is terminal width.
+chop_width = 80
+use_terminal_width = true
+
+if ARGV.length > 0
+	if ARGV[0] =~ /^-/
+		chop_width = ARGV.shift[1..-1].to_i
+		use_terminal_width = false
+	end
+else
+	chop_width = get_terminal_width
+end
+
+# If they want width 80, they get width 80.  Otherwise we use terminal width,
+# and we should recompute that when the window is resized.
+recompute_terminal_width = false
+Signal.trap("SIGWINCH") { recompute_terminal_width = true }
+
+# Control-C handler while we're at it:
+Signal.trap("SIGINT") { puts ; exit 1 }
+
+# "ARGF.each do |line|" is like Perl's line=<>: if there are arguments on the
+# command line then they're processed in turn; else, stdin is read.
+ARGF.each do |line|
+
+	if (recompute_terminal_width == true) && (use_terminal_width == true)
+		chop_width = get_terminal_width
+		recompute_terminal_width == false
+	end
+
+	line.chomp!
+	len = line.length
+	line = line[0..(chop_width-1)] if len >= chop_width
+
+	begin
+		puts line
+	rescue Errno::EPIPE
+		# E.g. we're piped to head.  Don't complain.
+		exit 0
+	end
+end

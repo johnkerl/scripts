@@ -1,0 +1,26 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# 2007-06-28
+# kerl.john.r@gmail.com
+# ================================================================
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+import sackmat_m
+import stats_m
+from math import sqrt
+
+argc = len(sys.argv)
+if (argc != 2):
+	print >> sys.stderr, "Usage: %s {file name}" % (sys.argv[0])
+	sys.exit(1)
+
+farray = sackmat_m.read_column_vector(float, sys.argv[1])
+
+sampvar = stats_m.find_sampvar(farray)
+print sampvar, sqrt(sampvar)

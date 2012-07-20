@@ -1,0 +1,137 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2012-07-04
+# ================================================================
+
+# ----------------------------------------------------------------
+def main
+
+	nmax = 10
+	nmax = ARGV[0].to_i if ARGV.length == 1
+
+	#(0..10).each { |k| puts "#{k} #{fact(k)}" }
+
+	#(0..10).each { |k| puts "#{k} #{binc(10,k)}" }
+
+	#(1..10).each do |n|
+	#	(0..n).each { |k| puts "#{n} #{k} #{binc(n,k)}" }
+	#	puts
+	#end
+
+	#(1..10).each do |n|
+	#	(0..n).each { |k| puts "#{n} #{k} #{bincf(n,k, method(:fk))}" }
+	#	puts
+	#end
+
+	#(1..10).each { |n| puts "#{n} #{sumbincf(n, method(:fkfact), true)}" }
+	#(1..10).each { |n| puts "#{n} #{sumbincf(n, method(:fko), true)}" }
+
+	puts "n v1 vk vnk vko vknk vkfact vk1fact vk2fact vk3fact"
+	(1..nmax).each do |n|
+		v1      = sumbincf(n, method(:f1))
+		vk      = sumbincf(n, method(:fk))
+		vnk     = sumbincf(n, method(:fnk))
+		vko     = sumbincf(n, method(:fko))
+		vknk    = sumbincf(n, method(:fknk))
+		vkfact  = sumbincf(n, method(:fkfact))
+		vk1fact = sumbincf(n, method(:fk1fact))
+		vk2fact = sumbincf(n, method(:fk2fact))
+		vk3fact = sumbincf(n, method(:fk3fact))
+		puts "#{n} #{v1} #{vk} #{vnk} #{vko} #{vknk} #{vkfact} #{vk1fact} #{vk2fact} #{vk3fact}"
+	end
+
+end
+
+# ----------------------------------------------------------------
+def sumbincf(n, f, verbose=false)
+	sum = 0
+	(0..n).each do |k|
+		b = binc(n, k)
+		v = f.call(n, k)
+		puts "-- n=#{n} k=#{k} b=#{b} v=#{v}" if verbose
+		sum += b * v
+	end
+	puts if verbose
+	sum
+end
+
+# ----------------------------------------------------------------
+def binc(n, k)
+	return 0 if k > n
+	return 0 if k < 0
+	k = n - k if k > n/2
+
+	rv = 1;
+	j = 0
+	while j <= k-1
+		rv *= n - j;
+		rv /= j + 1;
+		j += 1
+	end
+	return rv
+end
+
+# ----------------------------------------------------------------
+def fact(n)
+	return 0 if n < 0
+	prod = 1
+	while n > 0
+		prod *= n
+		n -= 1
+	end
+	prod
+end
+
+# ----------------------------------------------------------------
+def f1(n, k)
+	1
+end
+
+def fk(n, k)
+	k
+end
+
+def fko(n, k)
+	if k == 0
+		1
+	else
+		# n = 5:
+		# k = 0: 1           | n!/5!
+		# k = 1: 5           | n!/4!
+		# k = 2: 5*4         | n!/3!
+		# k = 3: 5*4*3       | n!/2!
+		# k = 4: 5*4*3*2     | n!/1!
+		# k = 5: 5*4*3*2*1   | n!/0!
+		fact(n)/fact(n-k)
+	end
+end
+
+def fnk(n, k)
+	n-k
+end
+
+def fknk(n, k)
+	k*(n-k)
+end
+
+def fkfact(n, k)
+	fact(k)
+end
+
+def fk1fact(n, k)
+	fact(k+1)
+end
+
+def fk2fact(n, k)
+	fact(k+2)
+end
+
+def fk3fact(n, k)
+	fact(k+3)
+end
+
+# ================================================================
+main()

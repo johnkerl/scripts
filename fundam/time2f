@@ -1,0 +1,47 @@
+#!/usr/bin/python -Wall
+
+import sys, pylab, time, datetime
+
+# ----------------------------------------------------------------
+# Accept the following:
+# 20090102 14:30:00
+# 20090102 14:30:00.000
+# 20090102-14:30:00
+# 20090102-14:30:00.000
+# http://docs.python.org/library/time.html
+
+def time_string_to_pylab_float_time(string):
+	pieces = string.split('.')
+	date_and_time_part = pieces[0]
+	time_struct = date_and_time_part_to_time_struct(date_and_time_part)
+	float_time = pylab.date2num(time_struct)
+	if len(pieces) > 1:
+		sec_frac = float('.' + pieces[1])
+	return float_time + sec_frac / 24 / 60 / 60
+
+def date_and_time_part_to_time_struct(date_and_time_part):
+	fmts = ['%Y%m%d %H:%M:%S',
+		'%Y%m%d-%H:%M:%S']
+	for fmt in fmts:
+		try:
+			time_struct = datetime.datetime.strptime(date_and_time_part, fmt)
+			return time_struct
+		except:
+			pass
+
+	print >> sys.stderr, "Couldn't parse \"%s\" as date." % (date_and_time_part)
+	print >> sys.stderr, "Tried formats:",
+	for fmt in fmts:
+		print >> sys.stderr, fmt,
+	print
+	sys.exit(1)
+
+# ================================================================
+for dts in ['20090102-00:00:00.000',
+'20090102-00:00:00.001',
+'20090102-00:00:00.010',
+'20090102-00:00:00.100',
+'20090102-00:00:01.000',
+'20090102-00:01:00.000',
+'20090102-01:00:00.000']:
+	print '%s %.15lf' % (dts, time_string_to_pylab_float_time(dts))

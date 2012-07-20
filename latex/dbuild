@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $0 {basename}" 1>&2
+	exit 1
+fi
+
+for name in $*; do
+	latex $name
+done

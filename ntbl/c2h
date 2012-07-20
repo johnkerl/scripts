@@ -1,0 +1,195 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# We convert from CSV to JKH format as follows:
+# * replace space/tab with %20/%09
+# * split on commas
+# * replace "" with "_"
+# * print a dashes line below the header (as new line 2)
+# * optionally left-justify all columns
+#
+# Please see format-notes.txt in this directory for more information.
+#
+# John Kerl, 2012-03-31
+# ================================================================
+
+@@us     = File.basename($0)
+@@ourdir = File.dirname($0)
+
+require 'getoptlong'
+
+# ================================================================
+def main()
+	filenames = []
+	$align = "left"
+	$encode_whitespace = false
+
+	getopt = GetoptLong.new(
+		[ '-l', '--left',    GetoptLong::NO_ARGUMENT ],
+		[ '-n', '--noalign', GetoptLong::NO_ARGUMENT ],
+		[ '-e', '--encode',  GetoptLong::NO_ARGUMENT ],
+		[ '-h', '--help',    GetoptLong::NO_ARGUMENT ]
+	)
+	getopt.each do |opt, arg|
+		case opt
+			when "-l"; $align = "left"
+			when "-n"; $align = "none"
+			when "-e"; $encode_whitespace = true
+			when "-h"; puts "help"
+		end
+	end
+	filenames = ARGV
+
+	ok = true
+	if filenames.length == 0:
+		ok &= $align == "left" ?  do_stdin_aligned() : do_stdin_non_aligned()
+	else
+		for filename in filenames
+			ok &= $align == "left" ? do_file_aligned(filename) : \
+				do_file_non_aligned(filename)
+		end
+	end
+
+	exit ok ? 0 : 1
+end
+
+# ----------------------------------------------------------------
+# Encode space/tab as hexadecimal ASCII.
+# Decode commas from hexadecimal ASCII.
+def line_to_fields(input_line)
+	sub = nil
+	if $encode_whitespace
+		sub = input_line.chomp.gsub(/ /, "%20").gsub(/\t/, "%09")
+	else
+		sub = input_line.chomp
+	end
+	sub.split(/,/).collect {
+		|field| field == "" ? "_" : field.gsub(/%2c/, ',')
+	}
+end
+
+# ----------------------------------------------------------------
+def do_line_non_aligned(input_line, is_header)
+	fields = line_to_fields(input_line)
+	puts fields.join(' ')
+	if is_header # Print the dashes line.
+		puts fields.collect{|field| field.gsub(/./, '-')}.join(' ')
+	end
+end
+
+# ----------------------------------------------------------------
+# Streaming
+def do_stdin_non_aligned()
+	$stdin.readlines().each_with_index do |input_line, line_number|
+		do_line_non_aligned(input_line, line_number == 0)
+	end
+	return true
+end
+
+# ----------------------------------------------------------------
+# Streaming
+
+def do_file_non_aligned(filename)
+	if ! File.exists?(filename)
+		$stderr.puts "Can't find \"#{filename}\"."
+		return false
+	end
+	File.readlines(filename).each_with_index do |input_line, line_number|
+		do_line_non_aligned(input_line, line_number == 0)
+	end
+	return true
+end
+
+# ----------------------------------------------------------------
+# Non-streaming, since we need to read all lines to find the maximum column
+# widths.
+def do_stdin_aligned()
+	do_lines_aligned($stdin.readlines)
+	return true
+end
+
+# ----------------------------------------------------------------
+# Non-streaming, since we need to read all lines to find the maximum column
+# widths.
+def do_file_aligned(filename)
+	if ! File.exists?(filename)
+		$stderr.puts "Can't find \"#{filename}\"."
+		return false
+	end
+	do_lines_aligned(File.readlines(filename))
+	return true
+end
+
+# ----------------------------------------------------------------
+def do_lines_aligned(lines)
+
+	# Read, split, and store lines
+	header_columns = []
+	body_columns_list = []
+	lines.each_with_index do |input_line, line_number|
+		if line_number == 0
+			header_columns = line_to_fields(input_line)
+		else
+			body_columns_list << line_to_fields(input_line)
+		end
+	end
+
+	# Find maximum widths for each column.
+	column_widths = {}
+	header_columns.each_with_index do |column, column_number|
+		column_widths[column_number] = column.length
+	end
+
+	body_columns_list.each do |body_columns|
+		body_columns.each_with_index do |column, column_number|
+			maxwid = column_widths[column_number]
+			curwid = column.length
+			if maxwid.nil?
+				column_widths[column_number] = curwid
+			else
+				if curwid > maxwid
+					column_widths[column_number] = curwid
+				end
+			end
+		end # end loop over columns in line
+	end # end loop over lines in file
+
+	# Print lines aligned:
+
+	# -- header line
+	column_number = 0
+	puts header_columns.collect { |column|
+		padded = column.ljust(column_widths[column_number])
+		column_number += 1
+		padded
+	}.join(' ')
+
+	# -- dashes line
+	column_number = 0
+	puts header_columns.collect { |column|
+		padded = column.ljust(column_widths[column_number])
+		column_number += 1
+		padded.gsub(/./, '-')
+	}.join(' ')
+
+	# -- body lines
+	body_columns_list.each do |body_columns|
+		column_number = 0
+		begin
+			puts body_columns.collect { |column|
+				padded = column.ljust(column_widths[column_number])
+				column_number += 1
+				padded
+			}.join(' ')
+		rescue Errno::EPIPE # E.g. we're piped to head
+			exit 0
+		end
+
+	end # end loop over lines in file
+
+	return true
+end
+
+# ================================================================
+# Top-down programming style, please.
+main()

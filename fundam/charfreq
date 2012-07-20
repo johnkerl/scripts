@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+
+for ($x = 'a'; $x lt 'z'; $x++) {
+	$counts{$x} = 0;
+}
+$counts{'z'} = 0;
+
+while ($line=<>) {
+	chomp $line;
+	$line = lc($line);
+	@chars = split //, $line;
+	for my $x (@chars) {
+		$counts{$x}++;
+	}
+}
+
+for ($x = 'a'; $x lt 'z'; $x++) {
+	printf "%s: %5d\n", $x, $counts{$x};
+}
+printf "%s: %5d\n", $x, $counts{$x};

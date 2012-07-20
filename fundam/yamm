@@ -1,0 +1,951 @@
+#!/usr/bin/perl -w
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2002/05/04
+# ================================================================
+#                     yamm makefile generator
+#
+# This is a simple and simple-minded Perl script to automate the onerous task
+# of keeping makefiles up to date.  (That is, yamm is yet another make-make.)
+#
+# Features:
+# 
+# * The most tedious part of creating correct makefiles is updating all the
+#   source-file dependencies -- i.e. knowing which headers are included,
+#   directly or indirectly, by each source file, so that make knows when it
+#   needs to recompile a source file and when to leave it alone.  This
+#   program's primary purpose is to generate those dependency lists
+#   automatically.
+#
+# * yamm may be used for native compilation or cross compilation.  All it needs
+#   to be able to do is find the source files, search them for #include lines,
+#   and know the name of the compiler, assembler and linker.
+#
+# * yamm is known to work fine on Windows, Cygwin, Solaris and Linux.  It
+#   should work anywhere there is a Perl.
+#
+# Limitations:
+#
+# * Object files go into a single directory.  So, if you have, for example,
+#   subdir1/myfile.c and subdir2/myfile.c, yamm will generate a makefile which
+#   places their .o's into projname_objs/myfile.o.  The second will overwrite
+#   the first and you will get link failures of the form "symbol xyz undefined",
+#   where xyz is, say, a function in subdir1/myfile.c.
+#
+# * There are no per-file options.  E.g. there is currently no provision to
+#   generate a makefile which compiles one source file in the project with
+#   -g, and another with -O3.  However, you can always hand-edit the resulting
+#   makefile if you wish.
+#
+# * Only one executable is supported per .mki.  For this reason, I usually
+#   have yamm generate a makefile which is invoked by a small, hand-written
+#   master makefile.  For example:
+#
+# ----------------------------------------------------------------
+#   build:
+#           make -f prog1.mk build
+#           make -f prog2.mk build
+#           make -f prog3.mk build
+#
+#   mk:
+#           yamm prog1.mki
+#           yamm prog2.mki
+#           yamm prog2.mki
+#
+#   install: build
+#           make -f prog1.mk install
+#           make -f prog2.mk install
+#           make -f prog3.mk install
+#
+#   clean:
+#           make -f prog1.mk clean
+#           make -f prog2.mk clean
+#           make -f prog3.mk clean
+# ================================================================
+
+
+# ================================================================
+# Input format (.mki extension) is one source file per line.  Options
+# begin with a ":".
+#
+# ----------------------------------------------------------------
+# Sample input file (sample.mki):
+#
+# # This is a comment
+# :var=UTILS=../utils
+# :include_dir=.              # Results in -I. on compile lines
+# :include_dir=$(UTILS)       # Results in -I$(UTILS) on compile lines
+# :define=DEBUG               # Results in -DDEBUG on compile lines
+# :define=VERBOSITY=3         # Results in -DVERBOSITY=3 on compile lines
+# 
+# :builder=.c=gcc -Wall -Werror -O3
+# :linker=gcc
+# :misc_lflag=-lm             # Results in -lm on link line.
+# :make_file_name=Makefile
+#
+# $(UTILS)/phi.c              # Source files.
+# $(UTILS)/gcd.c
+# $(UTILS)/power.c
+# $(UTILS)/tokenize.c
+# $(UTILS)/factorize.c
+# $(UTILS)/primes16.c
+# ./main.c
+# ----------------------------------------------------------------
+#
+# Options (assuming input is named projname.mki):
+
+# Name                 Default           Use
+# ------------------   ----------------  -----------------
+# :path_sep            Taken from $^O    Path separator
+# :make_file_name      projname.mk       Output makefile
+# :exe_name            projname          -o for exe in makefile
+# :object_dir          projname_objs     -o for objs in makefile
+# :builder             .c=>gcc, .S=>as   Compilers/assemblers
+# :linker              gcc               Linker
+# :var                 None              For your convenience
+# :include_dir         None              -I's in makefile
+# :lib_dir             None              -L's in makefile
+# :define              None              -D's in makefile
+# :misc_cflag          Empty string      Misc. compile flags (e.g. -g)
+# :misc_lflag          Empty string      Misc. compile flags (e.g. -lm)
+# :pre_build_command   None              E.g. invoke a submake
+# :post_build_command  None              E.g. objdump -d, nm > map
+# :install_dir         None              For install: target
+# ================================================================
+
+# ================================================================
+# To do:
+# * Object-file extension:  currently assuming ".o".  Change to use ".o"
+#   as default, overrideable (e.g. to ".obj") with a .mki line.
+# * #include for nested mki's
+# ================================================================
+
+
+# ================================================================
+# Copyright (c) 2004 John Kerl.
+# kerl.john.r@gmail.com
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to permit
+# persons to whom the Software is furnished to do so, subject to the
+# following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+# NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+# USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+# ================================================================
+
+
+# ================================================================
+# "gl" is for global.
+my $version_string =
+	"# yamm v1.0\n" .
+	"# John Kerl\n" .
+	"# 2002/05/04\n";
+my $yamm_spec_extension = ".mki";
+
+my %deps_cache = ();
+my $max_depth = 16;
+
+my $gl_path_sep;
+
+my $gl_my_deps = 1;
+my $gl_project_name;
+my $gl_make_file_name;
+my $gl_exe_name;
+my $gl_is_dot_a;
+my @gl_source_files;
+my $gl_object_dir;
+my %gl_builders;
+my $gl_linker;
+my $gl_read_env_vars = 1;
+
+my @gl_vars;
+my @gl_env_vars;
+my @gl_include_dirs;
+my @gl_lib_dirs;
+my @gl_defines;
+my @gl_misc_cflags;
+my @gl_misc_lflags;
+my @gl_extra_deps;
+
+my @gl_pre_build_commands;
+my @gl_post_build_commands;
+my @gl_install_dirs;
+
+my $gl_in_windows = 0;
+
+main();
+
+# ----------------------------------------------------------------
+sub main
+{
+	my $rc = 0;
+	my $do_list = 0;
+
+	usage() unless @ARGV;
+	usage() if $ARGV[0] eq "--help";
+
+	if ($^O eq "MSWin32") {
+		# Need a pair of backslashes in the makefile;
+		# need to type in two pairs here to get a single
+		# pair in the string.
+		$gl_in_windows = 1;
+		$gl_path_sep = "\\\\";
+	}
+	else {
+		$gl_in_windows = 0;
+		$gl_path_sep = "/";
+	}
+
+	for my $arg (@ARGV) {
+		if ($arg eq "-l") {
+			$do_list = 1;
+		}
+		elsif ($arg eq "-x") {
+			$gl_path_sep = "/";
+		}
+
+		elsif ($arg eq "-m") {
+			$gl_my_deps = 1;
+		}
+		elsif ($arg eq "-nm") {
+			$gl_my_deps = 0;
+		}
+
+		elsif ($arg eq "-e") {
+			$gl_read_env_vars = 1;
+		}
+		elsif ($arg eq "-ne") {
+			$gl_read_env_vars = 0;
+		}
+
+		elsif ($arg eq "-xygwin") {
+			# Under Xygwin, $^O reports "MSWin32" but we really
+			# want Unixisms like forward slashes and "cp".
+			$gl_in_windows = 0;
+			$gl_path_sep = "/";
+		}
+		else {
+			$rc += handle_one_spec_file($arg, $do_list);
+		}
+	}
+
+	exit($rc);
+}
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die <<"@@@"
+Usage: $0 [command-line options] {name}.mki
+Command-line options:
+  -l:       Echo .mki options to the screen.
+  -m:       Use yamm's own logic to produce dependencies (default).
+  -nm:      Use the compiler to produce dependencies.
+  -xygwin:  Create a makefile for use within Xygwin (or Cygwin).
+.mki files contain option lines and source-file names.  .mki option lines
+are illustrated by the following examples:
+  :path_sep=/                Default / for Un*x, \\ for Windows
+  :make_file_name=Makefile   Default is {name}.mk)
+  :exe_name=myproggie        Default is {name} on Un*x, {name}.exe on Windows)
+  :object_dir=/tmp/common    Default is ./{name}_objs
+  :builder=.c=zcc            Default is gcc for .c and .cpp, as for .S
+  :linker=snazzlink          Default is gcc
+  :var=VARNAME=varvalue      For variables within the .mki file
+  :include_dir=../someinc    To create -I's in the yamm-generated makefile
+  :lib_dir=../../somelib     To create -L's in the yamm-generated makefile
+  :define=DEFNAME=defvalue   To create -D's in the yamm-generated makefile
+  :misc_cflag=-O3
+  :misc_lflag=-lm -lstdc++
+  :pre_build_command=mkdir -p /tmp/stuff
+  :post_build_command=hex myproggie > myproggie.hex
+  :install_dir=\$HOME/bin
+Please view the yamm Perl script for more information.
+@@@
+}
+
+# ----------------------------------------------------------------
+sub handle_one_spec_file
+{
+	my ($spec_file, $do_list) = @_;
+	my $rc = 0;
+	my $line;
+	my $line_no = 0;
+
+	reset_parameters();
+
+	my $spec_base = get_base_name($spec_file);
+	my $spec_ext = get_extension($spec_file);
+	if ($spec_ext ne $yamm_spec_extension) {
+		print "$0:  Sorry, will not process spec files not ending in "
+		. "\"$yamm_spec_extension\".\n";
+		print "Got spec file name \"$spec_file\".\n";
+		return 1;
+	}
+	$gl_project_name = strip_extension($spec_file);
+	$gl_object_dir = "." . $gl_path_sep . $gl_project_name . "_objs";
+	$gl_make_file_name = "." . $gl_path_sep . $gl_project_name . ".mk";
+	$gl_exe_name = "." . $gl_path_sep . $gl_project_name;
+
+	if (!open(SPEC_HANDLE, $spec_file)) {
+		print "Couldn't open spec file \"$spec_file\": $!.\n";
+		print "Please run $0 --help for usage information.\n";
+		return 1;
+	}
+
+	while ( ($line=<SPEC_HANDLE>) ) {
+		chomp $line;
+		$line_no++;
+
+		$line =~ s/#.*//;
+		$line =~ s/^\s*//;
+		$line =~ s/\s*$//;
+		next if ($line =~ m/^\s*$/);
+
+		if ($line =~ m/^:/) {
+			$line =~ s/^://;
+			if (!handle_option_line($line, $line_no, $spec_file)) {
+				return 1;
+			}
+		}
+		else {
+			push @gl_source_files, $line;
+		}
+	}
+	close(SPEC_HANDLE);
+
+	if ($do_list) {
+		report_parameters();
+	}
+
+	if (!generate_makefile($do_list, $spec_file)) {
+		return 1;
+	}
+
+	return $rc;
+}
+
+# ----------------------------------------------------------------
+sub handle_option_line
+{
+	my ($line, $line_no, $spec_file) = @_;
+	my ($lhs, $rhs) = split /=/, $line, 2;
+
+	if (!$lhs) {
+		print "$0: Empty option line <<$line>> in file " .
+			"\"$spec_file\" at line $line_no.\n";
+		return 0;
+	}
+
+	if (!$rhs) {
+		print "$0: Empty right-hand side in line <<$line>> in file " .
+			"\"$spec_file\" at line $line_no.\n";
+		return 0;
+	}
+
+	if ($lhs eq "path_sep") {
+		$gl_path_sep = $rhs;
+		if ($gl_path_sep eq "\\") {
+			$gl_path_sep = "\\\\";
+		}
+	}
+	elsif ($lhs eq "make_file_name") {
+		$gl_make_file_name = $rhs;
+	}
+	elsif ($lhs eq "exe_name") {
+		$gl_exe_name = $rhs;
+	}
+	elsif ($lhs eq "is_dot_a") {
+		$gl_is_dot_a = 1;
+	}
+	elsif ($lhs eq "object_dir") {
+		$gl_object_dir = $rhs;
+	}
+	elsif ($lhs eq "builder") {
+		my ($extension, $builder) = split /=/, $rhs, 2;
+		if (!$extension || !$builder) {
+			print "$0: Malformed line <<$line>> in file " .
+				"\"$spec_file\" at line $line_no.\n";
+			print
+			"Expected something of the form \":builder=.c=gcc\"\n";
+			return 0;
+		}
+		$gl_builders{$extension} = $builder;
+	}
+	elsif ($lhs eq "linker") {
+		$gl_linker = $rhs;
+	}
+	elsif ($lhs eq "var") {
+		my ($temp1, $temp2) = split /=/, $rhs, 2;
+		if (!$temp1 || !$temp2) {
+			print "$0: warning: empty variable \"$rhs\" at line "
+				. "$line_no of $spec_file.\n"
+		}
+		push @gl_vars, $rhs;
+	}
+	elsif ($lhs eq "include_dir") {
+		push @gl_include_dirs, $rhs;
+	}
+	elsif ($lhs eq "lib_dir") {
+		push @gl_lib_dirs, $rhs;
+	}
+	elsif ($lhs eq "define") {
+		push @gl_defines, $rhs;
+	}
+	elsif ($lhs eq "misc_cflag") {
+		push @gl_misc_cflags, $rhs;
+	}
+	elsif ($lhs eq "misc_lflag") {
+		push @gl_misc_lflags, $rhs;
+	}
+	elsif ($lhs eq "extra_dep") {
+		push @gl_extra_deps, $rhs;
+	}
+	elsif ($lhs eq "pre_build_command") {
+		push @gl_pre_build_commands, $rhs;
+	}
+	elsif ($lhs eq "post_build_command") {
+		push @gl_post_build_commands, $rhs;
+	}
+	elsif ($lhs eq "install_dir") {
+		push @gl_install_dirs, $rhs;
+	}
+
+	else {
+		print "$0: Unrecognized option <<$line>> in file " .
+			"\"$spec_file\" at line $line_no.\n";
+		return 0;
+	}
+
+	return 1;
+}
+
+# ----------------------------------------------------------------
+sub generate_makefile
+{
+	my ($verbose, $spec_file) = @_;
+	my $compile_flags = "-c"; # xxx temp hack; varies per compiler
+	my $link_flags = "";
+	my $walker;
+	my @object_files = ();
+
+	if (!open(MAKE_FILE_HANDLE, ">".$gl_make_file_name)) {
+		print "$0:  Couldn't open \"$gl_make_file_name\" for write.\n";
+		return 0;
+	}
+
+	my $compile_arg_string = "";
+	for $walker (@gl_include_dirs) {
+		$compile_arg_string .= " -I$walker";
+	}
+	for $walker (@gl_defines) {
+		$compile_arg_string .= " -D$walker";
+	}
+	for $walker (@gl_misc_cflags) {
+		$compile_arg_string .= " $walker";
+	}
+
+	my $time =localtime();
+	print MAKE_FILE_HANDLE
+	"# ================================================================\n";
+	print MAKE_FILE_HANDLE "# Makefile for project $gl_project_name\n";
+	print MAKE_FILE_HANDLE "# Automatically generated from \"",
+		$spec_file, "\" at $time\n";
+	print MAKE_FILE_HANDLE "\n";
+	print MAKE_FILE_HANDLE $version_string;
+	print MAKE_FILE_HANDLE
+	"# ================================================================\n";
+	print MAKE_FILE_HANDLE "\n";
+
+	for my $var (@gl_vars) {
+		print MAKE_FILE_HANDLE "$var\n";
+	}
+	print MAKE_FILE_HANDLE "\n";
+
+	print MAKE_FILE_HANDLE "INCLUDE_DIRS =";
+	for my $walker (@gl_include_dirs) {
+		print MAKE_FILE_HANDLE " -I" , $walker;
+	}
+	print MAKE_FILE_HANDLE "\n";
+
+	print MAKE_FILE_HANDLE "LIB_DIRS =";
+	for my $walker (@gl_lib_dirs) {
+		print MAKE_FILE_HANDLE " -L" , $walker;
+	}
+	print MAKE_FILE_HANDLE "\n";
+
+	print MAKE_FILE_HANDLE "DEFINES =";
+	for my $walker (@gl_defines) {
+		print MAKE_FILE_HANDLE " -D" , $walker;
+	}
+	print MAKE_FILE_HANDLE "\n";
+
+	print MAKE_FILE_HANDLE "MISC_CFLAGS =";
+	for my $walker (@gl_misc_cflags) {
+		print MAKE_FILE_HANDLE " " , $walker;
+	}
+	print MAKE_FILE_HANDLE "\n";
+
+	print MAKE_FILE_HANDLE "MISC_LFLAGS =";
+	for my $walker (@gl_misc_lflags) {
+		print MAKE_FILE_HANDLE " " , $walker;
+	}
+	print MAKE_FILE_HANDLE "\n";
+
+	print MAKE_FILE_HANDLE "EXTRA_DEPS =";
+	for my $walker (@gl_extra_deps) {
+		print MAKE_FILE_HANDLE " " , $walker;
+	}
+	print MAKE_FILE_HANDLE "\n";
+
+	print MAKE_FILE_HANDLE "COMPILE_FLAGS = ",
+		$compile_flags,
+		" \$(INCLUDE_DIRS) \$(DEFINES) \$(MISC_CFLAGS)\n";
+
+	print MAKE_FILE_HANDLE "LINK_FLAGS = ",
+		$link_flags,
+		" \$(LIB_DIRS) \$(MISC_LFLAGS)\n";
+
+	print MAKE_FILE_HANDLE "\n";
+
+	print MAKE_FILE_HANDLE "build: mk_obj_dir $gl_exe_name\n";
+	print MAKE_FILE_HANDLE "\n";
+	print MAKE_FILE_HANDLE "mk_obj_dir:\n";
+	if ($gl_in_windows) {
+		print MAKE_FILE_HANDLE "\t@-mkdir $gl_object_dir\n";
+	}
+	else {
+		print MAKE_FILE_HANDLE "\t@-mkdir -p $gl_object_dir\n";
+	}
+	print MAKE_FILE_HANDLE "\n";
+
+	my $i = 0;
+	my $n = @gl_source_files;
+	for my $source_file (@gl_source_files) {
+		$i++;
+
+		printf "\r%3.f%%", 100 * $i / $n unless $verbose;
+
+		my $builder = find_builder($source_file);
+		if (!$builder) {
+			return 0; # Error message already printed out.
+		}
+
+		my $obj_file = find_object_file($source_file);
+		if (!$obj_file) {
+			return 0; # Error message already printed out.
+		}
+		push @object_files, $obj_file;
+
+
+		if ($gl_my_deps) {
+			my @deps = my_find_deps($source_file, $verbose);
+			print MAKE_FILE_HANDLE "$obj_file: ";
+			#print MAKE_FILE_HANDLE " $gl_make_file_name";
+			for $walker (@deps) {
+				print MAKE_FILE_HANDLE " $walker";
+			}
+			print MAKE_FILE_HANDLE "\n";
+		}
+		else {
+			my $dep_string = comp_find_deps($source_file,
+				$builder, $compile_arg_string, $verbose);
+			print MAKE_FILE_HANDLE $gl_object_dir, $gl_path_sep,
+				$dep_string;
+		}
+
+		# - - - - - - - - - - - - - - - - - - - - - - - - - -
+		print MAKE_FILE_HANDLE "\t$builder \$(COMPILE_FLAGS) "
+			. " $source_file -o $obj_file\n";
+		print MAKE_FILE_HANDLE "\n";
+	}
+	printf "\r      \r";
+	print "\n";
+
+	print MAKE_FILE_HANDLE "OBJS = \\\n";
+	for my $i (0 .. $#object_files) {
+		print MAKE_FILE_HANDLE "\t$object_files[$i]";
+		print MAKE_FILE_HANDLE " \\"
+			unless ($i == $#object_files);
+		print MAKE_FILE_HANDLE "\n";
+	}
+	print MAKE_FILE_HANDLE "\n";
+
+	print MAKE_FILE_HANDLE "$gl_exe_name: \$(OBJS\) \$(EXTRA_DEPS)\n";
+	for my $walker (@gl_pre_build_commands) {
+		print MAKE_FILE_HANDLE "\t$walker\n";
+	}
+	if ($gl_is_dot_a) {
+		# ar r libfoo.a file1.o file2.o file3.o
+		print MAKE_FILE_HANDLE
+			"\t$gl_linker $gl_exe_name \$(OBJS)\n";
+	}
+	else {
+		print MAKE_FILE_HANDLE
+			"\t$gl_linker \$(OBJS) -o $gl_exe_name \$(LINK_FLAGS)\n";
+	}
+	for my $walker (@gl_post_build_commands) {
+		print MAKE_FILE_HANDLE "\t$walker\n";
+	}
+	print MAKE_FILE_HANDLE "\n";
+
+	if (@gl_install_dirs) {
+		my $copy_cmd;
+		if ($gl_in_windows) {
+			$copy_cmd = "copy";
+		}
+		else {
+			$copy_cmd = "cp";
+		}
+		print MAKE_FILE_HANDLE "install: build\n";
+		for my $walker (@gl_install_dirs) {
+			print MAKE_FILE_HANDLE
+				"\t$copy_cmd $gl_exe_name $walker\n";
+		}
+		print MAKE_FILE_HANDLE "\n";
+	}
+
+	print MAKE_FILE_HANDLE "clean:\n";
+	if ($gl_in_windows) {
+		print MAKE_FILE_HANDLE "\t-\@del /s \$(OBJS)\n";
+		print MAKE_FILE_HANDLE "\t-\@del    $gl_exe_name\n";
+	}
+	else {
+		print MAKE_FILE_HANDLE "\t-\@rm -f \$(OBJS)\n";
+		print MAKE_FILE_HANDLE "\t-\@rm -f $gl_exe_name\n";
+	}
+
+	close(MAKE_FILE_HANDLE);
+
+	return 1;
+}
+
+# ----------------------------------------------------------------
+sub find_builder
+{
+	my ($source_file) = @_;
+	my $extension = get_extension($source_file);
+	my $builder = $gl_builders{$extension};
+
+	if (!$builder) {
+		print "$0:  Couldn't find builder for file "
+		. "\"$source_file\", extension \"$extension\"\n";
+	}
+	return $builder
+}
+
+# ----------------------------------------------------------------
+sub find_object_file
+{
+	my ($source_file) = @_;
+	$source_file = get_base_name($source_file);
+	my $noext = strip_extension($source_file);
+	return $gl_object_dir . $gl_path_sep . $noext . ".o";
+}
+
+# ----------------------------------------------------------------
+sub get_base_name
+{
+	my ($path) = @_;
+	my @components = split /$gl_path_sep/, $path;
+	return $components[-1];
+}
+
+# ----------------------------------------------------------------
+sub get_extension
+{
+	my ($file) = @_;
+	$file = get_base_name($file);
+	my @components = split /\./, $file;
+	return "." . $components[-1];
+}
+
+# ----------------------------------------------------------------
+sub strip_extension
+{
+	my ($file) = @_;
+	my @components = split /\./, $file;
+	$#components--;
+	my $ret = join ".", @components;
+	return $ret;
+}
+
+# ----------------------------------------------------------------
+sub reset_parameters
+{
+	$gl_project_name="";
+	$gl_make_file_name="";
+	$gl_exe_name="";
+	$gl_is_dot_a=0;
+	@gl_source_files=();
+	$gl_object_dir=".";
+	%gl_builders = ( ".c" => "gcc", ".cpp" => "gcc", ".S" => "as" );
+	$gl_linker = "gcc";
+
+	@gl_vars=();
+	@gl_env_vars=();
+	if ($gl_read_env_vars) {
+		for my $key (keys %ENV) {
+			push @gl_env_vars, "$key=$ENV{$key}"
+		}
+	}
+	@gl_include_dirs=();
+	@gl_lib_dirs=();
+	@gl_defines=();
+	@gl_misc_cflags=();
+	@gl_misc_lflags=();
+
+	@gl_pre_build_commands=();
+	@gl_post_build_commands=();
+}
+
+# ----------------------------------------------------------------
+sub report_parameters
+{
+	my $walker;
+	print "Parameters for project \"$gl_project_name\":\n";
+	print "  Path separator:   \"$gl_path_sep\"\n";
+	print "  Makefile name:    \"$gl_make_file_name\"\n";
+	print "  Executable name:  \"$gl_exe_name\"\n";
+	print "  Object directory: \"$gl_object_dir\"\n";
+	print "  Link command:     \"$gl_linker\"\n";
+
+	report_parameter("Source files",        @gl_source_files);
+	report_parameter("Variables",           @gl_vars);
+	report_parameter("Include directories", @gl_include_dirs);
+	report_parameter("Library directories", @gl_lib_dirs);
+	report_parameter("Defines",             @gl_defines);
+	report_parameter("Misc. cflags",        @gl_misc_cflags);
+	report_parameter("Misc. lflags",        @gl_misc_lflags);
+	report_parameter("Pre-build commands",  @gl_pre_build_commands);
+	report_parameter("Post-build commands", @gl_post_build_commands);
+
+	print "  Build commands per source-file type:\n";
+	for my $key (sort keys %gl_builders) {
+		printf "  %-5s => %s\n", $key, $gl_builders{$key};
+	}
+
+	print "\n";
+}
+
+# ----------------------------------------------------------------
+sub report_parameter
+{
+	my ($name, @elements) = @_;
+	my $walker;
+
+	print "  $name:\n";
+	if (@elements) {
+		for $walker (@elements) {
+			print "    $walker\n";
+		}
+	}
+	else {
+		print "    (none)\n";
+	}
+
+}
+
+# ----------------------------------------------------------------
+sub comp_find_deps
+{
+	my ($source_file, $builder, $compile_arg_string, $verbose) = @_;
+	my $cmd = "$builder -M $compile_arg_string $source_file";
+
+	$cmd = var_expand_all($cmd);
+
+	if ($verbose) {
+		print ">>> Executing $cmd\n";
+	}
+	my $foo = `$cmd`;
+	if ($? != 0) {
+		die "$cmd failed for file $source_file; $!.\n";
+	}
+
+	return $foo;
+}
+
+# ----------------------------------------------------------------
+sub my_find_deps
+{
+	my ($source_file, $verbose) = @_;
+	my $depth = 0;
+	my @deps = ();
+
+	$source_file = var_expand_all($source_file);
+
+	if (! -f $source_file) {
+		print "\nWarning:  $source_file not found.\n";
+		return @deps;
+	}
+
+	@deps = my_find_deps_aux($source_file, $depth, $verbose, ());
+
+	@deps = sort(@deps);
+	my $prev = 'nonesuch';
+	@deps = grep($_ ne $prev && ($prev = $_), @deps);
+
+	if (@deps == 0) {
+		print "\nWarning:  No dependencies found for "
+			. "$source_file.\n";
+	}
+
+	return @deps;
+}
+
+# ----------------------------------------------------------------
+# xxx handle "#include /s/p/q/r"
+
+sub my_find_deps_aux
+{
+	my ($source_file, $depth, $verbose, @chain) = @_;
+	my $source_path;
+	my @source_deps = ();
+	my @inc_deps = ();
+	local *FIND_DEP_HANDLE;
+	my @discard;
+	my @include_files = ();
+
+	if ($deps_cache{$source_file}) {
+		return @{ $deps_cache{$source_file} };
+	}
+
+	if ($depth > $max_depth) {
+		print "$0:  Infinite recursion in file $source_file.\n";
+		return @source_deps;
+	}
+
+	for my $ch (@chain) {
+		if ($ch eq $source_file) {
+			print "dep $source_file:  circ ret.\n" if $verbose;
+			return @source_deps;
+		}
+	}
+
+	if (($depth == 0) || !@gl_include_dirs) {
+		if (!open(FIND_DEP_HANDLE, $source_file)) {
+			print "dep $source_file:  not-found ret.\n"
+				if $verbose;
+			return @source_deps;
+		}
+		$source_path = $source_file;
+	}
+	else {
+		my $got_it = 0;
+		for my $inc_dir (@gl_include_dirs) {
+			$source_path = $inc_dir . $gl_path_sep . $source_file;
+			$source_path = var_expand_all($source_path);
+			if (open(FIND_DEP_HANDLE, $source_path)) {
+				$got_it = 1;
+				last;
+			}
+		}
+		if (!$got_it) {
+			print "dep $source_file:  incl-not-found ret.\n"
+				if $verbose;
+			return @source_deps;
+		}
+	}
+	push @source_deps, $source_path;
+
+	while ($line=<FIND_DEP_HANDLE>) {
+		chomp $line;
+		next unless $line =~ m/^\s*#\s*include\s*/;
+		$include_file = $line;
+		$include_file =~ s/^\s*#\s*include\s*//;
+		$include_file =~ s://.*::;
+		$include_file =~ s/["<>]//g;
+		($include_file, @discard) = split /\s+/, $include_file;
+
+		push @include_files, $include_file;
+
+	}
+	close FIND_DEP_HANDLE;
+
+	for my $include_file (@include_files) {
+		push @source_deps, my_find_deps_aux($include_file,
+			$depth+1, $verbose, $source_file, @chain);
+	}
+
+	@{ $deps_cache{$source_file} } = @source_deps;
+
+	return @source_deps;
+}
+
+# ----------------------------------------------------------------
+sub var_expand_all
+{
+	my ($string) = @_;
+	my $i = 0;
+	my $max = 20;
+	my $rc;
+
+	do {
+		($rc, $string) = var_expand_one($string);
+		if (++$i > $max) {
+			die "$0: Infinite variable recusion: <<$string>>\n";
+		}
+	} while ($rc == 1);
+
+	return $string;
+}
+
+# ----------------------------------------------------------------
+sub var_expand_one
+{
+	my ($string) = @_;
+
+	if ($string =~ m/(.*)\$\(([^)]+)\)(.*)/) {
+		my $left   = $1;
+		my $middle = $2;
+		my $right  = $3;
+
+		for my $var (@gl_vars) {
+			my ($lhs, $rhs) = split /=/, $var, 2;
+			next if !$rhs;
+			if ($lhs eq $middle) {
+				$string = $left . $rhs . $right;
+				return (1, $string);
+			}
+		}
+
+		if ($gl_read_env_vars) {
+			for my $var (@gl_env_vars) {
+				my ($lhs, $rhs) = split /=/, $var, 2;
+				next if !$rhs;
+				if ($lhs eq $middle) {
+					$string = $left . $rhs . $right;
+					return (1, $string);
+				}
+			}
+		}
+	}
+	return (0, $string);
+}

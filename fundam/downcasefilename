@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ $# -eq 0 ]; then
+	echo "Usage: $0 {filenames ...}" 1>&2
+fi
+
+for oldname; do
+	newname="`echo $oldname | tr [A-Z] [a-z]`"
+	if [ $oldname != $newname ]; then
+		mv "$oldname" "$newname"
+	fi
+done

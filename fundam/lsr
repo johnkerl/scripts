@@ -1,0 +1,15 @@
+#! /bin/sh
+
+set -o noglob
+
+names=
+for arg
+do
+	if [ -z "$names" ]; then
+		names="-name $arg"
+	else
+		names="$names -o -name $arg"
+	fi
+done
+
+find . -follow $names

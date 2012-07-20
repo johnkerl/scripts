@@ -1,0 +1,54 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2010-02-16
+# ================================================================
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+import sackmat_m
+import stats_m
+from math import log, exp
+
+argc = len(sys.argv)
+if ((argc != 2) and (argc != 3)):
+	print >> sys.stderr, "Usage: %s {x file name} {y file name}" % (sys.argv[0])
+	print >> sys.stderr, "Or:    %s {x-y-pair file name}." % (sys.argv[0])
+	print >> sys.stderr, "Use \"-\" as file name for stdin."
+	sys.exit(1)
+
+if (argc == 3):
+	file_name_1 = sys.argv[1]
+	file_name_2 = sys.argv[2]
+
+	xs = sackmat_m.read_column_vector(float, file_name_1)
+	ys = sackmat_m.read_column_vector(float, file_name_2)
+elif (argc == 2):
+	file_name = sys.argv[1]
+	xys = sackmat_m.read_matrix(float, file_name)
+	xs = xys.get_column(0)
+	ys = xys.get_column(1)
+
+# y = c x^a
+# ln(y) = ln(c) + a ln(x)
+# m = a; b = ln(c)
+
+log_xs = map(log, xs)
+log_ys = map(log, ys)
+
+[m, b, stddevm, stddevb] = stats_m.linear_regression(log_xs, log_ys)
+
+a = m
+c = exp(b)
+
+stddeva =     stddevm
+stddevc = c * stddevb
+
+print '# y = c x^a'
+print c, stddevc, '# c'
+print a, stddeva, '# a'

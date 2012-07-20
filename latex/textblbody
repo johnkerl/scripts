@@ -1,0 +1,22 @@
+#!/usr/bin/python -Wall
+
+import tabutil_m
+import sys
+
+if len(sys.argv) == 1:
+	file_name = '-'
+elif len(sys.argv) == 2:
+	file_name = sys.argv[1]
+
+columns = tabutil_m.text_columns_from_file(file_name)
+num_rows = len(columns[0])
+num_cols = len(columns)
+
+for i in range(0, num_rows):
+	sys.stdout.write('\\hline ')
+	for j in range(0, num_cols):
+		sys.stdout.write(' %s' % (columns[j][i]))
+		if j == num_cols - 1:
+			sys.stdout.write(' \\\\\n')
+		else:
+			sys.stdout.write(' &')

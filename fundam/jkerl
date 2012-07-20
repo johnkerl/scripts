@@ -1,0 +1,3 @@
+#!/bin/sh
+
+ps -fu $USER #| egrep -v 'ssh|bash'

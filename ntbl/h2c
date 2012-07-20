@@ -1,0 +1,79 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# We convert from JKH to CSV format as follows:
+# * replace %20/%09 with space/tab
+# * replace comma with %2c
+# * split on whitespace
+# * replace "_" columns with ""
+# * omit the dashes line below the header (old line 2)
+#
+# Please see format-notes.txt in this directory for more information.
+#
+# John Kerl, 2012-03-31
+# ================================================================
+
+@@us     = File.basename($0)
+@@ourdir = File.dirname($0)
+
+require 'getoptlong'
+
+# ================================================================
+def main()
+	filenames = ARGV
+
+	ok = true
+	if filenames.length == 0:
+		ok &= do_stdin
+	else
+		filenames.each{|filename| do_file(filename)}
+	end
+
+	exit ok ? 0 : 1
+end
+
+# ----------------------------------------------------------------
+# Decode space/tab as hexadecimal ASCII; encode comma.
+def line_to_fields(input_line)
+	input_line.chomp.split(/\s+/).collect { |line|
+		field = line.gsub(/%20/, ' ').gsub(/%09/, '\t').gsub(/,/, '%2c')
+		field == "_" ? "" : field
+	}
+end
+
+# ----------------------------------------------------------------
+def do_line(input_line, line_number)
+	fields = line_to_fields(input_line)
+	if (line_number == 1) and (input_line.match(/^[\s-]+$/))
+		;
+	else
+		puts fields.join(',')
+	end
+end
+
+# ----------------------------------------------------------------
+# Streaming
+def do_stdin()
+	$stdin.readlines().each_with_index do |input_line, line_number|
+		do_line(input_line, line_number)
+	end
+	return true
+end
+
+# ----------------------------------------------------------------
+# Streaming
+
+def do_file(filename)
+	if ! File.exists?(filename)
+		$stderr.puts "Can't find \"#{filename}\"."
+		return false
+	end
+	File.readlines(filename).each_with_index do |input_line, line_number|
+		do_line(input_line, line_number)
+	end
+	return true
+end
+
+# ================================================================
+# Top-down programming style, please.
+main()

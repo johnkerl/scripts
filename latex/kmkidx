@@ -1,0 +1,290 @@
+#! /usr/bin/perl -w
+
+# ----------------------------------------------------------------
+# Replacement for makeindex, with improved handling for alphabetizing
+# mathematical LaTeX content.
+#
+# John Kerl
+# kerl.john.r@gmail.com
+# 2004-02-26
+# ----------------------------------------------------------------
+
+# ================================================================
+# Copyright (c) 2004 John Kerl.
+# kerl.john.r@gmail.com
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to permit
+# persons to whom the Software is furnished to do so, subject to the
+# following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+# NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+# USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+# ================================================================
+
+@lines = <>;
+$debug = 0;
+
+$using_hyperpages = 0; # temp hack
+
+for my $line (@lines) {
+	chomp $line;
+	if (!($line =~ /^\\indexentry/)) {
+		die "$0:  Got non-indexentry line in input; "
+			. "don't know what to do.\n";
+	}
+print "\n" if $debug;
+	$line =~ s:^\\indexentry::;
+	$line =~ s:@::g;
+
+	# Sample input:
+	# \indexentry{local ring}{28}
+	# \indexentry{$\mathbf{Z}$-order}{5}
+	# \indexentry{$\mathfrak{p}$-adic absolute value}{44}
+	# \indexentry{$\@mathfrak {p}$-adic expansion}{45}
+	# \indexentry{metric}{43}
+
+	# All I want to do is extract the first and second fields, enclosed
+	# in curly braces.  However, I don't know how to do that neatly in
+	# Perl, given that the first curly-brace-enclosed field may contain
+	# curly braces of its own.  So, I'll replace certain expected
+	# expressions from e.g. \mathfrak{p} to \mathfrak(p) temporarily,
+	# split, then replace from e.g. \mathfrak(p) back to \mathfrak{p}.
+
+print "line=$line\n" if $debug;
+
+	$line =~ s:\\hat *{([^}]*)}:\\hat\($1\):;
+	$line =~ s:\\texttt *{([^}]*)}:\\texttt\($1\):;
+	$line =~ s:\\textbf *{([^}]*)}:\\textbf\($1\):;
+	$line =~ s:\\mathbf *{([^}]*)}:\\mathbf\($1\):;
+	$line =~ s:\\mathbb *{([^}]*)}:\\mathbb\($1\):;
+	$line =~ s:\\mathfrak *{([^}]*)}:\\mathfrak\($1\):;
+	$line =~ s:\\mathcal *{([^}]*)}:\\mathcal\($1\):;
+	$line =~ s:\\mathrm *{([^}]*)}:\\mathrm\($1\):;
+	$line =~ s:\\overline *{([^}]*)}:\\overline\($1\):;
+	$line =~ s:\\hspace *{([^}]*)}:\\hspace\($1\):;
+	$line =~ s:{\\partial ([^}]*)}:\(\\partial $1\):;
+
+print "line=$line\n" if $debug;
+
+	$line =~ s:{:@:g;
+	$line =~ s:}::g;
+	@fields = split /@/, $line;
+
+
+	# Handle hyperpage commands for pdflatex with hyperrefs.
+	# This is a quick hack.
+	$name = $fields[1];
+	$page = $fields[2];
+	if ($name =~ m/\|hyperpage/) {
+		$name =~ s/\|hyperpage//;
+		push @{ $hyperhash{$name} }, 1;
+print "hyper:=<<$name>>\n" if $debug;
+		$using_hyperpages = 1; # temp hack
+	}
+	else {
+		push @{ $hyperhash{$name} }, 0;
+print "not hyper:=<<$name>>\n" if $debug;
+	}
+
+print "name=<<$name>> page=<<$page>>\n" if $debug;
+
+	$name =~ s:\\hat\(([^)]*)\):\\hat{$1}:;
+	$name =~ s:\\texttt\(([^)]*)\):\\texttt{$1}:;
+	$name =~ s:\\textbf\(([^)]*)\):\\textbf{$1}:;
+	$name =~ s:\\mathbf\(([^)]*)\):\\mathbf{$1}:;
+	$name =~ s:\\mathbb\(([^)]*)\):\\mathbb{$1}:;
+	$name =~ s:\\mathfrak\(([^)]*)\):\\mathfrak{$1}:;
+	$name =~ s:\\mathcal\(([^)]*)\):\\mathcal{$1}:;
+	$name =~ s:\\mathrm\(([^)]*)\):\\mathrm{$1}:;
+	$name =~ s:\\overline\(([^)]*)\):\\overline{$1}:;
+	$name =~ s:\\hspace\(([^)]*)\):\\hspace{$1}:;
+	$name =~ s:\(\\partial([^)]*)\):{\\partial $1}:;
+	$name =~ s:\(\\hat([^)]*)\):{\\hat $1}:;
+	$name =~ s:\(\\widehat([^)]*)\):{\\widehat $1}:;
+	$name =~ s:\(\\cdot([^)]*)\):{\\cdot $1}:;
+
+print "name=<<$name>> page=<<$page>>\n" if $debug;
+
+	push @{ $namehash{$name} }, $page;
+}
+
+print "================================================================\n"
+	if $debug;
+
+if ($debug) {
+	for my $name (sort kmksort keys %namehash) {
+		print "NAMEHASH $name\n";
+	}
+	for my $name (sort kmksort keys %hyperhash) {
+		print "HYPERHASH $name\n";
+	}
+}
+
+$prevfirstchar = "0";
+print "\\begin{theindex}\n";
+for my $name (sort kmksort keys %namehash) {
+
+	$tweak = $name;
+#	$tweak =~ s:\\hat\(([^\)]*)\):\\hat{$1}:;
+#	$tweak =~ s:\\texttt\(([^\)]*)\):\\texttt{$1}:;
+#	$tweak =~ s:\\textbf\(([^\)]*)\):\\textbf{$1}:;
+#	$tweak =~ s:\\mathbb\(([^\)]*)\):\\mathbb{$1}:;
+#	$tweak =~ s:\\mathbf\(([^\)]*)\):\\mathbf{$1}:;
+#	$tweak =~ s:\\mathfrak\(([^\)]*)\):\\mathfrak{$1}:;
+#	$tweak =~ s:\\mathcal\(([^\)]*)\):\\mathcal{$1}:;
+#	$tweak =~ s:\\mathrm\(([^\)]*)\):\\mathrm{$1}:;
+#	$tweak =~ s:\$::g;
+
+	$plain = to_plain($tweak);
+	$firstchar = substr($plain, 0, 1);
+
+	if ($debug) {
+		print "----------------------------------------------------------------\n";
+		print "name=<<$name>>\ntweak=<<$tweak>>\nto_plain=<<$plain>>\n";
+	}
+
+	if ($firstchar lt "a") {
+		$firstchar = "9";
+	}
+
+	if ($prevfirstchar ne $firstchar) {
+		print "\n";
+		print "  \\indexspace\n";
+		print "\n";
+		$FC = uc $firstchar;
+		print "\\textbf{$FC}\n";
+	}
+
+	print "  \\item $name \\dotfill";
+
+	if (1) {
+		# If there are two or more references on the same page, print only one.
+		$prevpageno = -1;
+		my @pagenos = sort {$a <=> $b} @{ $namehash{$name} };
+		for my $pageno (@pagenos) {
+			if ($pageno != $prevpageno) {
+				if ($prevpageno != -1) {
+					print ",";
+				}
+				#if ($hyperhash{$name}) # temp
+				if ($using_hyperpages) {
+					print " \\hyperpage{$pageno}";
+				}
+				else {
+					print " $pageno";
+				}
+			}
+			$prevpageno = $pageno;
+		}
+	}
+	else {
+		my @pagenos = sort {$a <=> $b} @{ $namehash{$name} };
+		$i = 0;
+		for my $pageno (@pagenos) {
+			if ($i > 0) {
+				print ",";
+			}
+			#if ($hyperhash{$name}) # temp
+			if ($using_hyperpages) {
+				print " \\hyperpage{$pageno}";
+			}
+			else {
+				print " $pageno";
+			}
+			$i++;
+		}
+	}
+
+	print "\n";
+	$prevfirstchar = $firstchar;
+}
+print "\n";
+print "\\end{theindex}\n";
+
+# ----------------------------------------------------------------
+sub kmksort {
+	my $alocal = to_plain($a);
+	my $blocal = to_plain($b);
+
+	$alocal =~ s:\$::g;
+	$blocal =~ s:\$::g;
+	return $alocal cmp $blocal;
+}
+
+# ----------------------------------------------------------------
+sub to_plain {
+	my ($arg) = @_;
+	$arg = lc $arg;  # <-------- Everything is lowercase now!
+	$arg =~ s/\\hat//;
+	$arg =~ s/\\texttt//;
+	$arg =~ s/\\textbf//;
+	$arg =~ s/\\mathbb//;
+	$arg =~ s/\\mathbf//;
+	$arg =~ s/\\mathfrak//;
+	$arg =~ s/\\mathcal//;
+	$arg =~ s/\\mathrm//;
+	$arg =~ s/\\overline//;
+	$arg =~ s/\\ell/l/;
+	$arg =~ s/\\fm/fmax/;
+	$arg =~ s/\\alpha/alpha/;
+	$arg =~ s/\\beta/beta/;
+	$arg =~ s/\\Gamma/Gamma/;
+	$arg =~ s/\\gamma/gamma/;
+	$arg =~ s/\\eta/eta/;
+	$arg =~ s/\\Lambda/Lambda/;
+	$arg =~ s/\\lambda/lambda/;
+	$arg =~ s/\\xi/xi/;
+	$arg =~ s/\\mu/mu/;
+	$arg =~ s/\\nu/nu/;
+	$arg =~ s/\\pi/pi/;
+	$arg =~ s/\\sigma/sigma/;
+	$arg =~ s/\\tau/tau/;
+	$arg =~ s/\\upsilon/upsilon/;
+	$arg =~ s/\\Upsilon/Upsilon/;
+	$arg =~ s/\\Omega/Omega/;
+	$arg =~ s/\\omega/omega/;
+	$arg =~ s/\\partial/d/;
+	$arg =~ s/\\hat//;
+	$arg =~ s/\\widehat//;
+	$arg =~ s/\\cdot//;
+	$arg =~ s/\\circ/circ/g;
+	$arg =~ s/\\hspace//g;
+	$arg =~ s/\\ctdto/connected to/;
+	$arg =~ s/\\vecx/x/;
+	$arg =~ s/\\vecy/y/;
+	$arg =~ s/\\vecz/z/;
+	$arg =~ s/\.//g;
+	$arg =~ s/\$//g;
+	$arg =~ s/_//g;
+	#$arg =~ s/ //g;
+	$arg =~ s/,//g;
+	$arg =~ s/{//g;
+	$arg =~ s/}//g;
+	return $arg;
+}

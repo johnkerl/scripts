@@ -1,0 +1,156 @@
+#! /usr/bin/perl
+
+# ----------------------------------------------------------------
+sub usage()
+{
+	print "\n";
+	print "Usage: $0 [column delimiters] {column numbers ...} {file names ...}\n";
+	print "  There must be at least one column number.  Columns are numbered one-up.\n";
+	print "  There may be zero file names, in which case input is taken from stdin.\n";
+	print "\n";
+	print "Column delimiters for input and output:\n";
+	print "  -t:  Column delimiter is one tab.\n";
+	print "  -s:  Column delimiter is one or more whitespace characters (default).\n";
+	print "  -c:  Column delimiter is one comma.\n";
+	print "  -n:  Column delimiter is the empty string, e.g. each character is a column.\n";
+	print "\n";
+	print "Column delimiter for input:  -it, -is, -ic, -in\n";
+	print "Column delimiter for output: -ot, -os, -oc, -on\n";
+	print "\n";
+	exit(1);
+}
+
+# ----------------------------------------------------------------
+# Defaults:
+my $delimpat = "\s+";
+my $delimout = " ";
+
+# There are three types of arguments:
+# 1. Zero or more column-delimiter specifications, which begin with
+#    slash or dash.
+# 2. One or more column numbers, which are decimal numbers.
+# 3. Zero or more file names, which are whatever is left.
+
+# First, scan the command line (@ARGV) for column-delimiter specifications,
+# removing them from @ARGV.
+while (@ARGV && ($ARGV[0] =~ m:^[-/]:)) {
+	my $opt = $ARGV[0];
+	$opt =~ s/^.//;
+
+	if ($opt eq "h") {
+		usage();
+	}
+	elsif ($opt eq "?") {
+		usage();
+	}
+
+	elsif ($opt eq "t") {
+		$delimpat = "\t";
+		$delimout = "\t";
+	}
+	elsif ($opt eq "c") {
+		$delimpat = ",";
+		$delimout = ",";
+	}
+	elsif ($opt eq "s") {
+		$delimpat = "\s+";
+		$delimout = " ";
+	}
+	elsif ($opt eq "n") {
+		$delimpat = "";
+		$delimout = "";
+	}
+
+	elsif ($opt eq "it") {
+		$delimpat = "\t";
+	}
+	elsif ($opt eq "ic") {
+		$delimpat = ",";
+	}
+	elsif ($opt eq "is") {
+		$delimpat = "\s+";
+	}
+	elsif ($opt eq "in") {
+		$delimpat = "";
+	}
+
+	elsif ($opt eq "ot") {
+		$delimout = "\t";
+	}
+	elsif ($opt eq "oc") {
+		$delimout = ",";
+	}
+	elsif ($opt eq "os") {
+		$delimout = " ";
+	}
+	elsif ($opt eq "n") {
+		$delimout = "";
+	}
+
+	else {
+		print "Unrecognized option \"$ARGV[0]\".\n";
+		usage();
+	}
+	shift @ARGV;
+}
+
+# Second, scan the command line (@ARGV) for column numbers (decimal numbers),
+# removing them from @ARGV.
+
+my @colnos = ();
+my $colnocount = 0;
+
+while (1) {
+	my $arg = $ARGV[0];
+	if ($arg =~ m/^[0-9]+$/) {
+		my $colno = shift @ARGV;
+		die "$0:  column numbers are indexed one-up." unless ($colno > 0);
+		push @colnos, $colno;
+		$colnocount++;
+	}
+	else {
+		last;
+	}
+}
+
+# There must be at least one column number.
+unless ($colnocount > 0) {
+	usage();
+}
+
+# Third, whatever is left on the command line is assumed to be a file name.
+
+my $lineno = 0;
+while ($line = <>) {
+	$lineno++;
+
+	chomp $line;
+	$line =~ s/^\s+//;
+	my @fields;
+	if ($delimpat eq "\s+") {
+		@fields = split /\s+/, $line;
+	}
+	else {
+		@fields = split /$delimpat/o, $line;
+	}
+	my $first_column = 1;
+
+	for my $colno (@colnos) {
+		if ($first_column == 1) {
+			$first_column = 0;
+		}
+		else {
+			print $delimout;
+		}
+		#if ($colno >= @fields) {
+		#	die "\nInsufficient number of columns in input at line $lineno.\n";
+		#	print "\nInsufficient number of columns in input at line $lineno.\n";
+		#}
+		#else {
+			# Use $colno-1 to switch from one-up to zero-up.
+			# (I use one-up to match sort -k, awk, etc.)
+			print $fields[$colno-1];
+		#}
+	}
+	print "\n";
+}

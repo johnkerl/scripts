@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+$i = 0;
+while ($line=<>) {
+	chomp $line;
+	print "$i\t$line\n";
+	$i++;
+}

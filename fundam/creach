@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+use line_term_lib;
+
+die "Usage: $0 {n} [input]\n" unless @ARGV;
+$n = shift @ARGV;
+
+$i = 0;
+while ($line = <>) {
+	($line, $term) = split_line_ending($line);
+	$i++;
+	print "$line$term";
+	if ($i == $n) {
+		print "$term";
+		$i = 0;
+	}
+}
