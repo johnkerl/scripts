@@ -1,6 +1,28 @@
 #!/usr/bin/perl
 use line_term_lib;
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Prints a carriage return after each ith line.  E.g.
+#
+# $ jot 1 10 | creach 2
+# 1
+# 2
+# 
+# 3
+# 4
+# 
+# 5
+# 6
+# 
+# 7
+# 8
+# 
+# 9
+# 10
+# ================================================================
+
 die "Usage: $0 {n} [input]\n" unless @ARGV;
 $n = shift @ARGV;
 

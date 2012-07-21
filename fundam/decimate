@@ -1,5 +1,11 @@
 #!/usr/bin/perl
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Prints only 1 of every n input lines.
+# ================================================================
+
 die "Usage: $0 {n} [input]\n" unless @ARGV;
 $n = shift @ARGV;
 

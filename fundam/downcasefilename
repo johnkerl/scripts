@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Renames files, replacing uppercase characters with lowercase.
+# From my NT days.
+# ================================================================
+
 if [ $# -eq 0 ]; then
 	echo "Usage: $0 {filenames ...}" 1>&2
 fi

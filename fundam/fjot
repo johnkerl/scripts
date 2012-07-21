@@ -1,5 +1,11 @@
 #!/usr/bin/perl
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Like jot but with floating-point ability.
+# ================================================================
+
 $start  = 0.0;
 $reps   = 10;
 $stride = 1.0;

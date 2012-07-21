@@ -1,6 +1,11 @@
 #! /usr/bin/perl
-# I accidentally deleted all comments to this Perl script.
-# But it still runs.
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Center-aligns text.  Adapted from _Unix Power Tools_ or The
+# Camel (I forget which), sometime in the mid 1990s.
+# ================================================================
 
 $usage="Usage goes here.";
 

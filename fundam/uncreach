@@ -1,6 +1,12 @@
 #!/usr/bin/perl -w
 use line_term_lib;
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Undoes creach.
+# ================================================================
+
 die "Usage: $0 {n} [input]\n" unless @ARGV;
 $n = shift @ARGV;
 

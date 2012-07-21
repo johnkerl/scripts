@@ -4,7 +4,16 @@
 # John Kerl
 # kerl.john.r@gmail.com
 # 2009-02-24
-# ================================================================
+# "Formats arguments as a Python list literal." ->
+# [ '#',
+# 'Formats',
+# 'arguments',
+# 'as',
+# 'a',
+# 'Python',
+# 'list',
+# 'literal.']
+# # ================================================================
 
 import sys
 import re

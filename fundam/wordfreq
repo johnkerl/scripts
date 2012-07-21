@@ -1,6 +1,12 @@
 #!/usr/bin/perl -Wall
 use line_term_lib;
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Cats out a file in the $PATH.
+# ================================================================
+
 while ($line=<>) {
 	($line, $term) = split_line_ending($line);
 	#$line = lc($line);

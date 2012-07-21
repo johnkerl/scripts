@@ -1,5 +1,12 @@
 #! /usr/bin/perl
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# An all-purpose multilanguage indenter/unindenter.
+# E.g. !}ind -1s in vim.
+# ================================================================
+
 $add = 1;
 $pat = "\t";
 

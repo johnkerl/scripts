@@ -1,5 +1,11 @@
 #!/usr/bin/perl
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Computes character frequencies for input file(s) on the command line.
+# ================================================================
+
 for ($x = 'a'; $x lt 'z'; $x++) {
 	$counts{$x} = 0;
 }

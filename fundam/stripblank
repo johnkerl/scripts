@@ -1,5 +1,11 @@
 #!/usr/bin/perl -w
 use line_term_lib;
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# ================================================================
+
 while ($line = <>) {
 	($line, $term) = split_line_ending($line);
 	if ($line =~ m/^\s*$/) {

@@ -2,6 +2,12 @@
 
 set -o noglob
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Recursive file remover, e.g. "rmr \*.bak".
+# ================================================================
+
 verbose_opt="-v"
 if [ "$1" = "-q" ]; then
 	verbose_opt=""

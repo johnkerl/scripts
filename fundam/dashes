@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Prints dashes below a header line, e.g.
+#   a b c
+#   1 2 3
+# goes to
+#   a b c
+#   - - -
+#   1 2 3
+# ================================================================
+
 use line_term_lib;
 $lno = 0;
 while ($line = <>) {

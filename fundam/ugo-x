@@ -1,5 +1,11 @@
 #! /bin/sh
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Removes execute permissions on a file.
+# ================================================================
+
 if [ $# -lt 1 ]; then
 	echo "Usage: $0 {one or more files ... }" 1>&2
 fi

@@ -3,6 +3,8 @@
 # ================================================================
 # John Kerl
 # 2012-05-20
+# Makes sequential numbered backups of given files.  E.g.  first "nbu foo"
+# makes foo.000; next "nbu foo" makes foo.001; etc.
 # ================================================================
 
 require 'fileutils'

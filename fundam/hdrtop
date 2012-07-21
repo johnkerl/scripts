@@ -1,5 +1,11 @@
 #!/usr/bin/perl -w
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# For use in vim when creating C header files: :%!hdrtop
+# ================================================================
+
 die "Usage: $0 {file name}\n" unless @ARGV == 1;
 
 $name = $ARGV[0];

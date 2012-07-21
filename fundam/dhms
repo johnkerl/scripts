@@ -1,5 +1,11 @@
 #!/usr/bin/perl
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Splits a number of seconds up into days, hours, minutes, and seconds.
+# ================================================================
+
 $usage_string = "Usage: $0 {seconds}\n";
 die $usage_string unless (@ARGV);
 

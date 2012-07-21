@@ -1,5 +1,33 @@
 #!/usr/bin/perl
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Runs paragraphs side-by-side.
+# E.g. input
+#
+#   The quick
+#   brown fox
+#   jumps over
+#   the lazy
+#   dogs.
+#  
+#   Now is the time for all
+#   good people to come
+#   to the aid of their
+#   country.
+#
+# maps to output
+#
+#   The quick   Now is the time for all
+#   brown fox   good people to come
+#   jumps over  to the aid of their
+#   the lazy    country.
+#   dogs.
+#
+# Occasionally incredibly useful during coding.
+# ================================================================
+
 # Make input records paragraphs, not lines.
 $/="";
 

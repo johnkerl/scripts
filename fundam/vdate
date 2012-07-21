@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Touches a file and makes it executable.  First thing I type
+# when creating a new script (followed by vim).
+# ================================================================
+
 if [ "$#" -eq 1 ]; then
     export TZ="$1"
     if [ "$TZ" = "ny" ]; then export TZ="America/New_York"; fi

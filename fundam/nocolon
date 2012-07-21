@@ -1,5 +1,11 @@
 #!/usr/bin/perl
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Useful for pretty-printing $PATH, $CLASSPATH, etc.
+# ================================================================
+
 die "Usage: $0 {environment variable name}\n"
 	unless (@ARGV == 1);
 $value = $ENV{$ARGV[0]};

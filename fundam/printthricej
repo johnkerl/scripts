@@ -1,5 +1,10 @@
 #! /usr/bin/perl -w
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# ================================================================
+
 use line_term_lib;
 while ($line = <>) {
 	($line, $term) = split_line_ending($line);

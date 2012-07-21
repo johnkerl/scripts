@@ -1,7 +1,12 @@
 #! /usr/bin/perl -Wall
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Recursive grep, written back in the 90s.
 # Also note (Linux):
 # grep -nr -e pattern --include='*.[c|h]' directoryname
+# ================================================================
 
 # ----------------------------------------------------------------
 sub usage

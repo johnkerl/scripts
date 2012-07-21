@@ -1,5 +1,12 @@
 #! /usr/bin/perl
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Like expand more or less.  I wrote this as a Unix-replacement script in my NT
+# days.
+# ================================================================
+
 use line_term_lib;
 $tab_width = 8;
 if (@ARGV) {

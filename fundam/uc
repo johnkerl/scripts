@@ -1,6 +1,10 @@
 #! /usr/bin/perl
 
-# Remove tight C++-style comments
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+#
+# Removes tight C++-style comments
 # E.g.
 # //public int func(int x)
 # //{
@@ -11,6 +15,7 @@
 # {
 #     return x*2;
 # }
+# ================================================================
 
 while ($line = <>) {
 	$line =~ s/^(\s*)\/\/(.*)/\1\2/;

@@ -4,6 +4,7 @@ use line_term_lib;
 # ----------------------------------------------------------------
 # John Kerl
 # john.kerl@avnet.com
+# kerl.john.r@gmail.com
 # 2000/12/18
 #
 # Removes blank lines.

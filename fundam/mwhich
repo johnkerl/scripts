@@ -1,8 +1,11 @@
 #!/usr/bin/perl
 
-# ----------------------------------------------------------------
-# Get the colon-delimited value of the PATH environment variable,
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Gets the colon-delimited value of the PATH environment variable,
 # splitting it up into an array.  
+# ================================================================
 
 $path_env_var_name = "PATH";
 

@@ -1,5 +1,11 @@
 #!/usr/bin/perl
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Sorts lines by length.
+# ================================================================
+
 @lines = sort lensort <>;
 for my $line (@lines) {
 	print $line;

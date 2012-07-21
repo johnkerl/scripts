@@ -1,5 +1,12 @@
 #!/usr/bin/perl -w
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Flows paragraphs without line breaks.  Useful for e.g.
+# confluence wiki editing.
+# ================================================================
+
 use line_term_lib;
 $input = "";
 

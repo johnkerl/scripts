@@ -1,5 +1,11 @@
 #!/usr/bin/perl
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Prints a carriage return after the ith line.
+# ================================================================
+
 use line_term_lib;
 die "Usage: $0 {n} [input]\n" unless @ARGV;
 $n = shift @ARGV;

@@ -1,5 +1,11 @@
 #! /bin/sh
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Makes specified files writable.
+# ================================================================
+
 if [ $# -lt 1 ]; then
 	echo "Usage: $0 {one or more files ... }" 1>&2
 fi

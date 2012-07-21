@@ -2,13 +2,17 @@
 
 import sys, pylab, time, datetime
 
-# ----------------------------------------------------------------
-# Accept the following:
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+#
+# Accepts the following:
 # 20090102 14:30:00
 # 20090102 14:30:00.000
 # 20090102-14:30:00
 # 20090102-14:30:00.000
-# http://docs.python.org/library/time.html
+# See also http://docs.python.org/library/time.html
+# ================================================================
 
 def time_string_to_pylab_float_time(string):
 	pieces = string.split('.')

@@ -1,6 +1,12 @@
 #!/usr/bin/perl
 use line_term_lib;
 
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Double-spaces the input.
+# ================================================================
+
 while ($line = <>) {
 	($line, $term) = split_line_ending($line);
 	print $line . "$term";
