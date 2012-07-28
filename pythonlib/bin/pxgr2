@@ -1,0 +1,56 @@
+#!/usr/bin/python -Wall
+
+import pylab
+import numpy
+import sys
+import re
+
+table = []
+for line in sys.stdin:
+	if line[-1] == '\n':
+		line = line[0:-1]
+	line = re.sub(r"^\s+", r"", line)
+	line = re.sub(r"\s+$", r"", line)
+	line = re.sub(r"#.*",  r"", line)
+	if re.match(r"^$", line):
+		continue
+	row = line.split()
+	row = [ float(value) for value in row ]
+	table.append(row)
+
+mx = numpy.array(table).T
+pylab.plot(mx[0], mx[1], 'b-o', mx[0], mx[2], 'r--o')
+pylab.show()
+
+# -n
+# -f
+# var # cols
+# -p
+# -lp
+# -lines
+
+# Usage:  xgr [ options ... ] {data file name}
+# Options include:
+#   -c initial upper left corner x & y location in pixels
+#   -w init. window width in pixels
+#   -h init. window height in pixels
+#   -xb {low x} {high x} as floats
+#   -yb {low y} {high y} as floats
+#   -rv (reverse video):  Invert background color.
+#   -n  to take X coordinate implicitly from line number,
+#       rather than from first column of data file.
+#   -sort:  Sort input data on X coordinate before plotting.
+#   --help: print this message.
+#   -a:   ASCII input (default)
+#   -rb:  Real binary input
+#   -cb:  Complex binary input
+#   -rnb: Real binary input, in network byte order
+#   -cnb: Complex binary input, in network byte order
+#   -po:  Echo input to stdout (e.g. if xgr is in a pipe).
+# Use "-" as file name, or omit, to read from stdin.
+# 
+#   -p:   dots only
+#   -f:   vector field
+#   -fpl: specify length of vector-field arrows in pixels
+#   -lines: line-draw mode
+# 

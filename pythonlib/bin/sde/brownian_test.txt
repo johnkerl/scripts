@@ -1,0 +1,22 @@
+Brownian bridges
+X0 =   2.0000000
+XT =   3.0000000
+T  =   2.0000000
+
+i  =     80  s =   0.8000000
+j  =    160  t =   1.6000000
+nX =  10000 nt =    200
+
+Actual    mean X(s):   2.4007444   Actual    mean X(t):   2.8013367
+Expected  mean X(s):   2.4000000   Expected  mean X(t):   2.8000000
+Diff      mean X(s):   0.0007444   Diff      mean X(t):   0.0013367
+                       0.107385 sigma                     0.238191 sigma
+
+Actual    Var  X(s):   0.4805783   Actual    var  X(t):   0.3149119
+Expected  Var  X(s):   0.4800000   Expected  var  X(t):   0.3200000
+Diff      Var  X(s):   0.0005783   Diff      var  X(t):  -0.0050881
+
+Actual    Cov(X(s),X(t)):   0.1571330
+Expected  Cov(X(s),X(t)):   0.1600000
+Diff      Cov(X(s),X(t)):  -0.0028670
+

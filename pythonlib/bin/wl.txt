@@ -1,0 +1,5 @@
+apple
+bat
+bag
+cat
+big

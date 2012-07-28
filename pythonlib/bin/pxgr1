@@ -1,0 +1,37 @@
+#!/usr/bin/ipython -pylab
+
+import pylab
+import sys
+import re
+
+ioff
+#print 'after import'
+table = []
+for line in sys.stdin:
+	if line[-1] == '\n':
+		line = line[0:-1]
+	line = re.sub(r"^\s+", r"", line)
+	line = re.sub(r"\s+$", r"", line)
+	line = re.sub(r"#.*",  r"", line)
+	if re.match(r"^$", line):
+		continue
+	row = line.split()
+	#print row
+	row = [ float(value) for value in row ]
+	#print row
+	table.append(row)
+
+mx = array(table).T
+#print mx
+print 'mx0'
+print mx[0]
+print 'mx1'
+print mx[1]
+print 'mx2'
+print mx[2]
+
+plot(mx[0], mx[1], mx[0], mx[2])
+print 'after plot cmd'
+show()
+#while 1:
+	#pass

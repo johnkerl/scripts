@@ -1,0 +1,20 @@
+#!/usr/bin/python -Wall
+
+import sys
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage: %s {p} {n}" % (sys.argv[0])
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+argc = len(sys.argv)
+if argc != 3:
+	usage()
+p = float(sys.argv[1])
+n = int  (sys.argv[2])
+
+q = 1 - (1-p)**n
+a = n*p
+print "1-(1-p)^n = %.6e = %f" % (q, q)
+print "np        = %.6e = %f" % (a, a)

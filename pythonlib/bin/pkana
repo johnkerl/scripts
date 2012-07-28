@@ -1,0 +1,206 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2009-12-14
+# An anagram generator.
+# ================================================================
+
+import sys, os, re, copy, string
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, \
+		'Usage: %s [options] {one or more letterwords, allowing blanks}.' \
+			% sys.argv[0]
+	print >> sys.stderr, 'Options:'
+	print >> sys.stderr, '  -a:   include words of all lengths.'
+	print >> sys.stderr, '  -nl:  inhibit sorting output by length.'
+	print >> sys.stderr, '  -f:   keep letter positions fixed.'
+	print >> sys.stderr, '  -fr:  use French word list (no diacritical marks).'
+	#print >> sys.stderr, 'For example: %s h_ll_rs' % sys.argv[0]
+	print >> sys.stderr, 'Examples:'
+	print >> sys.stderr, '  %s    hllrs_    finds only \'shrill\'' \
+		% sys.argv[0]
+	print >> sys.stderr, \
+		'  %s -a hllrs_    finds \'shrill\', \'atmospherically\', etc.' \
+		% sys.argv[0]
+	print >> sys.stderr, \
+		'  %s    ___walled finds \'drywalled\', \'leewardly\', etc.' \
+		% sys.argv[0]
+	print >> sys.stderr, \
+		'  %s -f ___walled finds only \'drywalled\'' \
+		% sys.argv[0]
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+# Parse the command line into options and input letterwords.
+
+def main():
+	same_length_only = True
+	do_lensort = True
+	fix_positions = False
+	dict_file_name = os.getenv('HOME') + '/words/words'
+
+	inwords = []
+
+	for arg in sys.argv[1:]:
+		if arg[0] == '-':
+			if arg == '-a':
+				same_length_only = False
+			elif arg == '-nl':
+				do_lensort = False
+			elif arg == '-f':
+				fix_positions = True
+			elif arg == '-fr':
+				dict_file_name = os.getenv('HOME') + '/words/mots'
+			else:
+				print >> sys.stderr, 'Unrecognized option \'%s\'.' % arg
+				usage()
+		else:
+			inwords.append(arg)
+	if len(inwords) < 1:
+		usage()
+
+	# Load the dictionary file.
+	dict = get_dict(dict_file_name)
+
+	# Find matches.
+	for inword in inwords:
+		# Print a separator.
+		if len(inwords) > 1:
+			print ''
+
+		# My dictionary is lower-case only.
+		inword = string.lower(inword)
+
+		# Allow either '.' or '_' for wildcard.
+		inword = re.sub('\.', '_', inword)
+
+		if same_length_only:
+			candidates = trim_dict_to_spec_len_words(dict, len(inword))
+		else:
+			candidates = dict
+
+		if fix_positions:
+			match_words = find_fixed_matches(inword, candidates)
+		else:
+			match_words = find_unfixed_matches(inword, candidates)
+
+		if do_lensort:
+			match_words.sort(lensortcmp)
+		else:
+			match_words.sort()
+
+		for match_word in match_words:
+			# If we've been piped to something like head -20, this write to
+			# stdout can fail.  Exit gracefully if so.
+			try:
+				print match_word
+			except:
+				sys.exit(0)
+
+# ----------------------------------------------------------------
+# Read a word-list file, which has one word per line, into an array of words.
+def get_dict(dict_file_name):
+	try:
+		handle = open(dict_file_name, 'r')
+	except:
+		print >> sys.stderr, "Couldn''t open file '%s' for read."
+		sys.exit(1)
+	dict = []
+	while True:
+		line = handle.readline()
+		if line == '':
+			break
+		if line[-1] == '\n':
+			line = line[:-1]
+		dict.append(line)
+	handle.close()
+	return dict
+
+# ----------------------------------------------------------------
+# Retain in the word list only those words which have a specified length.
+def trim_dict_to_spec_len_words(dict, word_length):
+	trimmed_dict = []
+	for word in dict:
+		if len(word) == word_length:
+			trimmed_dict.append(word)
+	return trimmed_dict
+
+# ----------------------------------------------------------------
+# E.g. 'hello_' -> {'h':1, 'e':1, 'l':2, 'o':1}.
+def get_letters_and_counts(inword):
+	letters_and_counts = {}
+	for letter in inword:
+		if letter in letters_and_counts:
+			letters_and_counts[letter] += 1
+		else:
+			letters_and_counts[letter]  = 1
+	return letters_and_counts
+
+# ----------------------------------------------------------------
+def find_unfixed_matches(inword, dict):
+	match_words = copy.copy(dict)
+	letters_and_counts = get_letters_and_counts(inword)
+	# E.g. 'hello_' -> 1 h, 1 e, 2 l's, 1 o, 1 _.
+
+	for sought_letter in letters_and_counts:
+		if sought_letter == '_':
+			continue
+		# Remove from the match_words list all those which don't have
+		# the current letter at least the mininum number of times.
+		match_words_temp = match_words
+		match_words = []
+		for word in match_words_temp:
+			minimum_occurrences = letters_and_counts[sought_letter]
+			occurrences = 0
+			for letter in word:
+				if letter == sought_letter:
+					occurrences += 1
+			if occurrences >= minimum_occurrences:
+				match_words.append(word)
+	return match_words
+
+# ----------------------------------------------------------------
+def find_fixed_matches(inword, dict):
+	len_inword = len(inword)
+
+	# Find the positions of all non-blank letters in the word.
+	check_indices = []
+	for i in range(0, len_inword):
+		if inword[i] != '_':
+			check_indices.append(i)
+
+	match_words = []
+	for dict_word in dict:
+		if len(dict_word) != len_inword:
+			continue
+		matches = True
+		for i in check_indices:
+			if inword[i] != dict_word[i]:
+				matches = False
+				break
+		if matches:
+			match_words.append(dict_word)
+	return match_words
+
+# ----------------------------------------------------------------
+# A comparison routine to sort primarily by word length, then secondarily by
+# alphabetical order.
+def lensortcmp(a, b):
+	lena = len(a)
+	lenb = len(b)
+	if lena < lenb:
+		return -1
+	if lena > lenb:
+		return  1
+	if a < b:
+		return -1
+	if a > b:
+		return  1
+	return 0
+
+# ================================================================
+main()

@@ -1,0 +1,46 @@
+#!/usr/bin/python -Wall
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-01-11
+#
+# This is an example of numerical integration in one variable: sin(x)/x from -2
+# pi to 2 pi.  A reference value for the integral is 2.83630; this program
+# prints 2.836350.
+# ----------------------------------------------------------------
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+from math import *
+import sys
+
+# ----------------------------------------------------------------
+# Integrand
+def f(x):
+	if (x == 0.0):
+		return 1.0
+	else:
+		return sin(x) / x
+
+# ----------------------------------------------------------------
+xlo = -2.0 * pi
+xhi =  2.0 * pi
+
+argc = len(sys.argv)
+nx  = 400
+if (argc == 2):
+	nx = float(argv[1])
+dx  = (xhi - xlo) / nx
+
+# Alternatively:
+#dx  = 0.001
+
+sum = 0.0
+for k in range(0, nx):
+	x = k * dx
+	y = f(x)
+	sum += y * dx
+print "%11.6f" % (sum)

@@ -1,0 +1,50 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2010-09-16
+#
+# Sample input:
+#  1 12 13 14
+#  2 15 16 17
+#  3 18 19 20
+# Sample output:
+#  1 12
+#  1 13
+#  1 14
+#  2 15
+#  2 16
+#  2 17
+#  3 18
+#  3 19
+#  3 20
+
+# ================================================================
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+import tabutil_m
+
+argc = len(sys.argv)
+if argc == 1:
+	file_name = '-'
+elif argc == 2:
+	file_name = sys.argv[1]
+else:
+	print >> sys.stderr, "Usage: %s {file name}" % (sys.argv[0])
+	print >> sys.stderr, "Use \"-\" as file name for stdin."
+	sys.exit(1)
+
+columns = tabutil_m.text_columns_from_file(file_name)
+
+column0 = columns[0]
+rest = columns[1:]
+
+for i in xrange(0, len(columns[0])):
+	for j in xrange(1, len(columns)):
+		print columns[0][i],
+		print columns[j][i]

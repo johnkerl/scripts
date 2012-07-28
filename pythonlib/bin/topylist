@@ -1,0 +1,22 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2009-02-24
+# ================================================================
+
+import sys
+import re
+
+words = []
+for line in sys.stdin:
+	line = re.sub(r'^\s+', '', line)
+	line = re.sub(r'\s+$', '', line)
+	words += line.split()
+
+n = len(words)
+print '[',
+for i in range(0, n-1):
+	print "'%s'," % (words[i])
+print "'%s']" % (words[n-1])

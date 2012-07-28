@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2006-06-04
+# ----------------------------------------------------------------
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+# Import the cmath module rather than the math module so that exp et al. may
+# take complex arguments.
+from cmath import *
+import sys
+
+# ----------------------------------------------------------------
+def f(z):
+	return exp(1j*z)/((z-1j)**2)
+
+# ----------------------------------------------------------------
+def pathz(t):
+	return t * (1+0j)
+
+# ----------------------------------------------------------------
+# Mesh over path
+tlo = -40.0
+thi =  40.0
+nt  = 10000
+tabulate = 0
+
+# Start of numerical approximation to the integral
+sum = 0.0
+t   = tlo
+dt  = (thi - tlo) / nt
+for it in range(0, nt):
+	t1 = t
+	t2 = t + dt
+
+	z  = pathz(t1)
+	dz = pathz(t2) - z
+
+	w = f(z)
+	sum += w * dz
+
+	if tabulate:
+		print ">> t = %8.4f/2pi z = %8.4f +%8.4fi dz = %8.4f +%8.4fi w = %8.4f +%8.4fi sum = %8.4f +%8.4fi" % \
+			(t/2/pi, z.real, z.imag, dz.real, dz.imag, w.real, w.imag, sum.real, sum.imag)
+
+	t += dt
+
+print "%11.7f +%11.7fi" % (sum.real, sum.imag)

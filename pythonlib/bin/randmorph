@@ -1,0 +1,404 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2009-07-14
+# ================================================================
+
+from __future__ import division
+import sys
+import re
+import copy
+import random
+
+# ----------------------------------------------------------------
+def find_word_in_line(orig_line):
+	line = copy.copy(orig_line)
+
+	# Strip trailing carriage return, if any.
+	if line[-1] == '\n':
+		line = line[0:-1]
+	# Strip comments.
+	line = re.sub(r"#.*",  r"", line)
+	# Strip leading and trailing whitespace.
+	line = re.sub(r"^\s+", r"", line)
+	line = re.sub(r"\s+$", r"", line)
+	# Skip blank lines.
+	if re.match(r"^$", line):
+		return [0, ""]
+	# Skip words with any upper-case letters.
+	if re.match(r"[A-Z]", line):
+		return [0, ""]
+
+	return [1, line]
+
+# ----------------------------------------------------------------
+# Increments by one, if key is present, else does an insert.
+def hash_count_increment(hash, key):
+	if key in hash:
+		hash[key] += 1
+	else:
+		hash[key]  = 1
+
+# ----------------------------------------------------------------
+# Array of pairs of [value, cumulative probability].
+def hash_to_CDF(prb_hash):
+	CDF = []
+	C   = 0.0
+	for key in prb_hash:
+		P  = prb_hash[key]
+		C += P
+		CDF.append([key, C])
+	CDF[-1][1] = 1.0 # Fix up roundoff error.
+	return CDF
+
+# ----------------------------------------------------------------
+def random_selection_from_CDF(CDF):
+	U = random.uniform(0.0, 1.0)
+	for [value, C] in CDF:
+		if U < C:
+			return value
+	print >> sys.stderr, 'random_selection_from_CDF b0rk'
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+# Note:  letters in words are indexed from zero up.  E.g. 'e' is letter 4
+# of the word 'apple'.
+
+# ----------------------------------------------------------------
+# Counts/prbs:
+#
+# ells_hash[5]              -> P(word len == 5)
+# M_hashes[5][0]['a']      -> P(5-letter word's letter 0 is 'a')
+# M_hashes[5][2]['a']['b'] -> P(5-letter word's letter 2 is 'b' | ltr 1 is 'a')
+#
+# ells_hash [ell]
+#             ^
+#             |
+#            hash
+#
+# M_hashes[ell][0][letter 0]
+#           ^   ^     ^
+#           |   |     |
+#         hash array hash
+#
+# M_hashes[ell][j][letter_i][letter_j]
+#           ^   ^     ^         ^
+#           |   |     |         |
+#         hash array hash      hash
+#
+# ----------------------------------------------------------------
+# CDFs:
+#
+# ell_CDF[5]           -> P(word len <= 5)
+# M_CDFs[5][0][]      -> [x, P(letter 0) <= x)] for 5-letter words
+# M_CDFs[5][2]['a'][] -> [x, P(ltr 3) <= x | ltr 2 == 'a')] for 5-letter words
+#
+# ell_CDF[ell]
+#          ^
+#          |
+#         array
+#
+# M_CDFs[ell][0][idx][0] = letter
+# M_CDFs[ell][0][idx][1] = C
+#         ^   ^   ^   ^
+#         |   |   |   |
+#    array array array array
+#
+# M_CDFs[ell][j][letter_i][idx][0] = letter_j
+# M_CDFs[ell][j][letter_i][idx][1] = C
+#         ^   ^     ^       ^   ^
+#         |   |     |       |   |
+#      array array hash  array array
+
+# ----------------------------------------------------------------
+def populate_ell_and_M_histos(word_list_file_name, verbose=0):
+
+	if verbose:
+		print '=' * 72
+		print 'POPULATE_ELL_AND_M_HISTOS'
+
+	ells_hash  = {}
+	M_hashes = {}
+
+	try:
+		fp = open(word_list_file_name, 'ra')
+	except:
+		print >> sys.stderr, "Couldn't open \"%s\" for read.\n" \
+			% (word_list_file_name)
+		sys.exit(1)
+	num_words = 0
+	max_word_len = 0
+	while 1:
+		line = fp.readline()
+		if line == "":
+			break
+
+		[is_word, word] = find_word_in_line(line)
+		if not is_word:
+			continue
+		num_words += 1
+		ell = len(word)
+		if ell > max_word_len:
+			max_word_len = ell
+
+		if verbose:
+			print '  word: %s' % (word)
+		if (num_words % 10000) == 0:
+			print '... %7d words' % (num_words)
+
+		# Update the histogram of word lengths.
+		hash_count_increment(ells_hash, ell)
+
+		# Update the histogram of transition probabilities.
+
+		# If this is the first word of length ell, set M_hashes[ell]
+		# to be an array from 0 to ell-1 of empty hashes.
+		if ell not in M_hashes:
+			entry = []
+			for j in range(0, ell):
+				entry.append({})
+			M_hashes[ell] = entry
+
+		# Histogram for letter 0
+		#
+		# M_hashes[ell][0][letter 0]
+		#           ^   ^     ^
+		#           |   |     |
+		#         hash array hash
+
+		letter_0 = word[0]
+		hash_count_increment(M_hashes[ell][0], letter_0)
+
+		# Transition histogram for letter j-1 to j
+		#
+		# M_hashes[ell][j][letter_i][letter_j]
+		#           ^   ^     ^         ^
+		#           |   |     |         |
+		#         hash array hash      hash
+
+		for j in range(1, ell):
+			letter_i = word[j-1]
+			letter_j = word[j]
+
+			if letter_i not in M_hashes[ell][j]:
+				M_hashes[ell][j][letter_i] = {}
+
+			hash_count_increment(M_hashes[ell][j][letter_i], letter_j)
+
+	fp.close()
+
+	if verbose:
+		print '=' * 72
+		print ''
+
+	return [ells_hash, M_hashes, num_words, max_word_len]
+
+# ----------------------------------------------------------------
+def ell_and_M_histos_to_prbs(ells_hash, M_hashes, num_words, max_word_len, \
+verbose=0):
+
+	if verbose:
+		print '=' * 72
+		print 'P_AND_M_HISTOS_TO_PRBS'
+
+	# Convert histograms to probabilities.
+	for key in ells_hash:
+		ells_hash[key] /= num_words
+
+	for ell in range(1, max_word_len+1):
+		if ell not in M_hashes:
+			continue # No words of this length were encountered.
+
+		if verbose:
+			print ''
+			print '-' * 64
+			print 'M hashes for ell = ', ell
+
+		# Scale the histogram of 0th letters down to a probability of 1st
+		# letters.
+		count_0 = 0
+		for letter_0 in M_hashes[ell][0]:
+			count_0 += M_hashes[ell][0][letter_0]
+		if verbose: print '  num words with length', ell, '=', count_0
+
+		if verbose:
+			print '  counts for letter 0:'
+			for letter_0 in M_hashes[ell][0]:
+				print '   ', letter_0, M_hashes[ell][0][letter_0]
+			print ''
+
+		for letter_0 in M_hashes[ell][0]:
+			M_hashes[ell][0][letter_0] /= count_0
+
+		if verbose:
+			print '  prbs for letter 0:'
+			for letter_0 in M_hashes[ell][0]:
+				print '   ', letter_0, M_hashes[ell][0][letter_0]
+
+		# For each subsequent letter, scale the transition histogram down to
+		# transition probabilities.
+
+		for j in range(1, ell):
+			if verbose:
+				print ''
+				print '  letter position %d->%d for word length %d:' \
+					% (j-1, j, ell)
+
+			for letter_i in M_hashes[ell][j]:
+				count_i = 0
+				for letter_j in M_hashes[ell][j][letter_i]:
+					count_i += M_hashes[ell][j][letter_i][letter_j]
+
+				if verbose:
+					print '    count[%s] = %d' \
+						% (letter_i, count_i)
+					for letter_j in M_hashes[ell][j][letter_i]:
+						num = M_hashes[ell][j][letter_i][letter_j]
+						print '      # %s -> %s = %d' % \
+							(letter_i, letter_j, num)
+
+				for letter_j in M_hashes[ell][j][letter_i]:
+					M_hashes[ell][j][letter_i][letter_j] /= count_i
+
+				if verbose:
+					for letter_j in M_hashes[ell][j][letter_i]:
+						num = M_hashes[ell][j][letter_i][letter_j]
+						print '      P %s -> %s = %11.7f' % \
+							(letter_i, letter_j, num)
+
+	if verbose: print ''
+
+	if verbose:
+		print '=' * 72
+		print ''
+
+# ----------------------------------------------------------------
+def hashes_to_CDFs(ells_hash, M_hashes, num_words, max_word_len, verbose=0):
+
+	if verbose:
+		print '=' * 72
+		print 'HASHES_TO_CDFS'
+
+	# These arrays are indexed by word length.  Zero-length words have
+	# probability 0.
+	ell_CDF  = [0.0]
+	M_CDFs   = [0.0]
+
+	# Convert the ells hash to a CDF.
+	ell_CDF = hash_to_CDF(ells_hash)
+	if verbose:
+		print 'ell CDF:'
+		for [ell, C] in ell_CDF:
+			print '   ', ell, C
+
+
+	# Convert the Ms hashes to CDFs.
+	# Loop over word lengths.
+	for ell in range(1, max_word_len+1):
+		if ell not in M_hashes:
+			M_CDFs.append([])
+			continue # No words of this length were encountered.
+
+		if verbose:
+			print ''
+			print '-' * 64
+			print 'M CDFs for ell = ', ell
+
+		M_CDFs_ell = []
+
+		# Make a CDF for letter 0.
+		letter_0_CDF = hash_to_CDF(M_hashes[ell][0])
+		if verbose:
+			print '  CDF for letter 0:'
+			for [letter_0, C] in letter_0_CDF:
+				print '   ', letter_0, C
+		M_CDFs_ell.append(letter_0_CDF)
+
+		# For each subsequent letter, compute a CDF for transition
+		# probabilities to the subsequent letter.
+		#
+		# * M_hashes[ell][j][letter_i] is a hash of P's.
+		# * M_CDFs  [ell][j][letter_i] is a CDF.
+
+		for j in range(1, ell):
+			# For each letter occurring at position j, make a CDF for
+			# letter j-1 -> letter j.
+
+			M_CDFs_ell_j = {}
+			for letter_i in M_hashes[ell][j]:
+				ij_CDF = hash_to_CDF(M_hashes[ell][j][letter_i])
+
+				if verbose:
+					print '  CDF for letter %d = %s -> letter %d:' \
+						% (j-1, letter_i, j)
+					for [letter_j, C] in ij_CDF:
+						print '   ', letter_j, C
+
+				M_CDFs_ell_j[letter_i] = ij_CDF
+			M_CDFs_ell.append(M_CDFs_ell_j)
+		M_CDFs.append(M_CDFs_ell)
+
+	if verbose:
+		print '=' * 72
+		print ''
+
+	return ell_CDF, M_CDFs
+
+# ----------------------------------------------------------------
+def make_random_word(ell_CDF, M_CDFs):
+	word = ""
+
+	# Choose the word length.
+	ell = random_selection_from_CDF(ell_CDF)
+
+	# Choose letter 0.
+	letter_0 = random_selection_from_CDF(M_CDFs[ell][0])
+	word += letter_0
+
+	# Choose subsequent letters.
+	letter_i = letter_0
+	for j in range(1, ell):
+		letter_j = random_selection_from_CDF(M_CDFs[ell][j][letter_i])
+		word += letter_j
+		letter_i = letter_j
+
+	return word
+
+# ================================================================
+# ells_hash: hashes word length ell to probability that word length is ell.
+# M_hashes:  hashes word length ell to an array:
+#   Entry  0  is the empty list.
+#   Entry  1  is a hash of probabilities for letter 0.
+#   Entries 2 to ell-1 are hashes of hashes for letter j-1 transitioning to
+#     letter j.
+#   Entry ell is a hash of probabilities for letter ell.
+
+word_list_file_name = './wl.txt'
+noutput = 20
+if len(sys.argv) == 2:
+	word_list_file_name = sys.argv[1]
+if len(sys.argv) == 3:
+	word_list_file_name = sys.argv[1]
+	noutput = int(sys.argv[2])
+
+# ----------------------------------------------------------------
+print 'Computing histograms from word-list file \"%s\":' % (word_list_file_name)
+[ells_hash, M_hashes, num_words, max_word_len] = \
+	populate_ell_and_M_histos(word_list_file_name, verbose=0)
+
+print 'Scaling histograms to probabilities:'
+ell_and_M_histos_to_prbs(ells_hash, M_hashes, num_words, max_word_len, \
+	verbose=0)
+
+print 'Converting probabilities to CDFs:'
+[ell_CDF, M_CDFs] = \
+	hashes_to_CDFs(ells_hash, M_hashes, num_words, max_word_len, verbose=0)
+
+# ----------------------------------------------------------------
+print 'Generating output:'
+print ''
+for k in range(0, noutput):
+	word = make_random_word(ell_CDF, M_CDFs)
+	print word

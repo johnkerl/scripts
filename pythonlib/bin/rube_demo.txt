@@ -1,0 +1,510 @@
+-- Sequence is:
+F
+-- Image is:
+UFR -> RFD
+UFL -> RFU
+DFR -> LFD
+DFL -> LFU
+UF -> RF
+FR -> FD
+FL -> FU
+DF -> LF
+-- Cycle decomposition is:
+UFR RFD DFL LFU
+UF RF DF LF
+-- Order is:
+4
+
+-- Sequence is:
+F R
+-- Image is:
+UFR RUF
+UFL -> RUB
+UBR -> BDR
+DFR -> LFD
+DFL -> LFU
+DBR -> FDR
+UF -> RU
+UR -> BR
+FR -> FD
+FL -> FU
+BR -> DR
+DF -> LF
+DR -> FR
+-- Cycle decomposition is:
+UFR +
+UFL RUB RBD RDF DLF -
+UF RU RB RD RF DF LF
+-- Order is:
+105
+
+-- Sequence is:
+F R-
+-- Image is:
+UFR -> RDB
+UFL -> RDF
+UBR -> FUR
+DFR -> LFD
+DFL -> LFU
+DBR -> BUR
+UF -> RD
+UR -> FR
+FR -> FD
+FL -> FU
+BR -> UR
+DF -> LF
+DR -> BR
+-- Cycle decomposition is:
+UFR RDB RBU +
+UFL RDF DLF -
+UF RD RB RU RF DF LF
+-- Order is:
+63
+
+-- Sequence is:
+F R2
+-- Image is:
+UFR -> RBU
+UFL -> RBD
+UBR -> DFR
+DFR -> LFD
+DFL -> LFU
+DBR -> UFR
+UF -> RB
+UR -> DR
+FR -> FD
+FL -> FU
+BR -> FR
+DF -> LF
+DR -> UR
+-- Cycle decomposition is:
+UFR RBU RFD DFL LFU DBR
+UF RB RF DF LF
+UR DR
+-- Order is:
+30
+
+-- Sequence is:
+F U R
+-- Image is:
+UFR RUF
+UFL FLU
+UBL -> BRD
+UBR BRU
+DFR -> LFD
+DFL -> BLU
+DBR -> FDR
+UF -> RU
+UL -> UB
+UB -> BR
+UR -> UF
+FR -> FD
+FL -> LU
+BR -> DR
+DF -> LF
+DR -> FR
+-- Cycle decomposition is:
+UFR +
+UFL +
+UBL BRD DRF LDF
+UBR +
+UF RU +
+UL UB BR DR FR FD FL +
+-- Order is:
+84
+
+-- Sequence is:
+F R F R
+-- Image is:
+UFR FRU
+UFL -> RBD
+UBR -> DFR
+DFR -> UFL
+DFL -> BUR
+DBR -> FLD
+UF -> RB
+UR -> DR
+FR -> FL
+FL -> UR
+BR -> FR
+DF -> UF
+DR -> FD
+-- Cycle decomposition is:
+UFR -
+UFL RBD DLF BRU FRD +
+UF RB RF LF RU RD DF
+-- Order is:
+105
+
+-- Sequence is:
+F R B L
+-- Image is:
+UFR RUF
+UFL FLU
+UBL LUB
+UBR BRU
+DFR -> LDB
+DFL LDF
+DBL -> RBD
+DBR -> FDR
+UF -> RU
+UL -> FL
+UB -> LU
+UR -> BU
+FR -> FD
+FL -> FU
+BL -> BD
+BR -> DR
+DF -> LD
+DL -> BL
+DB -> RB
+DR -> FR
+-- Cycle decomposition is:
+UFR +
+UFL +
+UBL +
+UBR +
+DFR LDB DRB +
+DFL +
+UF RU UB LU LF
+FR FD DL BL BD BR DR
+-- Order is:
+315
+
+-- Sequence is:
+F R B L D U
+-- Image is:
+UFR -> FUL
+UFL -> LBU
+UBL -> BUR
+UBR -> RFU
+DFR -> FDL
+DFL -> FDR
+DBL BLD
+DBR RDB
+UF FU
+UL -> FL
+UB BU
+UR RU
+FR -> RD
+FL -> LU
+BL -> LD
+BR -> DB
+DF FD
+DL -> BL
+DB -> RB
+DR -> FR
+-- Cycle decomposition is:
+UFR FUL BLU URB +
+DFR FDL
+DBL +
+DBR +
+UF +
+UL FL +
+UB +
+UR +
+FR RD +
+BL LD +
+BR DB +
+DF +
+-- Order is:
+12
+
+-- Sequence is:
+F U R B D L
+-- Image is:
+UFR RUF
+UFL -> DLF
+UBL -> BUR
+UBR -> UFL
+DFR FRD
+DFL -> LBD
+DBL -> ULB
+DBR RDB
+UF -> RU
+UL LU
+UB BU
+UR -> UF
+FR -> RD
+FL LF
+BL LB
+BR -> DB
+DF -> LD
+DL -> DF
+DB -> RB
+DR -> FR
+-- Cycle decomposition is:
+UFR +
+UFL DLF LDB BUL UBR
+DFR +
+DBR +
+UF RU +
+UL +
+UB +
+FR RD +
+FL +
+BL +
+BR DB +
+DF LD +
+-- Order is:
+60
+
+-- Sequence is:
+F U R B L D
+-- Image is:
+UFR RUF
+UFL -> DFR
+UBL -> BUR
+UBR -> UFL
+DFR -> FDL
+DFL -> UBL
+DBL BLD
+DBR RDB
+UF -> RU
+UL LU
+UB BU
+UR -> UF
+FR -> RD
+FL LF
+BL -> LD
+BR -> DB
+DF FD
+DL -> BL
+DB -> RB
+DR -> FR
+-- Cycle decomposition is:
+UFR +
+UFL DFR FDL BUL UBR
+DBL +
+DBR +
+UF RU +
+UL +
+UB +
+FR RD +
+FL +
+BL LD +
+BR DB +
+DF +
+-- Order is:
+60
+
+-- Sequence is:
+F R B L R- F-
+-- Image is:
+UFL -> FDL
+UBL LUB
+UBR -> LUF
+DFR -> LDB
+DFL -> DRF
+DBL -> RUB
+UL -> FD
+UB -> LU
+UR -> BU
+BL -> BD
+DF -> LD
+DL -> BL
+DB -> RU
+-- Cycle decomposition is:
+UFL FDL RDF BLD UBR -
+UBL +
+UL FD DL BL BD UR BU
+-- Order is:
+105
+
+-- Sequence is:
+F R B L R- F- L- B-
+-- Image is:
+DFR -> LFD
+DFL -> DRF
+DBL -> DRB
+DBR -> LBD
+UL -> FD
+UR -> BR
+FL -> UL
+BR -> BD
+DF -> LF
+DB -> RU
+-- Cycle decomposition is:
+DFR LFD +
+DBL DRB -
+UL FD FL
+UR BR BD
+-- Order is:
+6
+
+-- Sequence is:
+F2 R2
+-- Image is:
+UFR -> DFL
+UFL -> UBR
+UBR -> DFR
+DFR -> UFL
+DFL -> DBR
+DBR -> UFR
+UF -> DF
+UR -> DR
+FR -> FL
+FL -> BR
+BR -> FR
+DF -> UF
+DR -> UR
+-- Cycle decomposition is:
+UFR DFL DBR
+UFL UBR DFR
+UF DF
+UR DR
+FR FL BR
+-- Order is:
+6
+
+-- Sequence is:
+F2
+-- Image is:
+UFR -> DFL
+UFL -> DFR
+DFR -> UFL
+DFL -> UFR
+UF -> DF
+FR -> FL
+FL -> FR
+DF -> UF
+-- Cycle decomposition is:
+UFR DFL
+UFL DFR
+UF DF
+FR FL
+-- Order is:
+2
+
+-- Sequence is:
+F2 B2
+-- Image is:
+UFR -> DFL
+UFL -> DFR
+UBL -> DBR
+UBR -> DBL
+DFR -> UFL
+DFL -> UFR
+DBL -> UBR
+DBR -> UBL
+UF -> DF
+UB -> DB
+FR -> FL
+FL -> FR
+BL -> BR
+BR -> BL
+DF -> UF
+DB -> UB
+-- Cycle decomposition is:
+UFR DFL
+UFL DFR
+UBL DBR
+UBR DBL
+UF DF
+UB DB
+FR FL
+BL BR
+-- Order is:
+2
+
+-- Sequence is:
+B L U L- U- L U L- U- L U L- U- B-
+-- Image is:
+UFR -> FUL
+UFL -> FUR
+UBL -> BUR
+UBR -> BUL
+-- Cycle decomposition is:
+UFR FUL
+UBL BUR
+-- Order is:
+2
+
+-- Sequence is:
+B R- D2 R B- U2
+-- Image is:
+UFR FRU
+UFL -> UBR
+UBL LUB
+UBR -> UFL
+DFR -> FDL
+DFL -> FDR
+UF -> UB
+UL -> UR
+UB -> UF
+UR -> UL
+FR -> DL
+BL -> FD
+DF -> LB
+DL -> FR
+-- Cycle decomposition is:
+UFR -
+UFL UBR
+UBL +
+DFR FDL
+UF UB
+UL UR
+FR DL
+BL FD
+-- Order is:
+6
+
+-- Sequence is:
+B R- D2 R B- U2 B R- D2 R B- U2
+-- Image is:
+UFR RUF
+UBL BLU
+-- Cycle decomposition is:
+UFR +
+UBL -
+-- Order is:
+3
+
+-- Sequence is:
+L- R+ F+ L+ R- D2 L- R+ F+ L+ R-
+-- Image is:
+DL -> DR
+DB -> LD
+DR -> BD
+-- Cycle decomposition is:
+DL DR BD
+-- Order is:
+3
+
+-- Sequence is:
+R L- F R- L D R L- F R- L D R L- F2 R- L D R L- F R- L D R L- F R- L D2
+-- Image is:
+DF FD
+DB BD
+-- Cycle decomposition is:
+DF +
+DB +
+-- Order is:
+2
+
+-- Sequence is:
+F2 L- R F L R- D L- R F- L R- D- L- R F L R- D L- R F- L R- D- F2
+-- Image is:
+DF FD
+DL LD
+DB BD
+DR RD
+-- Cycle decomposition is:
+DF +
+DL +
+DB +
+DR +
+-- Order is:
+2
+
+-- Sequence is:
+B- U2 B2 U B- U- B- U2 F R B R- F-
+-- Image is:
+UB BU
+UR RU
+-- Cycle decomposition is:
+UB +
+UR +
+-- Order is:
+2
+

@@ -1,0 +1,28 @@
+#!/usr/bin/python -Wall
+
+import sys
+import math
+from sackmat_m import *
+
+argc = len(sys.argv)
+if (argc != 2):
+	print >> sys.stderr, "Usage: %s {file name}" % (sys.argv[0])
+	sys.exit(1)
+
+u = read_column_vector(float, sys.argv[1])
+height = len(u)
+
+# Compute ||u|| and v.
+v0 = math.sqrt(vecdot(u, u))
+if (u[0] >= 0):
+	v0 = -v0
+v = [0] * height
+v[0] = v0
+
+# Compute axis = u - v.
+axis = vecsub(u, v)
+
+# Compute the Householder transformation.
+Q = householder_vector_to_Q(axis)
+
+print_matrix(Q)

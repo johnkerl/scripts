@@ -1,0 +1,41 @@
+#!/usr/bin/python -Wall
+
+import pylab
+import numpy
+import sys
+import re
+import tabutil_m
+
+# ----------------------------------------------------------------
+def plot_lines_from_file(file_name, title=""):
+	"""Input file should have x1, y1, x2, y2 quadruples on each line.  For each
+	such quadruple, we will draw a line from (x1,y1) to (x2,y2)."""
+
+	columns = tabutil_m.float_columns_from_file(file_name)
+	if (len(columns) != 4):
+		print >> sys.stderr, \
+			"plot_lines_from_file:  expected 4 columns; got %d.\n" \
+			% (len(columns))
+		sys.exit(1)
+
+	x1s = columns[0]
+	y1s = columns[1]
+	x2s = columns[2]
+	y2s = columns[3]
+
+	num_points = len(x1s)
+	for k in range(0, num_points):
+		x = [x1s[k], x2s[k]]
+		y = [y1s[k], y2s[k]]
+		pylab.plot(x,y, 'b-o', markersize=1)
+	pylab.title(title)
+	pylab.show()
+
+# ----------------------------------------------------------------
+argc = len(sys.argv)
+if (argc != 2):
+	print >> sys.stderr, "Usage: %s {file name}" % (sys.argv[0])
+	print >> sys.stderr, "Use \"-\" for file name if input is from stdin."
+	sys.exit(1)
+
+plot_lines_from_file(sys.argv[1])

@@ -1,0 +1,51 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2009-08-27 :)
+# ================================================================
+
+import sys
+import re
+import sackmat_m
+from math import sqrt
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, 'Usage: %s  [numbers ...]' \
+		% (sys.argv[0])
+	print >> sys.stderr, \
+'If no numbers are on the command line, they are read from stdin.'
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+fmt = '%.6f'
+argc = len(sys.argv)
+if argc >= 2:
+	if sys.argv[1] == '-h' or sys.argv[1] == '--help':
+		usage()
+
+if argc > 1: # Read from the command line
+	for argi in range(1, argc):
+		string = sys.argv[argi]
+		try:
+			number = float(sys.argv[argi])
+		except:
+			print >> sys.stderr, "Couldn't read \"%s\" as float." % (string)
+			sys.exit(1)
+		print fmt % (sqrt(number))
+	print
+
+else: # Read from stdin
+	while True:
+		line = sys.stdin.readline()
+		if line == '':
+			break
+		# Call row_vector_from_string one line at a time, rather than using
+		# sackmat's read_matrix -- that would make the code smaller, but
+		# would not allow ragged input, which I do want to allow here.
+		numbers = sackmat_m.row_vector_from_string(line, float)
+		for number in numbers:
+			print fmt % (sqrt(number))
+		print

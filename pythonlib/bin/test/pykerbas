@@ -1,0 +1,21 @@
+#!/usr/bin/python -Wall
+
+import sys
+from sackmat_m import *
+
+argc = len(sys.argv)
+if (argc < 2):
+	print >> sys.stderr, "Usage: %s {file name}" % (sys.argv[0])
+	sys.exit(1)
+
+argi = 1
+while (argi < argc):
+	A = read_matrix(float, sys.argv[argi])
+	[found, B] = A.kernel_basis()
+	if (not found):
+		print "Kernel is trivial."
+	else:
+		print_matrix(B)
+	argi += 1
+	if (argi < argc):
+		print

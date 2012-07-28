@@ -1,0 +1,10 @@
+#!/usr/bin/python -Wall
+
+import os, re
+
+pwd = os.getcwd()
+home = os.getenv('HOME')
+if pwd == home:
+	print ''
+else:
+	print re.sub(home+'/', '', pwd)

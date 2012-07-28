@@ -1,0 +1,36 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2007-06-26
+#
+# Numerical complex integration.
+#
+# ----------------------------------------------------------------
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+from math     import *
+from cmath    import * # For complex-valued sqrt, exp, etc.
+from kerlutil import * # For ztrange and numint
+
+# ----------------------------------------------------------------
+def f(z):
+	#return 1/(z-2)
+	return (2*z-5)/(z-2)
+	#return (2*z-3)/(z-2)**2
+	#return (2*z-3)/(z-2)**2
+
+# ----------------------------------------------------------------
+def zprint(z):
+	print "%11.7f %11.7f" % (z.real, z.imag)
+
+# ----------------------------------------------------------------
+N = 10000
+R = 0.001
+#zprint(numint(f, ztrange(R, 0, 2*pi,  N, 0+0j)))
+#zprint(numint(f, ztrange(R, 0, 2*pi,  N, 1+0j)))
+zprint(numint(f, ztrange(R, 0, 2*pi,  N, 2+0j)))

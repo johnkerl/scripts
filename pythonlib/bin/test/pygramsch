@@ -1,0 +1,18 @@
+#!/usr/bin/python -Wall
+
+import sys
+from sackmat_m import *
+
+argc = len(sys.argv)
+if (argc < 2):
+	print >> sys.stderr, "Usage: %s {file name 1} {file name 2}" % (sys.argv[0])
+	sys.exit(1)
+
+argi = 1
+while (argi < argc):
+	A = read_matrix(float, sys.argv[argi])
+	B = gram_schmidt(A)
+	print_matrix(B)
+	argi += 1
+	if (argi < argc):
+		print

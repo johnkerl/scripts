@@ -1,0 +1,26 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+#
+# John Kerl
+# kerl.john.r@gmail.com
+# 2008-02-06
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+from sackmat_m import *
+
+argc = len(sys.argv)
+if (argc < 2):
+	print >> sys.stderr, "Usage: %s {file names ...}" % (sys.argv[0])
+	sys.exit(1)
+
+argi = 1
+while (argi < argc):
+	A = read_matrix(float, sys.argv[argi])
+	B = A.exp()
+	print B
+	argi += 1

@@ -1,0 +1,71 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-07-05
+# Ported from Perl to Python
+# 2008-02-06
+# ================================================================
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+from sackmat_m import *
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage: %s [options] {file name}" % (sys.argv[0])
+	print >> sys.stderr, "Options:"
+	print >> sys.stderr, "-spec:  print spectrum only."
+	print >> sys.stderr, "Use \"-\" as file name if input is stdin."
+	print >> sys.stderr, "Note:  input must be real symmetric."
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+spectrum_only = 0;
+
+argc = len(sys.argv)
+if (argc < 2):
+	usage()
+
+argi = 1
+while (argi < argc):
+	if (sys.argv[argi] ==  '-h'):
+		usage()
+	elif (sys.argv[argi] ==  '--help'):
+		usage()
+	elif (sys.argv[argi] == '-spec'):
+		spectrum_only = 1
+	elif (sys.argv[argi] == '-'):
+		break
+	elif (sys.argv[argi][0] == '-'):
+		print >> sys.stderr, "Unrecognized option \"%s\"." % (sys.argv[argi])
+		usage()
+	else:
+		break
+	argi += 1
+
+if ((argc - argi) != 1):
+	print >> sys.stderr, "%s: Need exactly one file name." % (sys.argv[0])
+	usage()
+file_name = sys.argv[argi]
+
+# ----------------------------------------------------------------
+A = read_matrix(float, file_name)
+nr = A.square_dim()
+
+[V, D] = rs_eigensystem(A)
+
+if (spectrum_only):
+	Lambda = []
+	for i in range(0, nr):
+		Lambda.append(D[i][i])
+	Lambda.sort()
+	print_column_vector(Lambda)
+else:
+	D.printf()
+	print
+	V.printf()

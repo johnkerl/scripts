@@ -1,0 +1,21 @@
+#!/usr/bin/python -Wall
+
+import sys
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage: %s {p} {nmax}" % (sys.argv[0])
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+argc = len(sys.argv)
+if argc != 3:
+	usage()
+p    = float(sys.argv[1])
+nmax = int  (sys.argv[2])
+
+for n in range(1, nmax+1):
+	q = 1 - (1-p)**n
+	a = n*p
+	#print '%9d %.6e %.6e 1.0' % (n, q, a)
+	print '%9d %.6e %.6e' % (n, q, a)

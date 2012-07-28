@@ -1,0 +1,52 @@
+#!/usr/bin/python
+
+# ================================================================
+# This program displays Taylor-polynomial approximations and their
+# errors.
+#
+# John Kerl
+# kerl.john.r@gmail.com
+# 2007-03-16
+# ================================================================
+
+from math import *
+
+# For mfrange() and fact():
+from kerl_common import *
+
+#def f(x):
+#   return atan(x)
+#def pa(x):
+#   return x
+#def pb(x):
+#   return x - x**3/3
+#def pc(x):
+#   return x - x**3/3 + x**5/5
+#def pd(x):
+#   return x - x**3/3 + x**5/5 - x**7/7
+
+def f(x):
+    return sin(x)
+def pa(x):
+    return x
+def pb(x):
+    return x - x**3/fact(3)
+def pc(x):
+    return x - x**3/fact(3) + x**5/fact(5)
+def pd(x):
+    return x - x**3/fact(3) + x**5/fact(5) - x**7/fact(7)
+
+xlo = -1.0
+xhi =  1.0
+nx  = 200
+dx  = (xhi - xlo) / nx
+
+for x in mfrange(xlo, dx, xhi):
+    y = f(x)
+    ya = pa(x)
+    yb = pb(x)
+    yc = pc(x)
+    yd = pd(x)
+
+    print "%9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.2e %9.2e %9.2e %9.2e" \
+        % (x, y, ya, yb, yc, yd, y-ya, y-yb, y-yc, y-yd)

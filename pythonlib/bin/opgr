@@ -1,0 +1,668 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# pgr is a plotter which sends tabular data to a screen plot or image-file
+# plot.  It is a thin wrapper around pylab.  By "tabular data" I mean, for
+# example:
+#
+#   # theta     cos(theta)  sin(theta)
+#   # -------   ---------   ----------
+#   0.0000000   1.0000000   0.0000000
+#   0.3141593   0.9510565   0.3090170
+#   0.6283185   0.8090170   0.5877853
+#   0.9424778   0.5877853   0.8090170
+#   1.2566371   0.3090170   0.9510565
+#   1.5707963   0.0000000   1.0000000
+#   1.8849556  -0.3090170   0.9510565
+#   2.1991149  -0.5877853   0.8090170
+#   2.5132741  -0.8090170   0.5877853
+#   2.8274334  -0.9510565   0.3090170
+#   3.1415927  -1.0000000   0.0000000
+#
+# The column labels (in fact, any characters from # to end of line) are
+# skipped, as are blank lines.  The first column is taken as the x coordinate;
+# all subsequent columns are taken as y-coordinate series.  If "pgr -n" is
+# used, then the integers 0, 1, 2, ...  are used as the implicit first column,
+# and all columns in the file as used as y-coordinate series.
+#
+# ================================================================
+# Output from pgr -h:
+#
+# Usage: ./pgr [options] [file name]
+# Use "-" as file name, or omit it, if input is stdin.
+# Options:
+#   --help                 Print this message.
+#   -title {title text}    Specify plot title.
+#   -xlabel {x label text} Specify x label.
+#   -ylabel {y label text} Specify y label.
+#   -labels 'x y1 y2'      Specify legend labels.
+#   -flabels               Take x label and legend labels from data file.
+#   -width {inches}        Specify figure width.
+#   -height {inches}       Specify figure height.
+#   -xmin {xmin}:          Specify manual bounds.
+#   -xmax {xmax}:          Specify manual bounds.
+#   -ymin {ymin}:          Specify manual bounds.
+#   -ymax {ymax}:          Specify manual bounds.
+#   -n                     Take x coordinate from line number.
+#   -l                     Draw lines only.
+#   -p                     Draw points only.
+#   -lp                    Draw lines and points.
+#   -lines                 Line-draw mode.  Input should be
+#                          quadruples of x1 y1 x2 y2.
+#   -ms {n}                Marker size (default 5) for points.
+#   -formats '- -- o'      Specify pylab-style marker formats.
+#                          Examples:
+#         - solid line       --    dashed line       -.    dash-dot line
+#         : dotted line      .     points            o     circle symbols
+#         s square symbols   +     plus symbols      x     cross symbols
+#         Type "help(pylab.plot)", after "import pylab", inside Python for more
+#         information.
+#   -colors 'red blue green' Specify line colors.
+#   -errorbar or -eb       1st column is  x, 2nd is y, 3rd is err(y).
+#   -bar                   Plot a bar chart.
+#   -barwidth {w}          Specify bar width for -bar.
+#   -grid                  Include a background grid.
+#   -1ox,-1my              Compute 1/input or 1-output before plotting.
+#   -logx,-logy,-loglog    Plot log of input, output, or both.
+#   -o {file name}         Write file instead of graphing.
+#                          Formats: .png, .eps.
+#   -dpi {number}          Dots per inch for -o.
+#
+# See also http://math.arizona.edu/~kerl/python/doc/pgr.html.
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2008-04-13
+# ================================================================
+
+import pylab
+import sys
+import re
+import copy
+import tabutil_m
+from math import *
+
+# ----------------------------------------------------------------
+def plot_series(columns, formats, labels, do_legend, colors=[], \
+	title="", xlabel="", ylabel="", \
+	width_inches=6, height_inches=4, \
+	have_x_min=0, x_min=-1, \
+	have_x_max=0, x_max=-1, \
+	have_y_min=0, y_min=-1, \
+	have_y_max=0, y_max=-1, \
+	legend_loc='best', \
+	do_logx=0, do_logy=0, \
+	x_is_line_number=0, \
+	marker_size=1, draw_points=0, draw_connectors=1, do_errorbar=0, eb_is_var=0,
+	do_bar=0, bar_width_given=0, bar_width=0.8, \
+	do_grid=0, \
+	output_file="", dpi=150):
+#
+	num_columns = len(columns)
+
+	if (num_columns < 2):
+		print >> sys.stderr, \
+			"plot_series:  at least two columns are required; got %d." \
+			% (num_columns)
+		sys.exit(1)
+
+	# Create a blank figure object on which to plot.
+	pylab.figure(1, figsize=(width_inches, height_inches))
+
+	# Take bar-plot bar width to be x spacing, unless the user requested
+	# something else.  (pylab.errorbar default is spacing 0.8.)
+	if do_bar:
+		if not bar_width_given:
+			bar_width = columns[0][1] - columns[0][0]
+
+	# Error-bar plot.  Every other column is data; columns in between are
+	# error-bar values.  Square-root the latter if the user has requested this.
+	if (do_errorbar):
+
+		num_pairs = int((num_columns - 1) / 2)
+		for j in range(0, num_pairs):
+			
+			if eb_is_var:
+				var = columns[2*j+2]
+				for i in range(0, len(var)):
+					var[i] = sqrt(var[i])
+
+			pylab.errorbar(columns[0], columns[2*j+1], columns[2*j+2], \
+				fmt=formats[j], \
+				label=labels[j], \
+				markersize=marker_size)
+	else:
+		for j in range(1, num_columns):
+			# Bar-chart plot.
+			if (do_bar):
+				pylab.bar(columns[0],columns[j], width=bar_width)
+			# Regular XY plot.
+			else:
+				if colors == []:
+
+					if do_logx and not do_logy:
+						pylab.semilogx(columns[0],columns[j], \
+							formats[(j-1) % len(formats)], \
+							label=labels[(j-1) % len(labels)], \
+							markeredgewidth=0, \
+							markersize=marker_size)
+					elif do_logy and not do_logx:
+						pylab.semilogy(columns[0],columns[j], \
+							formats[(j-1) % len(formats)], \
+							label=labels[(j-1) % len(labels)], \
+							markeredgewidth=0, \
+							markersize=marker_size)
+					elif do_logx and do_logy:
+						pylab.loglog(columns[0],columns[j], \
+							formats[(j-1) % len(formats)], \
+							label=labels[(j-1) % len(labels)], \
+							markeredgewidth=0, \
+							markersize=marker_size)
+					else:
+						pylab.plot(columns[0],columns[j], \
+							formats[(j-1) % len(formats)], \
+							label=labels[(j-1) % len(labels)], \
+							markeredgewidth=0, \
+							markersize=marker_size)
+
+				else:
+
+					if do_logx and not do_logy:
+						pylab.semilogx(columns[0],columns[j], \
+							formats[(j-1) % len(formats)], \
+							label=labels[(j-1) % len(labels)], \
+							color=colors[(j-1) % len(colors)], \
+							markeredgewidth=0, \
+							markersize=marker_size)
+					elif do_logy and not do_logx:
+						pylab.semilogy(columns[0],columns[j], \
+							formats[(j-1) % len(formats)], \
+							label=labels[(j-1) % len(labels)], \
+							color=colors[(j-1) % len(colors)], \
+							markeredgewidth=0, \
+							markersize=marker_size)
+					elif do_logx and do_logy:
+						pylab.loglog(columns[0],columns[j], \
+							formats[(j-1) % len(formats)], \
+							label=labels[(j-1) % len(labels)], \
+							color=colors[(j-1) % len(colors)], \
+							markeredgewidth=0, \
+							markersize=marker_size)
+					else:
+						pylab.plot(columns[0],columns[j], \
+							formats[(j-1) % len(formats)], \
+							label=labels[(j-1) % len(labels)], \
+							color=colors[(j-1) % len(colors)], \
+							markeredgewidth=0, \
+							markersize=marker_size)
+
+	# Axis labels and title.
+	pylab.xlabel(xlabel)
+	pylab.ylabel(ylabel)
+	pylab.title(title)
+
+	# Put four decimal places in mouseovers.
+	ax = pylab.axes()
+	ax.fmt_xdata = lambda x: '%.4f'%x
+	ax.fmt_ydata = lambda y: '%.4f'%y
+
+	# Set min/max values for axes.  By default, pylab uses the X & Y data
+	# min & max.
+	if have_x_min:
+		[           old_x_min, old_x_max, old_y_min, old_y_max] = pylab.axis()
+		pylab.axis([    x_min, old_x_max, old_y_min, old_y_max])
+
+	if have_x_max:
+		[           old_x_min, old_x_max, old_y_min, old_y_max] = pylab.axis()
+		pylab.axis([old_x_min,     x_max, old_y_min, old_y_max])
+
+	if have_y_min:
+		[           old_x_min, old_x_max, old_y_min, old_y_max] = pylab.axis()
+		pylab.axis([old_x_min, old_x_max,     y_min, old_y_max])
+
+	if have_y_max:
+		[           old_x_min, old_x_max, old_y_min, old_y_max] = pylab.axis()
+		pylab.axis([old_x_min, old_x_max, old_y_min,     y_max])
+
+	# Show the grid, if it was requested.
+	if (do_grid):
+		pylab.grid(color='grey')
+	# Show the legend, if it was requested.
+	if (do_legend):
+		pylab.legend(loc=legend_loc)
+	if (output_file == ""):
+		# To screen
+		pylab.show()
+	else:
+		# To file (e.g. .eps, .png).  pylab will pick the output-file format
+		# based on output-file-name extension.
+		pylab.savefig(output_file, dpi=dpi)
+
+# ----------------------------------------------------------------
+# Line plot takes four columns:
+#   x1 y1 x2 y2
+#   x1 y1 x2 y2
+#   x1 y1 x2 y2
+#   x1 y1 x2 y2
+#   :  :  :  :
+# For each row in the file, we draw a line from (x1, y1) to (x2, y2).
+# This can be used for an (arrowless) vector-field plot, among other things.
+
+def plot_lines(columns, title="", xlabel="", ylabel="", \
+width_inches=6, height_inches=4, \
+marker_size=1, draw_points=0, draw_connectors=1, output_file="", dpi=150):
+
+	if (len(columns) != 4):
+		print >> sys.stderr, \
+			"plot_lines_from_file:  expected 4 columns; got %d.\n" \
+			% (len(columns))
+		sys.exit(1)
+
+	fmt="-"
+	if (draw_points):
+		if (draw_connectors):
+			fmt="bo-"
+		else:
+			fmt="bo"
+	else:
+		if (draw_connectors):
+			fmt="b-"
+		else:
+			# At least one of draw_points and draw_connectors must be
+			# specified.  The command-line parser shouldn't have allowed this.
+			print >> sys.stderr, "plot_series:  coding error."
+			sys.exit(1)
+
+	x1s = columns[0]
+	y1s = columns[1]
+	x2s = columns[2]
+	y2s = columns[3]
+
+	pylab.figure(1, figsize=(width_inches, height_inches))
+	num_points = len(x1s)
+	for k in range(0, num_points):
+		x = [x1s[k], x2s[k]]
+		y = [y1s[k], y2s[k]]
+		pylab.plot(x,y, fmt, markeredgewidth=0, markersize=1)
+	pylab.title(title)
+
+	# Put four decimal places in mouseovers.
+	ax = pylab.axes()
+	ax.fmt_xdata = lambda x: '%.4f'%x
+	ax.fmt_ydata = lambda y: '%.4f'%y
+
+	if (output_file == ""):
+		pylab.show()
+	else:
+		pylab.savefig(output_file, dpi=dpi)
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage: %s [options] [file name]" % (sys.argv[0])
+	print >> sys.stderr, "Use \"-\" as file name, or omit it, if input is stdin."
+	print >> sys.stderr, "Options:"
+	print >> sys.stderr, "  --help                 Print this message."
+	print >> sys.stderr, "  -title {title text}    Specify plot title."
+	print >> sys.stderr, "  -xlabel {x label text} Specify x label."
+	print >> sys.stderr, "  -ylabel {y label text} Specify y label."
+	print >> sys.stderr, "  -labels 'x y1 y2'      Specify legend labels."
+	print >> sys.stderr, "  -flabels               Take x label and legend labels from data file."
+	print >> sys.stderr, "  -width {inches}        Specify figure width."
+	print >> sys.stderr, "  -height {inches}       Specify figure height."
+	print >> sys.stderr, "  -xmin {xmin}:          Specify manual bounds."
+	print >> sys.stderr, "  -xmax {xmax}:          Specify manual bounds."
+	print >> sys.stderr, "  -ymin {ymin}:          Specify manual bounds."
+	print >> sys.stderr, "  -ymax {ymax}:          Specify manual bounds."
+	print >> sys.stderr, "  -n                     Take x coordinate from line number."
+	print >> sys.stderr, "  -l                     Draw lines only."
+	print >> sys.stderr, "  -p                     Draw points only."
+	print >> sys.stderr, "  -lp                    Draw lines and points."
+	print >> sys.stderr, "  -lines                 Line-draw mode.  Input should be"
+	print >> sys.stderr, "                         quadruples of x1 y1 x2 y2."
+	print >> sys.stderr, "  -ms {n}                Marker size (default 5) for points."
+	print >> sys.stderr, "  -formats '- -- o'      Specify pylab-style marker formats."
+	print >> sys.stderr, "                         Examples:"
+	print >> sys.stderr, "        - solid line       --    dashed line       -.    dash-dot line"
+	print >> sys.stderr, "        : dotted line      .     points            o     circle symbols"
+	print >> sys.stderr, "        s square symbols   +     plus symbols      x     cross symbols"
+	print >> sys.stderr, "        Type \"help(pylab.plot)\", after \"import pylab\", inside Python for more"
+	print >> sys.stderr, "        information."
+	print >> sys.stderr, "  -colors 'red blue green' Specify line colors."
+	print >> sys.stderr, "  -errorbar or -eb       1st column is  x, 2nd is y, 3rd is err(y)."
+	print >> sys.stderr, "  -bar                   Plot a bar chart."
+	print >> sys.stderr, "  -barwidth {w}          Specify bar width for -bar."
+	print >> sys.stderr, "  -grid                  Include a background grid."
+	print >> sys.stderr, "  -1ox,-1my              Compute 1/input or 1-output before plotting."
+	print >> sys.stderr, "  -logx,-logy,-loglog    Plot log of input, output, or both."
+	print >> sys.stderr, "  -o {file name}         Write file instead of graphing."
+	print >> sys.stderr, "                         Formats: .png, .eps."
+	print >> sys.stderr, "  -dpi {number}          Dots per inch for -o."
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+title            = ""
+xlabel           = ""
+ylabel           = ""
+do_legend        = 0
+x_is_line_number = 0
+do_lines         = 0
+do_errorbar      = 0
+eb_is_var        = 0
+do_bar           = 0
+bar_width        = 0.8
+bar_width_given  = 0
+do_grid          = 0
+xshift           = 0.0
+xmul             = 1.0
+do_one_over_x    = 0
+do_one_minus_y   = 0
+do_logx          = 0
+do_logy          = 0
+marker_size      = 3
+draw_points      = 1
+draw_connectors  = 1
+output_file      = ""
+dpi              = 150
+arg_formats      = ""
+arg_labels       = ""
+arg_colors       = ""
+use_file_labels  = 0
+width_inches     = 6
+height_inches    = 4
+legend_loc       = 'best'
+have_x_min       = 0       
+have_x_max       = 0       
+have_y_min       = 0       
+have_y_max       = 0       
+x_min            = -1
+x_max            = -1
+y_min            = -1
+y_max            = -1
+
+# Parse the command line.
+argc = len(sys.argv)
+argi = 1
+while argi < argc:
+	if (sys.argv[argi] == '-'):
+		break
+	elif (sys.argv[argi][0] != '-'):
+		break
+	elif (sys.argv[argi] == "-h"):
+		usage()
+	elif (sys.argv[argi] == "--help"):
+		usage()
+	elif (sys.argv[argi] == "-title"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		title = sys.argv[argi]
+	elif (sys.argv[argi] == "-xlabel"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		xlabel = sys.argv[argi]
+	elif (sys.argv[argi] == "-ylabel"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		ylabel = sys.argv[argi]
+	elif (sys.argv[argi] == "-labels"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		arg_labels = sys.argv[argi]
+	elif (sys.argv[argi] == "-flabels"):
+		use_file_labels = 1
+		do_legend = 1
+	elif (sys.argv[argi] == "-width"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		width_inches = float(sys.argv[argi])
+	elif (sys.argv[argi] == "-height"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		height_inches = float(sys.argv[argi])
+	elif (sys.argv[argi] == "-n"):
+		x_is_line_number = 1
+	elif (sys.argv[argi] == "-l"):
+		draw_points     = 0
+		draw_connectors = 1
+	elif (sys.argv[argi] == "-p"):
+		draw_points     = 1
+		draw_connectors = 0
+	elif (sys.argv[argi] == "-lp"):
+		draw_points     = 1
+		draw_connectors = 1
+	elif (sys.argv[argi] == "-lines"):
+		do_lines = 1
+	elif (sys.argv[argi] == "-ms"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		marker_size = int(sys.argv[argi])
+	elif (sys.argv[argi] == "-formats"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		arg_formats = sys.argv[argi]
+	elif (sys.argv[argi] == "-colors"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		arg_colors = sys.argv[argi]
+
+	elif (sys.argv[argi] == "-eb"):
+		do_errorbar = 1
+	elif (sys.argv[argi] == "-errorbar"):
+		do_errorbar = 1
+	elif (sys.argv[argi] == "-verrorbar"):
+		do_errorbar = 1
+		eb_is_var = 1
+	elif (sys.argv[argi] == "-bar"):
+		do_bar = 1
+	elif (sys.argv[argi] == "-barwidth"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		bar_width = float(sys.argv[argi])
+		bar_width_given = 1
+
+	elif (sys.argv[argi] == "-grid"):
+		do_grid = 1
+
+	elif (sys.argv[argi] == "-xshift"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		xshift = float(sys.argv[argi])
+	elif (sys.argv[argi] == "-xmul"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		xmul = float(sys.argv[argi])
+	elif (sys.argv[argi] == "-1ox"):
+		do_one_over_x = 1
+	elif (sys.argv[argi] == "-1my"):
+		do_one_minus_y = 1
+
+	elif (sys.argv[argi] == "-logx"):
+		do_logx = 1
+	elif (sys.argv[argi] == "-logy"):
+		do_logy = 1
+	elif (sys.argv[argi] == "-loglog"):
+		do_logx = 1
+		do_logy = 1
+
+	elif (sys.argv[argi] == "-lbest"): legend_loc = 'best'
+	elif (sys.argv[argi] == "-lur"):   legend_loc = 'upper right'
+	elif (sys.argv[argi] == "-lul"):   legend_loc = 'upper left'
+	elif (sys.argv[argi] == "-lll"):   legend_loc = 'lower left'
+	elif (sys.argv[argi] == "-llr"):   legend_loc = 'lower right'
+	elif (sys.argv[argi] == "-lr"):    legend_loc = 'right'
+	elif (sys.argv[argi] == "-lcl"):   legend_loc = 'center left'
+	elif (sys.argv[argi] == "-lcr"):   legend_loc = 'center right'
+	elif (sys.argv[argi] == "-llc"):   legend_loc = 'lower center'
+	elif (sys.argv[argi] == "-luc"):   legend_loc = 'upper center'
+	elif (sys.argv[argi] == "-lc"):    legend_loc = 'center'
+
+	elif (sys.argv[argi] == "-xmin"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		have_x_min = 1
+		x_min = float(sys.argv[argi])
+
+	elif (sys.argv[argi] == "-xmax"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		have_x_max = 1
+		x_max = float(sys.argv[argi])
+
+	elif (sys.argv[argi] == "-ymin"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		have_y_min = 1
+		y_min = float(sys.argv[argi])
+
+	elif (sys.argv[argi] == "-ymax"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		have_y_max = 1
+		y_max = float(sys.argv[argi])
+
+	elif (sys.argv[argi] == "-o"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		output_file = sys.argv[argi]
+	elif (sys.argv[argi] == "-dpi"):
+		argi += 1
+		if (argi >= argc):
+			usage()
+		dpi = int(sys.argv[argi])
+	else:
+		print >> sys.stderr, "Unrecognized option \"%s\"." \
+			% (sys.argv[argi])
+		usage()
+	argi += 1
+
+# There must be either zero or one remaining argument:  the file name to
+# use as input.  (A to-do item is to take input from multiple files.)
+
+# No remaing arguments:  input is from stdin.
+if (argc - argi) == 0:
+	file_name = "-"
+# One remaing argument:  input is from that file.
+elif (argc - argi) == 1:
+	file_name = sys.argv[argi]
+else:
+	usage()
+
+# Use the file name as the title, as long as the user hasn't requested
+# something else.
+if (title == ""):
+	if (file_name != "-"):
+		title = file_name
+
+# Read data from the file
+if (use_file_labels):
+	all_labels = tabutil_m.labels_from_file(file_name)
+	xlabel = all_labels[0]
+	labels = all_labels[1:]
+columns = tabutil_m.float_columns_from_file(file_name)
+if len(columns) == 1:
+	x_is_line_number = 1
+
+# Use line number as first column, if requested.
+n = len(columns[0])
+if x_is_line_number:
+	columns = [range(0, n)] + columns
+num_columns = len(columns)
+
+# Make sure there are an even number of y series, if we're doing an errorbar
+# plot.
+if do_errorbar:
+	if (num_columns % 2) != 1:
+		print >> sys.stderr, "Error-bar plot needs an even number of y columns."
+		sys.exit(1)
+
+# These are the default formats.
+format="-"
+if (draw_points):
+	if (draw_connectors):
+		format="o-"
+	else:
+		format="o"
+else:
+	if (draw_connectors):
+		format="-"
+	else:
+		# At least one of draw_points and draw_connectors must be
+		# specified.  The command-line parser shouldn't have allowed this.
+		print >> sys.stderr, "plot_series:  coding error."
+		sys.exit(1)
+formats = [format] * num_columns
+if (not use_file_labels):
+	labels  = [""]     * num_columns
+
+# Use specified default formats, if any.
+if arg_formats != "":
+	formats = arg_formats.split()
+if arg_labels != "":
+	labels = arg_labels.split()
+	do_legend = 1
+colors=[]
+if arg_colors != "":
+	colors = arg_colors.split()
+
+# Optionally remap.  These really aren't drawing-program tasks; a separate
+# script could do them.
+n = len(columns[0])
+num_columns = len(columns)
+
+if (xshift != 0.0):
+	for i in range(0, n):
+		columns[0][i] += xshift
+if (xmul != 1.0):
+	for i in range(0, n):
+		columns[0][i] *= xmul
+	
+if (do_one_over_x):
+	for i in range(0, n):
+		columns[0][i] = 1.0 / columns[0][i]
+if (do_one_minus_y):
+	for i in range(0, n):
+		for j in range(1, num_columns):
+			columns[j][i] = 1.0 - columns[j][i]
+
+# pylab also has a log-plot option, which I have not made use of.
+#if (do_logx):
+#	for i in range(0, n):
+#		columns[0][i] = log10(columns[0][i])
+#if (do_logy):
+#	for i in range(0, n):
+#		for j in range(1, num_columns):
+#			columns[j][i] = log10(columns[j][i])
+
+# Plot.
+if (do_lines):
+	plot_lines(columns, title, xlabel, ylabel, \
+		width_inches, height_inches,
+		marker_size, draw_points, draw_connectors, output_file, dpi)
+else:
+	plot_series(columns, formats, labels, do_legend, colors, \
+		title, xlabel, ylabel, \
+		width_inches, height_inches, \
+		have_x_min, x_min, have_x_max, x_max, \
+		have_y_min, y_min, have_y_max, y_max, \
+		legend_loc, \
+		do_logx, do_logy, \
+		x_is_line_number, \
+		marker_size, draw_points, draw_connectors, do_errorbar, eb_is_var, \
+		do_bar, bar_width_given, bar_width, do_grid,
+		output_file, dpi)

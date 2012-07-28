@@ -1,0 +1,40 @@
+#!/usr/bin/python -Wall
+
+import sys, Image
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage: %s {one or more image file names ...}"
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+argc = len(sys.argv)
+if argc < 2:
+	usage()
+
+for argi in range(1, argc):
+	img_file_name = sys.argv[argi]
+
+	try:
+		im = Image.open(img_file_name)
+		(width, height) = im.size
+		print '%6d %6d %s' % (height, width, img_file_name)
+	except:
+		print "%s: Couldn't read %s." % (sys.argv[0], img_file_name)
+
+# See also
+# http://www.pythonware.com/library/pil/handbook/introduction.htm
+
+# dir(im)
+# ['_Image__transformer', '__doc__', '__getattr__', '__init__', '__module__',
+# '__repr__', '_copy', '_dump', '_expand', '_getexif', '_makeself', '_new',
+# '_open', 'app', 'applist', 'bits', 'category', 'convert', 'copy', 'crop',
+# 'decoderconfig', 'decodermaxblock', 'draft', 'filename', 'filter', 'format',
+# 'format_description', 'fp', 'fromstring', 'getbands', 'getbbox', 'getcolors',
+# 'getdata', 'getextrema', 'getim', 'getpalette', 'getpixel', 'getprojection',
+# 'histogram', 'huffman_ac', 'huffman_dc', 'icclist', 'im', 'info', 'layer',
+# 'layers', 'load', 'load_djpeg', 'load_end', 'load_prepare', 'mode', 'offset',
+# 'palette', 'paste', 'point', 'putalpha', 'putdata', 'putpalette', 'putpixel',
+# 'quantization', 'quantize', 'readonly', 'resize', 'rotate', 'save', 'seek',
+# 'show', 'size', 'split', 'tell', 'thumbnail', 'tile', 'tobitmap', 'tostring',
+# 'transform', 'transpose', 'verify']

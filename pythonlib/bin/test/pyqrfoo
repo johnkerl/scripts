@@ -1,0 +1,34 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2007-05-20
+#
+# Uses Householder transformations to factor a square matrix A
+# into Q*R where Q is orthogonal and R is upper-triangular.
+# ================================================================
+
+import sys
+from sackmat_m import *
+
+argc = len(sys.argv)
+if (argc != 2):
+	print >> sys.stderr, "Usage: %s {A file name}" % (sys.argv[0])
+	sys.exit(1)
+
+A_file_name = sys.argv[1]
+
+A = read_matrix(float, A_file_name)
+n = A.square_dim()
+Q = make_zero_matrix(n, n)
+R = make_zero_matrix(n, n)
+A.printp("A")
+
+for i in range(0, 200):
+	A.QR_decomp(Q, R)
+	A = R * Q
+	#print "-" * 64
+	#Q.printp("Q")
+	#R.printp("R")
+	A.printp("A")

@@ -1,0 +1,67 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2008-02-06
+# ================================================================
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+import randmatc_m
+
+# ----------------------------------------------------------------
+# Other options to implement:
+# * printf format
+# * random-number properties, e.g. distribution; min/max; mean/stddev.
+
+def usage():
+	print >> sys.stderr, "Usage: %s {num rows} {num cols}"                  % (sys.argv[0])
+	print >> sys.stderr, "       %s -gen {nr} {nc} IID mean-square-1"       % (sys.argv[0])
+	print >> sys.stderr, "       %s -sq     {n}: square IID mean-square-1"  % (sys.argv[0])
+	print >> sys.stderr, "       %s -gue    {n}: Hermitian mean-square-1"   % (sys.argv[0])
+	print >> sys.stderr, "       %s -xxt    {n}: gen transpose * gen"       % (sys.argv[0])
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+type = "-gen"
+argb = 1
+if (len(sys.argv) >= 2):
+	if (sys.argv[1][0] == '-'):
+		type = sys.argv[1]
+		argb += 1
+
+argc = len(sys.argv)
+num_args = argc - argb
+
+if (type == "-gen"):
+	if (num_args != 2):
+		usage()
+	nr = int(sys.argv[argb])
+	nc = int(sys.argv[argb+1])
+	if ((nr < 1) or (nc < 1)):
+		print "Dimensions must be positive."
+		usage()
+	A = randmatc_m.randmatc(nr, nc)
+	A.printf()
+else:
+	if (num_args != 1):
+		usage()
+	n = int(sys.argv[argb])
+	if (n < 1):
+		print "Dimensions must be positive."
+		usage()
+	if (type == "-sq"):
+		A = randmatc_m.randsqmatc(n)
+	elif (type == "-gue"):
+		A = randmatc_m.randgue(n)
+	elif (type == "-xxt"):
+		A = randmatc_m.randxxt(n)
+	else:
+		print >> sys.stderr, "%s:  Unrecognized type \"%s\"." % \
+			(sys.argv[0], type)
+		sys.exit(1)
+	A.printf()

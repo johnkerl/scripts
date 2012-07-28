@@ -1,0 +1,147 @@
+#!/usr/bin/python -Wall
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-01-11
+# (Ported to Python 2006-03-06)
+#
+# This is a radix-2 fast Fourier transform.  Example:
+#
+# [xxx fix the example]
+#
+# This file contains the I/O wrapper.  The library routine is in pyfft_m.py.
+# ----------------------------------------------------------------
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+import pyfft_m
+import pyrcio_m
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage:", sys.argv[0], "[options] [file name]"
+	print >> sys.stderr, "If the file name is omitted, input is taken from standard input."
+	print >> sys.stderr, "Format is in whitespace-delimited decimal rectangular, e.g."
+	# xxx fix
+	print >> sys.stderr, "  1.0 0.0"
+	print >> sys.stderr, "  2.0 0.0"
+	print >> sys.stderr, "  3.0 0.0"
+	print >> sys.stderr, "  4.0 0.0"
+	print >> sys.stderr, "Options:"
+	print >> sys.stderr, "  -fi:  input folding"
+	print >> sys.stderr, "  -nfi: no input folding"
+	print >> sys.stderr, "  -fo:  output folding"
+	print >> sys.stderr, "  -nfo: no output folding"
+	print >> sys.stderr, "  -fwd: forward FFT (exp(-i 2 pi k/N) kernel)"
+	print >> sys.stderr, "  -rev: reverse FFT (exp( i 2 pi k/N) kernel)"
+	print >> sys.stderr, "  -s:   scaling"
+	print >> sys.stderr, "  -ns:  no scaling"
+	print >> sys.stderr, "  -dft: Use DFT.  Allows dimensions not to be a power of 2."
+	sys.exit(1)
+
+# ================================================================
+# Start of program
+fold_in   = 0
+fold_out  = 0
+forward   = 1
+scale     = 1
+use_dft   = 0
+do_rows   = 1
+do_cols   = 1
+file_name = "-"
+
+argc = len(sys.argv)
+argi = 1
+while (argi < argc):
+	arg = sys.argv[argi]
+	if (arg[0] != '-'):
+		break
+	if   (arg == "-fi"):
+		fold_in  = 1
+	elif (arg == "-nfi"):
+		fold_in  = 0
+	elif (arg == "-fo"):
+		fold_out = 1
+	elif (arg == "-nfo"):
+		fold_out = 0
+	elif (arg == "-fwd"):
+		forward  = 1
+	elif (arg == "-rev"):
+		forward  = 0
+	elif (arg == "-s"):
+		scale    = 1
+	elif (arg == "-ns"):
+		scale    = 0
+	elif (arg == "-dft"):
+		use_dft  = 1
+	elif (arg == "-ndft"):
+		use_dft  = 0
+	elif (arg == "-ro"):
+		do_rows  = 1
+		do_cols  = 0
+	elif (arg == "-co"):
+		do_rows  = 0
+		do_cols  = 1
+	else:
+		usage()
+	argi += 1
+
+if ((argc - argi) == 1):
+	file_name = sys.argv[argi]
+elif ((argc - argi) == 0):
+	file_name = "-"
+else:
+	usage()
+
+# Input
+A = pyrcio_m.read_complex_matrix(file_name)
+nr = len(A)
+nc = len(A[0])
+
+# Row FFTs
+if (do_rows):
+	for i in range(0, nr):
+		if (use_dft):
+			A[i] = pyfft_m.dft(A[i], fold_in, fold_out, forward, scale)
+		else:
+			A[i] = pyfft_m.fft(A[i], fold_in, fold_out, forward, scale)
+
+# Column FFTs
+if (do_cols):
+	for j in range(0, nc):
+
+		# Get column
+		v = []
+		for i in range(0, nr):
+			v.append(A[i][j])
+
+		# Transform column
+	 	if (use_dft):
+	 		v = pyfft_m.dft(v, fold_in, fold_out, forward, scale)
+	 	else:
+	 		v = pyfft_m.fft(v, fold_in, fold_out, forward, scale)
+
+		# Put column
+		for i in range(0, nr):
+			A[i][j] = v[i]
+
+# Output
+pyrcio_m.print_complex_matrix(A)
+
+# ----------------------------------------------------------------
+#
+# argc = len(sys.argv)
+# if (argc < 2):
+# 	print >> sys.stderr, "Usage: %s {file name 1} {file name 2}" % (sys.argv[0])
+# 	sys.exit(1)
+#
+# argi = 2
+# while (argi < argc):
+# 	B = read_matrix(float, sys.argv[argi])
+# 	A = A * B
+# 	argi += 1
+# print_matrix(A)

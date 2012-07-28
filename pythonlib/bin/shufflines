@@ -1,0 +1,113 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2009-07-18
+# ================================================================
+
+from __future__ import division
+import sys
+import re
+import copy
+import random
+
+# ----------------------------------------------------------------
+# Uniform-random permutations.
+#
+# Idea:
+# * Start with a pool of N unused images.
+# * For the image of 0, select an image at random from the N choices.
+# * For the image of 1, select an image from the remaining N-1 choices.
+# * ...
+# * For the image of N-2, select from the remaining 2 choices.
+# * The image of N-1 has only one choice left.
+#
+# ----------------------------------------------------------------
+# Example:  N=4.  Image map and unused images are:
+#
+#   [ 0 1 2 3 ]
+#   [ ? ? ? ? ]      [ 0 1 2 3 ] <-- unused.
+#
+# Image of 0:  select 1 from [ 0 1 2 3].
+#
+#   [ 0 1 2 3 ]
+#
+# Image of 1:  select 2 from [0 2 3].
+#
+#   [ 0 1 2 3 ]
+#   [ 1 2 ? ? ]      [ 0 3 ] <-- unused.
+#
+# Image of 2:  select 0 from [0 3].
+#
+#   [ 0 1 2 3 ]
+#   [ 1 2 0 ? ]      [ 3 ] <-- unused.
+#
+# Image of 3:  select 3 from [3].
+#
+#   [ 0 1 2 3 ]
+#   [ 1 2 0 3 ]      [ ] <-- unused.
+#
+# Done.
+#
+# ----------------------------------------------------------------
+# This is easy to do.  The only question is how to do it efficiently -- without
+# lots of data movement and/or unnecessary memory allocation.
+#
+# The pool of unused images could be an array of length N ... yet I already
+# *have* an array of length N.  I can visualize the used and unused images as
+# simply a concatenation.  E.g.  after selecting the image of 1, the pipe
+# separates the used from the unused:
+#
+#   [ 0 1 2 3 ]
+#   [ 1 2|0 3 ]
+#
+# Then selecting an unused image for k amounts to choosing a pseudorandom
+# integer uniformly between 0 and N-k-1; applying that image amounts to doing
+# a swap.
+
+def rand_pmt(N):
+	images = range(0, N)
+	unused_start = 0
+	num_unused   = N
+
+	for k in range(0, N):
+		#print "-- [",
+		#for j in range(0, N):
+		#	if (j == k):
+		#		print "|",
+		#	else:
+		#		print " ",
+		#	print "%2d" % (images[j]),
+		#print " ]"
+
+		# Select a pseudorandom element from the pool of unused images.
+		# Python's randint(a, b) includes both endpoints.
+		u = random.randint(unused_start, unused_start + num_unused - 1)
+
+		# Swap it into place.
+		temp      = images[u]
+		images[u] = images[k]
+		images[k] = temp
+
+		# Decrease the size of the pool by 1.
+		# (Yes, unused_start and k always have the same value.  Using two
+		# variables wastes neglible memory and makes the code easier to
+		# understand.)
+		unused_start += 1
+		num_unused   -= 1
+
+	return images
+
+# ----------------------------------------------------------------
+lines = []
+while True:
+	line = sys.stdin.readline()
+	if line == "":
+		break
+	lines.append(line)
+
+num_lines = len(lines)
+pmt = rand_pmt(num_lines)
+for k in range(0, num_lines):
+	sys.stdout.write(lines[pmt[k]])

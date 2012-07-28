@@ -1,0 +1,59 @@
+#!/usr/bin/python
+
+# ================================================================
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# Copyright (c) John Kerl 2007
+# kerl.john.r@gmail.com
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage: {numbers}"
+	print >> sys.stderr, "Performs the Fermat primality test by computing a^{p-1} mod p for several small a."
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+def mod_power(b, e, m):
+	b2 = b % m
+	rv = 1
+
+	while (e != 0):
+		if (e & 1):
+			rv = (rv * b2) % m
+		e = e >> 1
+		b2 = (b2 * b2) % m
+	return rv
+
+# ----------------------------------------------------------------
+def test_one_base(a, p):
+	x = mod_power(a, p-1, p)
+	print "%d ^ %d = %d (mod %d)" % (a, p-1, x, p)
+	if ((x != 1) and (p != a)):
+		return 0
+	return 1
+
+# ----------------------------------------------------------------
+def fermat_test(p):
+	rv = 1
+	for a in [2, 3, 5, 7, 11, 13, 17, 19]:
+		if (not test_one_base(a, p)):
+			rv = 0
+			return rv
+	return rv
+
+# ----------------------------------------------------------------
+argc = len(sys.argv)
+if (argc < 2):
+	usage()
+
+for argi in range(1, argc):
+	p = int(sys.argv[argi])
+	if (fermat_test(p)):
+		print p, "might be prime."
+	else:
+		print p, "is not prime."
+	print

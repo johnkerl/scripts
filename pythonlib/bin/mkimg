@@ -1,0 +1,6 @@
+nr=64
+nc=128
+python jac.py $nr $nc > x
+spab x y
+xfim -r -ppm z.ppm $nr $nc y
+ppm2tiff  z.ppm z.tiff

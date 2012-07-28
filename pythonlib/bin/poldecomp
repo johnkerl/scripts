@@ -1,0 +1,5 @@
+A = U P
+P = sqrt(A* A)
+U = A P^-1
+
+

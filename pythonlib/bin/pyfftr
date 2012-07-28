@@ -1,0 +1,148 @@
+#!/usr/bin/python -Wall
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2006-03-20
+# (Ported to Python 2006-03-06)
+#
+# This is a radix-2 fast Fourier transform.  Example:
+#
+# xxx cmts re real-to-complex transform; numerical recipes
+# ----------------------------------------------------------------
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+import pyfft_m
+import pyrcio_m
+from math import *
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage:", sys.argv[0], "[options] [file name]"
+	print >> sys.stderr, "If the file name is omitted, input is taken from standard input."
+	print >> sys.stderr, "Format is in decimal real, one sample per line.  E.g."
+	print >> sys.stderr, "  1.0"
+	print >> sys.stderr, "  2.0"
+	print >> sys.stderr, "  3.0"
+	print >> sys.stderr, "  4.0"
+	print >> sys.stderr, "Options:"
+	print >> sys.stderr, "  -fi:  input folding"
+	print >> sys.stderr, "  -nfi: no input folding"
+	print >> sys.stderr, "  -fo:  output folding"
+	print >> sys.stderr, "  -nfo: no output folding"
+	print >> sys.stderr, "  -fwd: forward FFT (exp(-i 2 pi k/N) kernel)"
+	print >> sys.stderr, "  -rev: reverse FFT (exp( i 2 pi k/N) kernel)"
+	print >> sys.stderr, "  -s:   scaling"
+	print >> sys.stderr, "  -ns:  no scaling"
+	print >> sys.stderr, "  -dft: Use DFT.  Allows N not to be a power of 2."
+	sys.exit(1)
+
+# ================================================================
+# Start of program
+fold_in   = 0
+fold_out  = 0
+forward   = 1
+scale     = 1
+use_dft   = 0
+file_name = "-"
+
+argc = len(sys.argv)
+argi = 1
+while (argi < argc):
+	arg = sys.argv[argi]
+	if (arg[0] != '-'):
+		break
+	if   (arg == "-fi"):
+		fold_in  = 1
+	elif (arg == "-nfi"):
+		fold_in  = 0
+	elif (arg == "-fo"):
+		fold_out = 1
+	elif (arg == "-nfo"):
+		fold_out = 0
+	elif (arg == "-fwd"):
+		forward  = 1
+	elif (arg == "-rev"):
+		forward  = 0
+	elif (arg == "-s"):
+		scale    = 1
+	elif (arg == "-ns"):
+		scale    = 0
+	elif (arg == "-dft"):
+		use_dft  = 1
+	elif (arg == "-ndft"):
+		use_dft  = 0
+	else:
+		usage()
+	argi += 1
+
+if ((argc - argi) == 1):
+	file_name = sys.argv[argi]
+elif ((argc - argi) == 0):
+	file_name = "-"
+else:
+	usage()
+
+# real input f_j: j = 0 .. N-1
+# split: fe_j, fo_j: j = 0 .. N/2-1
+# h_j = fe_j + i fo_j: j = 0 .. N/2-1
+# By linearity: H_k = Fe_k + i Fo_k: k = 0 .. N/2-1
+# Fe_k = sum_{j=0}^{N/2-1} f_{2j}   w_N^2  [note w_N^2 = w_{N/2}]
+# Fo_k = sum_{j=0}^{N/2-1} f_{2j+1} w_N^2
+# F_k  = Fe_k + w_N^k Fo_k
+# F_k = 1/2(H_k + H_{N/2-k}^*) - i/2(H_k - H_{N/2-k}^*) w_N^k
+# Save only 1st half of F_k: k = 0 .. N/2-1
+# Need H_{N/2}: but = H_0.  (Why?)
+
+# -- Inverse --
+# Fe_k = 1/2(F_k + F_{N/2-k}^*)
+# "peel" F_{N/2} "from" F_0
+# Fo_k = 1/2 w_N^{-k}(F_{N/2} - F_{N/2-k}^*)
+# H_k = Fe_k + i Fo_k
+
+
+f = pyrcio_m.read_real_vector(file_name)
+
+print "f:"
+pyrcio_m.print_real_vector(f)
+print
+
+N  = len(f)
+N2 = int(N/2)
+
+print "N  =", N
+print "N2 =", N2
+
+h = []
+for j in range(0, N2):
+	h.append(f[2*j] + 1j*f[2*j+1])
+
+print "h:"
+pyrcio_m.print_complex_vector(h)
+print
+
+if (use_dft):
+	H = pyfft_m.dft(h, fold_in, fold_out, forward, scale)
+else:
+	H = pyfft_m.fft(h, fold_in, fold_out, forward, scale)
+H.append(H[0]) # Append H[N/2]
+
+print "H:"
+pyrcio_m.print_complex_vector(H)
+print
+
+w_N = complex(cos(2*pi/N), sin(2*pi/N))
+F = []
+for k in range(0, N2+1):
+	Hnegkbar = H[N2-k].conjugate()
+	Fek = 0.5*(H[k] + Hnegkbar)
+	Fok = 0.5*(H[k] - Hnegkbar) * (-1j)
+	F.append(Fek + Fok * w_N**k)
+
+print "F:"
+pyrcio_m.print_complex_vector(F)
+print

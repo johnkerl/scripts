@@ -1,0 +1,66 @@
+#!/usr/bin/python
+
+import sys
+import math
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage: {numbers}"
+	print >> sys.stderr, "Performs the Fermat primality test by computing a^{p-1} mod p"
+	print >> sys.stderr, "for several small a."
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+def mod_power(b, e, m):
+	b2 = b % m
+	rv = 1
+
+	while (e != 0):
+		if (e & 1):
+			rv = (rv * b2) % m
+		e = e >> 1
+		b2 = (b2 * b2) % m
+	return rv
+
+# ----------------------------------------------------------------
+def fermat_test(p, verbose):
+	rv = 1
+	for a in [2, 3, 5, 7, 11, 13, 17, 19]:
+	#for a in [3]:
+		x = mod_power(a, p-1, p)
+		if (verbose):
+			print "%d ^ %d = %d (mod %d)" % (a, p-1, x, p)
+		if (x != 1):
+			if (p != a):
+				rv = 0
+				return rv
+	return rv
+
+# ----------------------------------------------------------------
+def really_prime(p):
+	if (p == 2):
+		return 1
+	if ((p & 1) == 0):
+		return 0
+	d = 3
+	s = int(math.sqrt(d)) + 1
+	for d in range(3, s):
+		if ((p % d) == 0):
+			return 0
+	return 1
+
+# ----------------------------------------------------------------
+# iterative tester:
+# seqpr(p):
+#   for q in known_primes:
+#		trial division
+#	insert p into known primes
+
+# ----------------------------------------------------------------
+verbose = 0
+max = 400000
+
+for p in range(2, max):
+	if (fermat_test(p, verbose)):
+		if (not really_prime(p)):
+			print "false:", p

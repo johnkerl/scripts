@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+<TITLE>How to do a sprintf in Python</TITLE>
+<link rel="shortcut icon" href="../favicon.ico" >
+</HEAD>
+
+<center>
+<h1></h1>
+<h2>
+<font color="#993333">
+How to do a sprintf in Python
+</font>
+</h2>
+</center>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-15651652-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+<BODY BGCOLOR="#ffffff"
+LINK="#993333" VLINK="#888888" ALINK="#cc3333">
+
+<p>So I searched and searched and couldn't find how to do a <tt>sprintf</tt> in
+Python.  There seemed to be no such routine name.  In fact, there&#8217;s not!
+But I was staring right at it.  It's simply the <tt>%</tt> operator, overloaded
+for strings.  Examples:
+
+<pre>
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2007-05-15
+# ================================================================
+
+print "Here %s the number: %d" % ("is", 37)
+s =   "Here %s the number: %d" % ("is", 37)
+print s
+</pre>
+
+
+<p> <a href="../index.php?v=software"><i>&larr; Back</i></a>
+
+</BODY>
+</HTML>

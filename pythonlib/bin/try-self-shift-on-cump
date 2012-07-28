@@ -1,0 +1,12 @@
+ntries=100
+
+eta=0.990
+nY=1
+nt=10000
+ntherm=10000
+
+for n in $(jot 1 $ntries) ; do
+	cump  $eta $nY $nt $ntherm > in$eta
+	pyselfvsshift in$eta > ss$eta
+	cpick 0 1  < ss$eta | pylinreg - | fmt -1000
+done

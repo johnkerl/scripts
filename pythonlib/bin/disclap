@@ -1,0 +1,42 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# Generates an n x n discrete-Laplacian matrix.
+#
+# bash$ disclap 6
+# -2  1  0  0  0  0
+#  1 -2  1  0  0  0
+#  0  1 -2  1  0  0
+#  0  0  1 -2  1  0
+#  0  0  0  1 -2  1
+#  0  0  0  0  1 -2
+#
+# John Kerl
+# kerl.john.r@gmail.com
+# 2008-02-07
+# ================================================================
+# This software is released under the terms of the GNU GPL.
+# Please see LICENSE.txt in the same directory as this file.
+# ================================================================
+
+from __future__ import division # 1/2 = 0.5, not 0.
+import sys
+
+argc = len(sys.argv)
+if (argc != 2):
+	print >> sys.stderr, "Usage: %s {n}" % (sys.argv[0])
+	sys.exit(1)
+
+n = int(sys.argv[1])
+
+for i in range(0, n):
+	for j in range(0, n):
+		if (i == j):
+			print "%2d" % (-2),
+		elif (i == j-1):
+			print "%2d" % (1),
+		elif (i == j+1):
+			print "%2d" % (1),
+		else:
+			print "%2d" % (0),
+	print
