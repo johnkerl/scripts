@@ -1,6 +1,7 @@
 ================================================================
 This is a grab bag of various Perl scripts, mostly numerical,
-and all rather old at this point.
+and all rather old at this point.  Among the non-numerical
+ones are some Unix-style replacement scripts, from my NT days.
 John Kerl
 kerl.john.r@gmail.com
 2012-07-28
