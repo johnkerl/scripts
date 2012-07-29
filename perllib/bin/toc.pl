@@ -1,5 +1,11 @@
 use My_win_glob;
 
+# ================================================================
+# Please see perl-on-windows-notes.txt for background.
+# John Kerl
+# 12/27/2000 
+# ================================================================
+
 my $globrc;
 ($globrc, @ARGV) = my_win_glob(@ARGV);
 exit unless $globrc;
