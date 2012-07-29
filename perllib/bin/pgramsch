@@ -1,0 +1,67 @@
+#!/usr/bin/perl -w
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-06-15
+#
+# Computes the Gram-Schmidt orthonormalization of a set of real vectors,
+# represented as columns of a matrix.
+#
+# bash$ cat a.txt
+#   1  4 -2
+#   4  1 -2
+#  -2 -2 -2
+# bash$ pgramsch a.txt
+#   0.2182179   0.9116846  -0.3481553
+#   0.8728716  -0.3418817  -0.3481553
+#  -0.4364358  -0.2279212  -0.8703883
+# bash$ pgramsch a.txt > b.txt
+# bash$ pmatmul -t1 b.txt b.txt
+#   1.0000001   0.0000000   0.0000000
+#   0.0000000   1.0000000   0.0000000
+#   0.0000000   0.0000000   1.0000000
+# ----------------------------------------------------------------
+
+# Setup information:
+# (1) Obtain my PMATLIB.pm;
+# (2) Put PMATLIB.pm somewhere, e.g. the $HOME/bin directory;
+# (3) Include that directory in the PERLLIB environment variable.
+#     For bash, if PERLLIB exists:         export PERLLIB=$HOME/bin
+#     For bash, if PERLLIB does not exist: export PERLLIB=$PERLLIB:$HOME/bin
+#     For csh,  if PERLLIB exists:         setenv PERLLIB $HOME/bin
+#     For csh,  if PERLLIB does not exist: setenv PERLLIB ${PERLLIB}:$HOME/bin
+use PMATLIB;
+
+$transpose = 0;
+
+while (@ARGV) {
+	last unless $ARGV[0] =~ m/^-/;
+	if (pmatlib_opt(\@ARGV)) {
+		;
+	}
+	elsif ($ARGV[0] eq "-t") {
+		$transpose = 1;
+		shift @ARGV;
+	}
+	else {
+		usage();
+	}
+}
+
+@A = (); $anr = 0; $anc = 0; 
+read_matrix(\@A, \$anr, \$anc, $ARGV[0]);
+transpose_in_place(\@A, \$anr, \$anc) if ($transpose);
+@Q = gram_schmidt(\@A, $anr, $anc);
+transpose_in_place(\@Q, \$anr, \$anc) if ($transpose);
+print_matrix(\@Q, $anr, $anc);
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die
+		"Usage: $0 [options] {input file name}\n" .
+		"Options:\n" .
+		"  -t: Input is rows rather than columns.\n" .
+		pmatlib_options_string();
+}

@@ -1,0 +1,55 @@
+#!/usr/bin/perl
+
+sub usage() {
+	die "Usage: $0 {N} {k ...}\n",
+}
+
+usage() if @ARGV < 1;
+$N = shift @ARGV;
+
+$amp     = 1.0;
+$width   = 4.0;
+$ctrfrac = 0.5;
+
+if (@ARGV == 1) {
+	$spec = shift @ARGV;
+
+	@fields = split /:/, $spec;
+	if (@fields == 3) {
+		$amp     = $fields[0];
+		$width   = $fields[1];
+		$ctrfrac = $fields[2];
+	}
+	elsif (@fields == 2) {
+		$amp     = $fields[0];
+		$width   = $fields[1];
+	}
+	elsif (@fields == 1) {
+		$amp     = $fields[0];
+	}
+	else {
+		usage();
+	}
+}
+elsif (@ARGV == 0) {
+	# Keep the defaults
+}
+else {
+	usage();
+}
+
+$pi = 4.0 * atan2(1.0, 1.0);
+
+for ($j = 0; $j < $N; $j++) {
+	$x = $j/$N - $ctrfrac;
+	$x *= 2.0 * $pi * $width;
+	if ($x == 0.0) {
+		$y = 1.0;
+	}
+	else {
+		$y = sin($x) / $x;
+	}
+	$y *= $amp;
+		
+	printf "%18.11f\n", $y;
+}

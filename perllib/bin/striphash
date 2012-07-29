@@ -1,0 +1,29 @@
+#!/usr/bin/perl -Wall
+
+# ================================================================
+# This script strips out pound-sign comments.  Output is sent to standard
+# output (i.e. the terminal), which may be redirected using the ">" syntax.
+# Usage samples:
+# 
+#   striphash.pl < mydata.txt
+#   striphash.pl < mydata.tx > otherfile.txtt
+#   striphash.pl   mydata.txt
+#   striphash.pl   mydata.txt > otherfile.txt
+#   run_some_program | striphash.pl
+#   run_some_program | striphash.pl | do_something_else
+#
+# ================================================================
+# John Kerl
+# kerl dot john dot r at gmail dot com
+# 2008-04-13
+# ================================================================
+
+while ($line=<>) {
+	chomp $line;
+	$line =~ s/#.*//;
+	if ($line =~ m/^\s*$/) {
+	}
+	else {
+		print $line;
+	}
+}

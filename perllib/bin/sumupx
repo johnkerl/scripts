@@ -1,0 +1,62 @@
+#!/usr/bin/perl -w
+
+# ================================================================
+# This program evaluates a user-specified function on m = 0, 1, ..., mmax,
+# and also computes partial sums.
+#
+# Example:
+#
+# sumupx  10 "2*m+1" | colprint -r
+#   m 2*m+1   sum
+# --- ----- -----
+#   0     1     1
+#   1     3     4
+#   2     5     9
+#   3     7    16
+#   4     9    25
+#   5    11    36
+#   6    13    49
+#   7    15    64
+#   8    17    81
+#   9    19   100
+#  10    21   121
+#
+# Another example:
+#
+# sumupx  10 "m*(m+1)/2" | colprint -r
+#   m  m*(m+1)/2   sum
+# ---  --------- -----
+#   0          0     0
+#   1          1     1
+#   2          3     4
+#   3          6    10
+#   4         10    20
+#   5         15    35
+#   6         21    56
+#   7         28    84
+#   8         36   120
+#   9         45   165
+#  10         55   220
+#
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-06-18
+# ================================================================
+
+
+die "Usage: $0 {m max} {expression in m}\n" unless @ARGV == 2;
+
+$mmax = shift @ARGV;
+$orig_expr = shift @ARGV;
+$eval_expr = $orig_expr;
+$eval_expr =~ s/m/\$m/g;
+
+print "m $orig_expr sum\n";
+print "--- ", "-" x length($orig_expr), " -----\n";
+$sum = 0;
+for ($m = 0; $m <= $mmax; $m++) {
+	$y = eval($eval_expr);
+	$sum += $y;
+	print "$m $y $sum\n";
+}

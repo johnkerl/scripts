@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# john dot r dot kerl at lmco dot com
+# 2000/11/02
+#
+# Replaces colons with carriage returns in an environment variable.
+# Chief use: "nocolon PATH".  Example:
+#
+# bash$ echo $PATH
+#.:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin:/sbin:/usr/sbin:/usr/local/Acrobat5/bin:/home/kerl/src/alg/tools:/home/kerl/abin:/home/kerl/bin
+#
+# bash$ nocolon PATH
+# 	.
+# 	/usr/local/bin
+# 	/bin
+# 	/usr/bin
+# 	/usr/X11R6/bin
+# 	/sbin
+# 	/usr/sbin
+# 	/usr/local/Acrobat5/bin
+# 	/home/kerl/src/alg/tools
+# 	/home/kerl/abin
+# 	/home/kerl/bin
+#
+# Isn't that much nicer? :)
+# ----------------------------------------------------------------
+
+die "Usage: $0 {environment variable name}\n"
+	unless (@ARGV == 1);
+$value = $ENV{$ARGV[0]};
+if (!$value) {
+	# Allow them to put $VAR on the command line, as well as VAR.
+	# That is, see if the shell already expanded it.
+	if ($ARGV[0] =~ m/:/) {
+		$value = $ARGV[0];
+		# OK
+	}
+	else {
+		print "Variable \"$ARGV[0]\" not set in environment.\n";
+		exit;
+	}
+}
+
+my @fields = split /:/, $value;
+for my $field (@fields) {
+	print "\t$field\n";
+}

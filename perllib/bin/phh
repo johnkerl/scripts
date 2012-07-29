@@ -1,0 +1,124 @@
+#!/usr/bin/perl -w
+
+# ----------------------------------------------------------------
+# John Kerl
+# john dot kerl.john.r@gmail.com
+# 2005-03-18
+#
+# This is a Perl implementation of a Householder transformation.
+# If the input matrix is
+#
+#    1  2  3  4
+#    5  6  7  8
+#    9 10 11 12
+#
+# in a file named "a", one might type
+#
+#   perl phh 0 2 a
+#
+# resulting in the output
+#
+#   -10.23986077070 -11.80947446548 -13.37908816026 -14.94870185504
+#     0.19637328861   0.09818664430   0.00000000000  -0.09818664430
+#     1.45144373924   0.72572186962   0.00000000000  -0.72572186962
+#
+# Let A be the input and B be the output.  Note that a Householder clears a
+# given column, except for the specified element, but preserves A^t A = B^t B.
+# For example:
+#
+#   perl phh 2 a > b2
+#   cat b2
+#
+#    -10.23986077070    -11.80947446548    -13.37908816026    -14.94870185504
+#      0.19637328861      0.09818664430      0.00000000000     -0.09818664430
+#      1.45144373924      0.72572186962      0.00000000000     -0.72572186962
+# 
+#   pmatmul -t1 a a
+#
+#    107.0000 122.0000 137.0000 152.0000
+#    122.0000 140.0000 158.0000 176.0000
+#    137.0000 158.0000 179.0000 200.0000
+#    152.0000 176.0000 200.0000 224.0000
+#
+#   pmatmul -t1 b2 b2
+#
+#    107.0000 122.0000 137.0000 152.0000
+#    122.0000 140.0000 158.0000 176.0000
+#    137.0000 158.0000 179.0000 200.0000
+#    152.0000 176.0000 200.0000 224.0000
+# ----------------------------------------------------------------
+
+# Setup information:
+# (1) Obtain my PMATLIB.pm;
+# (2) Put PMATLIB.pm somewhere, e.g. the $HOME/bin directory;
+# (3) Include that directory in the PERLLIB environment variable.
+#     For bash, if PERLLIB exists:         export PERLLIB=$HOME/bin
+#     For bash, if PERLLIB does not exist: export PERLLIB=$PERLLIB:$HOME/bin
+#     For csh, if PERLLIB exists:          setenv PERLLIB $HOME/bin
+#     For csh, if PERLLIB does not exist:  setenv PERLLIB ${PERLLIB}:$HOME/bin
+use PMATLIB;
+
+$print_Q = 0;
+while (@ARGV) {
+	last unless $ARGV[0] =~ m/^-/;
+
+	if (pmatlib_opt(\@ARGV)) {
+		;
+	}
+	elsif ($ARGV[0] eq "-q") {
+		$print_Q = 1;
+		shift @ARGV;
+	}
+	else {
+		usage();
+	}
+}
+
+# There should be one remaining argument, if input is from a file, or zero
+# remaining arguments, if input is from stdin.
+
+if ((@ARGV != 2) && (@ARGV != 3)) {
+	usage();
+}
+$nzrow  = shift @ARGV;
+$clearcol = shift @ARGV;
+usage() unless ($nzrow =~ m/^[0-9]+$/);
+usage() unless ($clearcol =~ m/^[0-9]+$/);
+
+$nr = 0;
+$nc = 0; 
+@A  = ();
+
+read_matrix(\@A, \$nr, \$nc);
+
+if (($nzrow < 0) || ($nzrow >= $nr)) {
+	$maxrow = $nr - 1;
+	die "$0:  nzrow $nzrow is out of matrix row-index range 0 : $maxrow.\n";
+}
+if (($clearcol < 0) || ($clearcol >= $nc)) {
+	$maxcol = $nc - 1;
+	die "$0:  clear column $clearcol is out of matrix column-index range " .
+		"0 : $maxcol.\n";
+}
+
+if ($print_Q) {
+	my @Q = householder_Q(\@A, $nr, $nc, $nzrow, $clearcol);
+	print_matrix(\@Q, $nr, $nr);
+}
+else {
+	householder(\@A, $nr, $nc, $nzrow, $clearcol);
+	print_matrix(\@A, $nr, $nc);
+}
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die
+		"Usage: $0 [options] {pivot row} {clear column} [input file name]\n" .
+		"E.g. \"$0 3 4 input.txt\" to clear all except row 3 of column 4.\n" .
+		"Rows and columns are numbered starting with 0.\n" .
+		"If the input file name is omitted, input is taken from stdin.\n" .
+		"Options:\n" .
+		"  -q:  Print the transformation matrix, without applying it.\n" .
+		pmatlib_options_string();
+}

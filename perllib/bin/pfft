@@ -1,0 +1,318 @@
+#!/usr/bin/perl -w
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-01-11
+#
+# This is a radix-2 fast Fourier transform.  Example:
+#
+# bash$ cat a.txt
+#      1 0.02
+#      2 0.04
+#      3 0.06
+#      4 0.08
+#      5 0.10
+#      6 0.12
+#      7 0.14
+#      8 0.16
+# bash$ pfft a.txt
+#     12.72792206136      0.25455844123
+#     -1.48249783362      3.38592929113
+#     -1.44249783362      1.38592929113
+#     -1.42592929113      0.55750216638
+#     -1.41421356237     -0.02828427125
+#     -1.40249783362     -0.61407070887
+#     -1.38592929113     -1.44249783362
+#     -1.34592929113     -3.44249783362
+# bash$ pfft a.txt | pfft -rev
+#      1.00000000000      0.02000000001
+#      2.00000000000      0.04000000000
+#      3.00000000000      0.06000000000
+#      4.00000000000      0.08000000000
+#      5.00000000000      0.10000000000
+#      6.00000000000      0.12000000000
+#      7.00000000001      0.13999999999
+#      8.00000000000      0.16000000000
+# ----------------------------------------------------------------
+
+$fold_in  = 0;
+$fold_out = 0;
+$forward  = 1;
+$scale    = 1;
+
+while (@ARGV) {
+	last unless $ARGV[0] =~ m/^-/;
+	if    ($ARGV[0] eq "-fi")  { $fold_in  = 1; }
+	elsif ($ARGV[0] eq "-nfi") { $fold_in  = 0; }
+	elsif ($ARGV[0] eq "-fo")  { $fold_out = 1; }
+	elsif ($ARGV[0] eq "-nfo") { $fold_out = 0; }
+	elsif ($ARGV[0] eq "-fwd") { $forward  = 1; }
+	elsif ($ARGV[0] eq "-rev") { $forward  = 0; }
+	elsif ($ARGV[0] eq "-s")   { $scale    = 1; }
+	elsif ($ARGV[0] eq "-ns")  { $scale    = 0; }
+	else                       { usage(); }
+	shift @ARGV;
+}
+
+$sqrt_recip_2 = sqrt(0.5);
+$pi = 4.0 * atan2(1.0, 1.0);
+
+@inre  = (); @inim  = ();
+@outre = (); @outim = ();
+
+$n = 0;
+while ($line = <>) {
+	chomp $line;
+	$line =~ s/^\s+//;
+	$line =~ s/\s+$//;
+	my @fields = split /\s+/, $line;
+	if (@fields == 2) {
+		$inre[$n] = $fields[0];
+		$inim[$n] = $fields[1];
+	}
+	elsif (@fields == 1) {
+		$inre[$n] = $fields[0];
+		$inim[$n] = 0.0;
+	}
+	else {
+		my $lineno = $n+1;
+		die "$0:  unrecognizable input at line $lineno.\n";
+	}
+	$n++;
+}
+
+if ($n == 0) {
+	die "$0:  Empty input.\n";
+}
+
+#print_complex_vector(\@inre, \@inim, $n);
+#print "\n";
+fft(\@inre, \@inim, \@outre, \@outim,
+	$n, $fold_in, $fold_out, $forward, $scale);
+print_complex_vector(\@outre, \@outim, $n);
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die
+		"Usage: $0 [options] [file name]\n" .
+		"If the file name is omitted, input is taken from standard input.\n" .
+		"Format is in whitespace-delimited decimal rectangular, e.g.\n" .
+		"  1.0 0.0\n" .
+		"  2.0 0.0\n" .
+		"  3.0 0.0\n" .
+		"  4.0 0.0\n" .
+		"Options:\n" .
+		"  -fi:  input folding\n" .
+		"  -nfi: no input folding\n" .
+		"  -fo:  output folding\n" .
+		"  -nfo: no output folding\n" .
+		"  -fwd: forward FFT (exp(-i 2 pi k/N) kernel)\n" .
+		"  -rev: reverse FFT (exp( i 2 pi k/N) kernel)\n" .
+		"  -s:   scaling\n" .
+		"  -ns:  no scaling\n";
+}
+
+# ----------------------------------------------------------------
+sub fft {
+	my ($inreref, $inimref, $outreref, $outimref,
+		$n, $fold_in, $fold_out, $forward, $scale) = @_;
+	my @yre = @$inreref;
+	my @yim = @$inimref;
+	my $i;
+
+	my $log2n = log2($n);
+
+	die "$0:  input length $n is not a power of two.\n"
+		if (!is_a_power_of_two($n));
+
+	my (@Wre, @Wim);
+	for ($i = 0; $i < $n/2; $i++) {
+		my $arg = 2.0 * $pi * $i / $n;
+		$arg = -$arg if $forward;
+		$Wre[$i] = cos($arg);
+		$Wim[$i] = sin($arg);
+	}
+
+	# Output folding.
+	if ($fold_out) {
+		for ($i = 1; $i < $n; $i+=2) {
+			$yre[$i] = -$yre[$i];
+			$yim[$i] = -$yim[$i];
+		}
+	}
+
+	# Bit-reverse stage.
+	for ($i = 0; $i < $n; $i++) {
+ 		$ir = bit_reverse($i, $log2n);
+		my $temp;
+		if ($i < $ir) {
+			$temp     = $yre[$i];
+			$yre[$i]  = $yre[$ir];
+			$yre[$ir] = $temp;
+
+			$temp     = $yim[$i];
+			$yim[$i]  = $yim[$ir];
+			$yim[$ir] = $temp;
+		}
+	}
+
+	#  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Radix-two stages.
+	#
+	# y00 \ / @    \ / @    \ / @    \ / Y00
+	# y08 / \ @    \ / @    \ / @    \ / Y01
+	# y04 \ / @ W0 / \ @    \ / @    \ / Y02
+	# y12 / \ @ W4 / \ @    \ / @    \ / Y03
+	#
+	# y02 \ / @    \ / @ W0 / \ @    \ / Y04
+	# y10 / \ @    \ / @ W2 / \ @    \ / Y05
+	# y06 \ / @ W0 / \ @ W4 / \ @    \ / Y06
+	# y14 / \ @ W4 / \ @ W6 / \ @    \ / Y07
+	#
+	# y01 \ / @    \ / @    \ / @ W0 / \ Y08
+	# y09 / \ @    \ / @    \ / @ W1 / \ Y09
+	# y05 \ / @ W0 / \ @    \ / @ W2 / \ Y10
+	# y13 / \ @ W4 / \ @    \ / @ W3 / \ Y11
+	#
+	# y03 \ / @    \ / @ W0 / \ @ W4 / \ Y12
+	# y11 / \ @    \ / @ W2 / \ @ W5 / \ Y13
+	# y07 \ / @ W0 / \ @ W4 / \ @ W6 / \ Y14
+	# y15 / \ @ W4 / \ @ W6 / \ @ W7 / \ Y15
+	#
+	# a   \ / c   --> c := a + b
+	# b   / \ d   --> d := a - b
+	#
+	# a   \ / c   --> c := a + w * b
+	# b w / \ d   --> d := a - w * b
+	#  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+	my $num_flocks = $n/2;
+	my $flock_sep  = 2;
+	my $bperflock  = 1;
+	my $wingspan   = 1;
+	my $twiddle_stride = $n/2;
+	my ($stageno, $fno, $bno, $twiddleidx);
+	my $num_stages = $log2n;
+
+	for ($stageno = 0; $stageno < $num_stages; $stageno++) {
+		for ($fno = 0; $fno < $num_flocks; $fno++) {
+			$twiddleidx = 0;
+
+			for ($bno = 0; $bno < $bperflock; $bno++) {
+				my $upperidx = $fno * $flock_sep + $bno;
+				my $loweridx = $upperidx + $wingspan;
+
+				my $are  = $yre[$upperidx];
+				my $aim  = $yim[$upperidx];
+				my $bre  = $yre[$loweridx];
+				my $bim  = $yim[$loweridx];
+
+				my $wre  = $Wre[$twiddleidx];
+				my $wim  = $Wim[$twiddleidx];
+
+				my ($wbre, $wbim);
+				cmul($wre, $wim, $bre, $bim, \$wbre, \$wbim);
+
+				my $cre  = $are + $wbre;
+				my $cim  = $aim + $wbim;
+				my $dre  = $are - $wbre;
+				my $dim  = $aim - $wbim;
+
+				if ($scale) {
+					$cre *= $sqrt_recip_2;
+					$cim *= $sqrt_recip_2;
+					$dre *= $sqrt_recip_2;
+					$dim *= $sqrt_recip_2;
+				}
+
+				$yre[$upperidx] = $cre;
+				$yim[$upperidx] = $cim;
+				$yre[$loweridx] = $dre;
+				$yim[$loweridx] = $dim;
+
+				$twiddleidx += $twiddle_stride;
+			}
+		}
+
+		$num_flocks     >>= 1;
+		$flock_sep      <<= 1;
+		$bperflock      <<= 1;
+		$wingspan       <<= 1;
+		$twiddle_stride >>= 1;
+	}
+
+	# Input folding.
+	if ($fold_in) {
+		for ($i = 1; $i < $n; $i+=2) {
+			$yre[$i] = -$yre[$i];
+			$yim[$i] = -$yim[$i];
+		}
+	}
+
+	@$outreref = @yre;
+	@$outimref = @yim;
+}
+
+# ----------------------------------------------------------------
+sub print_complex_vector {
+	my ($reref, $imref, $n) = @_;
+	my $i;
+	for ($i = 0; $i < $n; $i++) {
+		printf "%18.11f %18.11f\n", $$reref[$i], $$imref[$i];
+	}
+}
+
+# ----------------------------------------------------------------
+sub cmul {
+	my ($are, $aim, $bre, $bim, $creref, $cimref ) = @_;
+	$$creref = $are * $bre - $aim * $bim;
+	$$cimref = $are * $bim + $aim * $bre;
+}
+
+# ----------------------------------------------------------------
+sub bit_reverse {
+	my ($in, $num_bits) = @_;
+	my $out = $in;
+
+	$out = (($out & 0xaaaaaaaa) >>  1) | (($out & 0x55555555) <<  1);
+	$out = (($out & 0xcccccccc) >>  2) | (($out & 0x33333333) <<  2);
+	$out = (($out & 0xf0f0f0f0) >>  4) | (($out & 0x0f0f0f0f) <<  4);
+	$out = (($out & 0xff00ff00) >>  8) | (($out & 0x00ff00ff) <<  8);
+	$out = (($out & 0xffff0000) >> 16) | (($out & 0x0000ffff) << 16);
+
+	$out >>= (32 - $num_bits);
+
+	return $out & ((1 << $num_bits) - 1);
+}
+
+# ----------------------------------------------------------------
+sub log2 {
+	my ($n) = @_;
+	my $rv = 0;
+	my $nsv = $n;
+
+	die "log2:  Can't take logarithm of zero.\n"
+		if ($n == 0);
+
+	while ($n != 1) {
+		$n >>= 1;
+		$rv++;
+	}
+
+	if ($nsv != (1 << $rv)) {
+		die "Argument $nsv is not a power of two.\n";
+		exit(1);
+	}
+
+	return $rv;
+}
+
+# ----------------------------------------------------------------
+sub is_a_power_of_two {
+	my ($n) = @_;
+	return 0 if ($n == 0);
+	return 1 if (($n & ($n - 1)) == 0);
+	return 0;
+}

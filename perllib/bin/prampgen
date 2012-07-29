@@ -1,0 +1,69 @@
+#!/usr/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-01-14
+#
+# This is a data generator.  Example usage:
+#
+# prampgen 10 3:4 5:6
+#      3.00000000000      4.00000000000
+#      3.20000000000      4.20000000000
+#      3.40000000000      4.40000000000
+#      3.60000000000      4.60000000000
+#      3.80000000000      4.80000000000
+#      4.00000000000      5.00000000000
+#      4.20000000000      5.20000000000
+#      4.40000000000      5.40000000000
+#      4.60000000000      5.60000000000
+#      4.80000000000      5.80000000000
+# ----------------------------------------------------------------
+
+sub usage() {
+	die "Usage: $0 {N} {lo} {hi}\n",
+}
+
+usage() if @ARGV != 3;
+$N = shift @ARGV;
+
+@fields = split /:/, $ARGV[0];
+if (@fields == 2) {
+	$relo = $fields[0];
+	$imlo = $fields[1];
+}
+elsif (@fields == 1) {
+	$relo = $fields[0];
+	$imlo = 0.0;
+}
+else {
+	usage();
+}
+shift @ARGV;
+
+@fields = split /:/, $ARGV[0];
+if (@fields == 2) {
+	$rehi = $fields[0];
+	$imhi = $fields[1];
+}
+elsif (@fields == 1) {
+	$rehi = $fields[0];
+	$imhi = 0.0;
+}
+else {
+	usage();
+}
+shift @ARGV;
+
+$dre  = ($rehi - $relo) / $N;
+$dim  = ($imhi - $imlo) / $N;
+
+$re = $relo;
+$im = $imlo;
+for ($j = 0; $j < $N; $j++) {
+	
+	printf "%18.11f %18.11f\n", $re, $im;
+
+	$re += $dre;
+	$im += $dim;
+}

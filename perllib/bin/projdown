@@ -1,0 +1,67 @@
+#!/usr/bin/perl -Wall
+
+@Pxhat = (-0.5, -0.5);
+@Pyhat = (1, 0);
+@Pzhat = (0, 1);
+
+while (@ARGV && ($ARGV[0] =~ m/^-/)) {
+	if ($ARGV[0] eq "-xy") {
+		@Pxhat = (1, 0);
+		@Pyhat = (0, 1);
+		@Pzhat = (0, 0);
+	}
+	elsif ($ARGV[0] eq "-yz") {
+		@Pxhat = (0, 0);
+		@Pyhat = (1, 0);
+		@Pzhat = (0, 1);
+	}
+	elsif ($ARGV[0] eq "-xz") {
+		@Pxhat = (1, 0);
+		@Pyhat = (0, 0);
+		@Pzhat = (0, 1);
+	}
+	elsif ($ARGV[0] eq "-usual") {
+		@Pxhat = (-0.5, -0.5);
+		@Pyhat = (1, 0);
+		@Pzhat = (0, 1);
+	}
+	else {
+		last
+	}
+	shift @ARGV;
+}
+
+$lno = 0;
+while ($line = <>) {
+	chomp $line;
+	$line =~ s/^\s+//;
+	$line =~ s/\s+$//;
+	$lno++;
+
+	@fields = split /\s+/, $line;
+	$n = @fields;
+	if ($n == 3) {
+		($u, $v) = do_triple($fields[0], $fields[1], $fields[2]);
+		printf "%11.7f %11.7f\n", $u, $v;
+	}
+	elsif ($n == 6) {
+		($u1, $v1) = do_triple($fields[0], $fields[1], $fields[2]);
+		($u2, $v2) = do_triple($fields[3], $fields[4], $fields[5]);
+		printf "%11.7f %11.7f %11.7f %11.7f\n", $u1, $v1, $u2, $v2;
+	}
+	else {
+		die "$0:  Need 3 or 6 columns; got $n at line $lno.\n";
+	}
+}
+
+# ----------------------------------------------------------------
+sub do_triple
+{
+	my ($x, $y, $z) = @_;
+	my ($u, $v);
+
+	$u = $Pxhat[0] * $x + $Pyhat[0] * $y + $Pzhat[0] * $z;
+	$v = $Pxhat[1] * $x + $Pyhat[1] * $y + $Pzhat[1] * $z;
+
+	return ($u, $v);
+}

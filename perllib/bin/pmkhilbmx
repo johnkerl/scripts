@@ -1,0 +1,42 @@
+#!/usr/bin/perl -w
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-06-30
+# ----------------------------------------------------------------
+
+use PMATLIB;
+
+while (@ARGV) {
+	last unless $ARGV[0] =~ m/^-/;
+	if (pmatlib_opt(\@ARGV)) {
+		;
+	}
+	else {
+		usage();
+	}
+}
+
+if (@ARGV != 1) {
+	usage();
+}
+$n = shift @ARGV;
+
+for ($i = 0; $i < $n; $i++) {
+	for ($j = 0; $j < $n; $j++) {
+		print " " if $j > 0;
+		$denom = $i + $j + 1;
+		print "1/$denom";
+	}
+	print "\n";
+}
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die
+		"Usage: $0 [options] {n}\n" .
+		"Options:\n" .
+		pmatlib_options_string();
+}

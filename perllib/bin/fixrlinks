@@ -1,0 +1,83 @@
+#!/usr/bin/perl -Wall
+
+# ================================================================
+# When I rsync -rtlz between hosts on which the spelling of my home directory
+# differs (e.g. /u5/kerl on one and /home/kerl on the other), rsync doesn't
+# change the symlink referents.  This script can be run after an rsync to fix
+# that.
+#
+# John Kerl
+# kerl.john.r@gmail.com
+# 2008-01-02
+# ================================================================
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die 
+		"Usage:   $0 [options ...] {files ...}\n" .
+		"Example: $0 -o /u5/kerl -n /home/kerl `find . -type l`\n" .
+		"will find each symlink in the current tree whose referent starts " .
+			"with /u5/kerl,\n" .
+		"and will replace that symlink with one whose referent starts with " .
+			"/home/kerl.\n" .
+		"Options:\n" .
+		"  -o {old home}\n" .
+		"  -n {new home}\n" .
+		"  -d:  display actions to be taken without actually taking them.\n" .
+		"  --:  subsequent arguments are not treated as options.\n" .
+		"  -h or --help:  print this message.\n";
+}
+
+# ----------------------------------------------------------------
+$old_home = "/u5/kerl";
+$new_home = "/home/kerl";
+$display_only = 0;
+
+if (@ARGV == 0) {
+	print "$0:  No arguments were given.";
+}
+
+while (@ARGV) {
+	last unless ($ARGV[0] =~ m/^-/);
+	last if     ($ARGV[0] eq "--");
+	$opt = shift @ARGV;
+	usage() if ($opt eq "-h");
+	usage() if ($opt eq "--help");
+	if ($opt eq "-o") {
+		usage unless (@ARGV >= 1);
+		$old_home = shift @ARGV;
+	}
+	elsif ($opt eq "-n") {
+		usage unless (@ARGV >= 1);
+		$new_home = shift @ARGV;
+	}
+	elsif ($opt eq "-d") {
+		$display_only = 1;
+	}
+	else {
+		usage();
+	}
+}
+
+## ----------------------------------------------------------------
+$old_home =~ s:/+$::;
+$new_home =~ s:/+$::;
+#print "old home is $old_home";
+#print "new home is $new_home";
+
+foreach $arg (@ARGV) {
+	if (-l $arg) {
+		$old_dest = readlink($arg);
+		if ($old_dest =~ m:^$old_home:) {
+			$new_dest = $old_dest;
+			$new_dest =~ s:^$old_home/+::;
+			$new_dest = $new_home . "/" . $new_dest;
+			print "unlink $arg (-> $old_dest); ln -s $new_dest $arg";
+			if (!$display_only) {
+				unlink $arg;
+				symlink($new_dest, $arg);
+			}
+		}
+	}
+}

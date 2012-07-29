@@ -1,0 +1,56 @@
+#!/usr/local/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-07-26
+#
+# This is an example of numerical series estimation.
+#
+# The Maclaurin series for sin(x) is x - x^3/3! + x^5/5! - x^7/7! + ...
+#
+# Output:
+#
+#   0.0000000   0.0000000   0.0000000   0.0000000   0.0000000
+#   0.0100000   0.0100000   0.0100000   0.0100000   0.0100000
+#   0.0200000   0.0200000   0.0200000   0.0200000   0.0200000
+#   0.0300000   0.0299999   0.0299999   0.0299999   0.0299999
+#   ...
+#   1.5400000   0.6025856   1.0085661   0.8100019   0.9443573
+#   1.5500000   0.5879990   1.0183314   0.7981013   0.9560548
+#   1.5600000   0.5729318   1.0289059   0.7848086   0.9703120
+#   1.5700000   0.5573780   1.0403430   0.7699696   0.9876044
+#
+# The first column is x; the second and subsequent columns are increasingly
+# higher-order approximations to sin(x).
+#
+# This illustrates the rapid convergence of the series near 0, with slower
+# convergence farther away.
+# ----------------------------------------------------------------
+
+$pi = 4 * atan2(1,1);
+$kmax = 10;
+$kmax = $ARGV[0] if (@ARGV);
+$xmin = 0.0;
+$xmax = $pi/2;
+$dx   = 0.01;
+
+$k = 0;
+
+for ($x = $xmin; $x <= $xmax; $x += $dx) {
+	$expsum = 0.0;
+	$kfact  = 1;
+	$xpower = 1.0;
+	$sign = 1.0;
+	for ($k = 1; $k < $kmax; $k++) {
+		$kfact  *= $k;
+		next unless ($k & 1);
+		$xpower *= $x ** $k;
+		$expterm = $sign * $xpower / $kfact;
+		$expsum += $expterm;
+
+		printf " %11.7f", $expsum;
+		$sign = -$sign;
+	}
+	printf "\n";
+}

@@ -1,0 +1,39 @@
+#!/usr/bin/perl -w
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-06-30
+# ----------------------------------------------------------------
+
+use PMATLIB;
+
+while (@ARGV) {
+	last unless $ARGV[0] =~ m/^-/;
+	if (pmatlib_opt(\@ARGV)) {
+		;
+	}
+	else {
+		usage();
+	}
+}
+
+if (@ARGV != 1) {
+	usage();
+}
+$n = shift @ARGV;
+
+@A = make_I($n);
+print_matrix(\@A, $n, $n);
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die
+		"Usage: $0 [options] {n}\n" .
+		"Options:\n" .
+		pmatlib_options_string() .
+		"  -t1: transpose input 1 before multiplying.\n" .
+		"  -t2: transpose input 2 before multiplying.\n" .
+		"  -t3: transpose input 3 after  multiplying.\n";
+}

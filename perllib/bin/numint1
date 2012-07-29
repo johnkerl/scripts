@@ -1,0 +1,40 @@
+#!/usr/local/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-01-11
+#
+# This is an example of numerical integration in one variable:
+# sin(x)/x from -2 pi to 2 pi.  A reference value for the integral is
+# 2.83630; this program prints 2.836350.
+# ----------------------------------------------------------------
+
+$pi  =  4.0 * atan2(1,1);
+$xlo = -2.0 * $pi;
+$xhi =  2.0 * $pi;
+
+$nx  = 400;
+$nx  = $ARGV[0] if (@ARGV);
+$dx  = ($xhi - $xlo) / $nx;
+
+# Alternatively:
+#$dx  = 0.001;
+
+$sum = 0.0;
+for ($x = $xlo; $x < $xhi; $x += $dx) {
+	$y = f($x);
+	$sum += $y * $dx;
+}
+printf "%11.6f\n", $sum;
+
+# ----------------------------------------------------------------
+sub f {
+	my ($x) = @_;
+	if ($x == 0.0) {
+		return 1.0;
+	}
+	else {
+		return sin($x) / $x;
+	}
+}

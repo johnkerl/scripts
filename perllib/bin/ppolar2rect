@@ -1,0 +1,50 @@
+#!/usr/local/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-01-11
+#
+# This converts complex numbers from polar (magnitude-phase) coordinates to
+# rectangular (real-imaginary) coordinates.  Example:
+#
+# bash$ cat a.txt
+#      1 0.0
+#      1 0.1
+#      1 0.2
+#      1 0.3
+#      1 0.4
+#      1 0.5
+#      1 0.6
+# bash$ ppolar2rect a.txt
+#      1.00000000000      0.00000000000
+#      0.99500416528      0.09983341665
+#      0.98006657784      0.19866933080
+#      0.95533648913      0.29552020666
+#      0.92106099400      0.38941834231
+#      0.87758256189      0.47942553860
+#      0.82533561491      0.56464247340
+# ----------------------------------------------------------------
+
+$lineno = 0;
+while ($line = <>) {
+	chomp $line;
+	$lineno++;
+	$line =~ s/^\s+//;
+	$line =~ s/\s+$//;
+	my @fields = split /\s+/, $line;
+	if (@fields == 2) {
+		$mag = $fields[0];
+		$phz = $fields[1];
+	}
+	elsif (@fields == 1) {
+		$mag = $fields[0];
+		$phz = 0.0;
+	}
+	else {
+		die "$0:  unrecognizable input at line $lineno.\n";
+	}
+	$re = $mag * cos($phz);
+	$im = $mag * sin($phz);
+	printf "%18.11f %18.11f\n", $re, $im;
+}

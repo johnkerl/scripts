@@ -1,0 +1,47 @@
+#!/usr/bin/perl -w
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-06-30
+# See http://math.arizona.edu/~kerl/doc/ssdda.pdf for information.
+# ----------------------------------------------------------------
+
+use PMATLIB;
+
+$sign = 1.0;
+while (@ARGV) {
+	last unless $ARGV[0] =~ m/^-/;
+	if (pmatlib_opt(\@ARGV)) {
+		;
+	}
+	elsif ($ARGV[0] eq "-inv") {
+		$sign = -1.0;
+		shift @ARGV;
+	}
+	else {
+		usage();
+	}
+}
+
+if (@ARGV != 1) {
+	usage();
+}
+$n = shift @ARGV;
+
+for ($i = 0; $i < $n; $i++) {
+	for ($j = 0; $j < $n; $j++) {
+		$A[$i][$j] = ($sign ** ($i+$j)) * binc($i, $j);
+	}
+}
+print_matrix(\@A, $n, $n);
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die
+		"Usage: $0 [options] {n}\n" .
+		"Options:\n" .
+		pmatlib_options_string() .
+		"  -inv: print the inverse of A.\n";
+}

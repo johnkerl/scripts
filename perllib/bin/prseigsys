@@ -1,0 +1,77 @@
+#!/usr/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-07-05
+# ----------------------------------------------------------------
+
+# Setup information:
+# (1) Obtain my PMATLIB.pm;
+# (2) Put PMATLIB.pm somewhere, e.g. the $HOME/bin directory;
+# (3) Include that directory in the PERLLIB environment variable.
+#     For bash, if PERLLIB exists:         export PERLLIB=$HOME/bin
+#     For bash, if PERLLIB does not exist: export PERLLIB=$PERLLIB:$HOME/bin
+#     For csh, if PERLLIB exists:          setenv PERLLIB $HOME/bin
+#     For csh, if PERLLIB does not exist:  setenv PERLLIB ${PERLLIB}:$HOME/bin
+use PMATLIB;
+
+$spectrum_only = 0;
+
+while (@ARGV) {
+	last unless $ARGV[0] =~ m/^-/;
+
+	if (pmatlib_opt(\@ARGV)) {
+		;
+	}
+	elsif ($ARGV[0] eq "-spec") {
+		$spectrum_only = 1;
+		shift @ARGV;
+	}
+	else {
+		usage();
+	}
+}
+
+if (@ARGV > 1) {
+	usage();
+}
+
+@A = (); $nr = 0; $nc = 0; 
+@D = ();
+@V = ();
+read_matrix(\@A, \$nr, \$nc, $ARGV[0]);
+die "$0:  Non-square input.  Got $nr x $nc.\n" unless ($nr == $nc);
+
+rs_eigensystem(\@A, $nr, \@D, \@V);
+
+if ($spectrum_only) {
+	@Lambda = ();
+	for ($i = 0; $i < $nr; $i++) {
+		$Lambda[$i] = $D[$i][$i];
+	}
+	@Lambda = sort {$b <=> $a} (@Lambda);
+	print "Spectrum:\n";
+	for ($i = 0; $i < $nr; $i++) {
+		print " ";
+		print_scalar($Lambda[$i]);
+	}
+	print "\n";
+}
+else {
+	print_matrix(\@D, $nr, $nc);
+	print "\n";
+	print_matrix(\@V, $nr, $nc);
+}
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die
+		"Usage: $0 [options] [input file name]\n" .
+		"Options:\n" .
+		"  -w:  specify field width\n" .
+		"  -p:  specify number of decimal places\n" .
+		"  -f:  use %f format\n" .
+		"  -d:  use %d format\n";
+}

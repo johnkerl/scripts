@@ -1,0 +1,87 @@
+#!/usr/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-01-14
+#
+# This is a data generator.  Example usage:
+#
+# pspikegen 10 4:2:0.1
+#      0.00000000000      0.00000000000
+#      0.00000000000      0.00000000000
+#      0.00000000000      0.00000000000
+#      0.00000000000      0.00000000000
+#      1.61803398875      1.17557050458
+#      0.00000000000      0.00000000000
+#      0.00000000000      0.00000000000
+#      0.00000000000      0.00000000000
+#      0.00000000000      0.00000000000
+#      0.00000000000      0.00000000000
+# ----------------------------------------------------------------
+
+sub usage() {
+	die "Usage: $0 {N} {k ...}\n",
+}
+
+usage() if @ARGV < 2;
+$N = shift @ARGV;
+$numk = @ARGV;
+
+$pi = 4.0 * atan2(1.0, 1.0);
+
+for ($i = 0; $i < $numk; $i++) {
+	$loc = 0.0;
+	$mag = 1.0;
+	$phz = 0.0;
+
+	@fields = split /:/, $ARGV[$i];
+	if (@fields == 3) {
+		$loc = $fields[0];
+		$mag = $fields[1];
+		$phz = $fields[2];
+	}
+	elsif (@fields == 2) {
+		$loc = $fields[0];
+		$mag = $fields[1];
+		$phz = 0.0;
+	}
+	elsif (@fields == 1) {
+		$loc = $fields[0];
+		$mag = 1.0;
+		$phz = 0.0;
+	}
+	else {
+		usage();
+	}
+
+	$phz *= 2.0 * $pi;
+
+	# xxx lin interp for fraxnl locs
+	#$loc0  = int($loc);
+	#$loc1  = $loc0 + 1;
+	#$fracloc = $loc - $intloc;
+
+	#if ($fracloc == 0)
+	#print "$loc $intloc $fracloc\n";
+	
+	#$kloc[$loc0] = $loc ...
+
+
+
+	$kloc[$i] = $loc;
+	$kmag[$i] = $mag;
+	$kphz[$i] = $phz;
+}
+
+for ($j = 0; $j < $N; $j++) {
+	$re = 0.0;
+	$im = 0.0;
+	for ($i = 0; $i < $numk; $i++) {
+		if ($j == $kloc[$i]) {
+			$re += $kmag[$i] * cos($kphz[$i]);
+			$im += $kmag[$i] * sin($kphz[$i]);
+		}
+	}
+	printf "%18.11f %18.11f\n", $re, $im;
+}

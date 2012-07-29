@@ -1,0 +1,104 @@
+================================================================
+Perl-on-NT implementation notes
+
+John Kerl
+12/27/2000 
+================================================================
+
+----------------------------------------------------------------
+
+The following NT bug appears to exist.  I make the following association:
+
+  assoc .pl=PerlScript
+  ftype PerlScript=perl.exe %1 %*
+
+Now, if I type 
+
+  script a b c
+
+or 
+
+  script.pl a b c
+
+then script.pl's output goes to the screen. However, if I type 
+
+  script a b c > x
+
+or 
+
+  script.pl a b c > x
+
+then x is an empty file.  This is *not* OK.  But if I type 
+
+  perl script.pl a b c > x
+
+then x has the desired contents.
+
+Similarly, "dir | script" produces no output, but "dir | perl script.pl"
+produces the desired output.  It appears that NT associations simply do not
+work with redirected I/O.
+
+The workaround I employ (to avoid having to type "perl" in front of the name of
+all my perl scripts) is this:
+
+For each script.pl in my bin directory, I also have a script.cmd wrapper file
+which looks like this:
+
+  C:> type c:\bin\script.cmd
+  @echo off
+  c:\bin\perl c:\bin\script.pl %*
+
+That is, script.cmd simply invokes perl on script.pl, passing the argument list
+straight through.  In effect, I'm doing my own association, since NT's
+associations are botched.  This way, "script a b c" and "script a b c > x" both
+work as desired.
+
+However, this depends on my PATHEXT having .CMD *before* .PL: For this scheme
+to work when I type "script", the cmd shell must find script.cmd before it
+finds script.pl.
+
+The "toc" utility copies given Perl script(s) to my bin directories and creates
+the wrapper .cmd files as well.  For example, I would type "toc script.pl".
+
+----------------------------------------------------------------
+
+Perl file globbing doesn't work on NT till version 5.6.  For version 5.6 and
+above, Perl does the globbing itself.  But for versions before 5.6 (e.g. I'm
+using 5.005), Perl simply calls the Unix (!) shell (e.g. csh or sh) to perform
+globbing.  csh and sh of course don't exist on NT.
+
+The workaround I use is the following:
+
+I am using the nsperl distribution, which contains a program named
+perlglob.exe, which globs its argument list and writes its result delimited by
+null (!) characters.
+
+Suppose a script is invoked as "script.pl *.c *.h", and the current directory
+contains apple.c, buggy.c, cat.c, dog.h and elephant.h.
+
+My script will contain two loops (not just one as you'd have on Unix, since the
+Unix shell globs for you):  The outer loop loops over the arguments, e.g. the
+array [*.c *.h].  Just inside the inner loop I call perlglob on the current
+argument and split its output into an array, splitting on the null character.
+The inner loop loops over this array, e.g. the array [apple.c buggy.c cat.c] on
+the first iteration of the outer loop, or the array [dog.h elephant.h] on the
+second iteration of the outer loop.
+
+The code looks like this:
+
+	foreach $argument (@ARGV) {
+		foreach $filename (split /\0/, `perlglob $argument`) {
+			... process $filename ...
+		}
+	}
+
+In contrast to what you'd use if you had an intelligent shell:
+
+	foreach $argument (@ARGV) {
+		... process $filename ...
+	}
+
+Alternatively, the w.pl program globs its arguments, then invokes the specified
+command.  E.g. "w dir *\*\*.c".  So, prefixing a shell command with "w "
+provides the shell command with arguments already globbed for it.
+

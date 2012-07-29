@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-05-18
+# ----------------------------------------------------------------
+
+die "Usage: $0 {scalar} [data file; omit for stdin]\n" unless @ARGV;
+$scalar = shift @ARGV;
+
+while ($line = <>) {
+	chomp $line;
+
+	# Skip blank lines.
+	next if ($line =~ m/^[ \t]*$/);
+
+	# Strip leading whitespace from line.
+	$line =~ s/^\s+//;
+
+	# Get only the first token on the line.
+	($f) = split /\s+/, $line;
+
+	# Accumulate sum.
+	$g = $scalar * $f;
+	print "$g\n";
+}

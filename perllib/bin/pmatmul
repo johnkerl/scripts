@@ -1,0 +1,87 @@
+#!/usr/bin/perl -w
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-01-11
+#
+# This is a matrix multiply.  Example:
+#
+# bash$ cat a.txt
+# -2  1  0  0
+#  1 -2  1  0
+#  0  1 -2  1
+#  0  0  1 -2
+# bash$ cat b.txt
+#  1  2  3  4  5
+#  5  6  7  8  9
+#  1  3  5  7  9
+#  0  2  4  6  8
+# bash$ pmatmul a.txt b.txt
+#  3.0000  2.0000  1.0000  0.0000 -1.0000
+# -8.0000 -7.0000 -6.0000 -5.0000 -4.0000
+#  3.0000  2.0000  1.0000  0.0000 -1.0000
+#  1.0000 -1.0000 -3.0000 -5.0000 -7.0000
+# ----------------------------------------------------------------
+
+# Setup information:
+# (1) Obtain my PMATLIB.pm;
+# (2) Put PMATLIB.pm somewhere, e.g. the $HOME/bin directory;
+# (3) Include that directory in the PERLLIB environment variable.
+#     For bash, if PERLLIB exists:         export PERLLIB=$HOME/bin
+#     For bash, if PERLLIB does not exist: export PERLLIB=$PERLLIB:$HOME/bin
+#     For csh, if PERLLIB exists:          setenv PERLLIB $HOME/bin
+#     For csh, if PERLLIB does not exist:  setenv PERLLIB ${PERLLIB}:$HOME/bin
+use PMATLIB;
+
+while (@ARGV) {
+	last unless $ARGV[0] =~ m/^-/;
+
+	if (pmatlib_opt(\@ARGV)) {
+		;
+	}
+
+	elsif ($ARGV[0] eq "-t") {
+		shift @ARGV;
+		@transpose_indices[shift @ARGV] = 1;
+	}
+
+	else {
+		usage();
+	}
+}
+
+if (@ARGV < 1) {
+	usage();
+}
+else {
+
+	$count = 1;
+	@A = (); $anr = 0; $anc = 0; 
+	read_matrix(\@A, \$anr, \$anc, $ARGV[0]);
+	shift @ARGV;
+	transpose_in_place(\@A, \$anr, \$anc) if ($transpose_indices[$count++]);
+
+	while (@ARGV) {
+		@B = (); $bnr = 0; $bnc = 0; 
+		read_matrix(\@B, \$bnr, \$bnc, $ARGV[0]);
+		shift @ARGV;
+		transpose_in_place(\@B, \$bnr, \$bnc) if ($transpose_indices[$count++]);
+		matmul(\@A, $anr, $anc, \@B, $bnr, $bnc, \@A, \$anr, \$anc);
+	}
+	transpose_in_place(\@A, \$anr, \$anc) if ($transpose_indices[$count++]);
+	print_matrix(\@A, $anr, $anc);
+
+}
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die
+		"Usage: $0 [options] {input 1 file name} {input 2 file name}\n" .
+		"Options:\n" .
+		pmatlib_options_string() .
+		"  -t 1: transpose input 1 before multiplying.\n" .
+		"  -t 2: transpose input 2 before multiplying.\n" .
+		"  -t 3: transpose output  after  multiplying.\n";
+}

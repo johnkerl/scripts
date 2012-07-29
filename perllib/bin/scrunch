@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# john dot r dot kerl at lmco dot com
+# 2000/12/18
+#
+# Replaces multiple blank lines with single blank lines.  Most useful
+# when viewing ".i" files:  C source files which have been run through
+# the preprocessor (e.g. with gcc -E).
+# ----------------------------------------------------------------
+
+my $prev_blank = 0;
+my $curr_blank = 0;
+while ($line = <>) {
+	chomp $line;
+
+	if ($line =~ m/^\s*$/) {
+		$curr_blank = 1;
+	}
+	else {
+		$curr_blank = 0;
+	}
+
+	if ($curr_blank) {
+		if (!$prev_blank) {
+			print $line;
+			print "\n";
+		}
+	}
+	else {
+		print $line;
+		print "\n";
+	}
+	$prev_blank = $curr_blank;
+}

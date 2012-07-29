@@ -1,0 +1,72 @@
+#!/usr/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-06-28
+#
+# This is a row-reduction program for real matrices.
+# Example:
+#
+# cat a.txt
+#   15  4 64 28 46
+#   27 95 41  3 65
+#   57 36 93 55 38
+#   97 64 84  3 56
+#
+# prred a.txt
+#   1.0000000   0.2666667   4.2666667   1.8666667   3.0666667
+#   0.0000000   1.0000000  -0.8451025  -0.5398633  -0.2027335
+#  -0.0000000  -0.0000000   1.0000000   0.3028976   0.9997080
+#  -0.0000000  -0.0000000  -0.0000000   1.0000000  -0.9478949
+# ----------------------------------------------------------------
+
+# Setup information:
+# (1) Obtain my PMATLIB.pm;
+# (2) Put PMATLIB.pm somewhere, e.g. the $HOME/bin directory;
+# (3) Include that directory in the PERLLIB environment variable.
+#     For bash, if PERLLIB exists:         export PERLLIB=$HOME/bin
+#     For bash, if PERLLIB does not exist: export PERLLIB=$PERLLIB:$HOME/bin
+#     For csh, if PERLLIB exists:          setenv PERLLIB $HOME/bin
+#     For csh, if PERLLIB does not exist:  setenv PERLLIB ${PERLLIB}:$HOME/bin
+use PMATLIB;
+
+$column_reduce = 0;
+
+while (@ARGV) {
+	last unless $ARGV[0] =~ m/^-/;
+
+	if (pmatlib_opt(\@ARGV)) {
+		;
+	}
+	elsif ($ARGV[0] eq "-col") {
+		$column_reduce = 1;
+		shift @ARGV;
+	}
+	else {
+		usage();
+	}
+}
+
+if (@ARGV > 1) {
+	usage();
+}
+
+@A   = (); $nr = 0; $nc = 0; 
+read_matrix(\@A, \$nr, \$nc, $ARGV[0]);
+transpose_in_place(\@A, \$nr, \$nc) if $column_reduce;
+row_reduce_below(\@A, $nr, $nc);
+transpose_in_place(\@A, \$nr, \$nc) if $column_reduce;
+print_matrix(\@A, $nr, $nc);
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die
+		"Usage: $0 [options] [input file name]\n" .
+		"Options:\n" .
+		"  -w:  specify field width\n" .
+		"  -p:  specify number of decimal places\n" .
+		"  -f:  use %f format\n" .
+		"  -d:  use %d format\n";
+}

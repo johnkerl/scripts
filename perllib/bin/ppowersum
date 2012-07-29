@@ -1,0 +1,33 @@
+#!/usr/local/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-01-14
+# ----------------------------------------------------------------
+
+$psum = 0.0;
+$n = 0;
+while ($line = <>) {
+	chomp $line;
+	$n++;
+	$line =~ s/^\s+//;
+	$line =~ s/\s+$//;
+	my @fields = split /\s+/, $line;
+	if (@fields == 2) {
+		$re = $fields[0];
+		$im = $fields[1];
+	}
+	elsif (@fields == 1) {
+		$re = $fields[0];
+		$im = 0.0;
+	}
+	else {
+		die "$0:  unrecognizable input at line $n.\n";
+	}
+	$pwr = $re*$re + $im*$im;
+	$psum += $pwr;
+}
+
+$psum /= $n;
+printf "%18.11f\n", $psum;

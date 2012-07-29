@@ -1,0 +1,44 @@
+#!/usr/local/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-01-11
+#
+# This is an example of numerical integration in two variables:
+# x^2 y^2 for x = -2 to 2 and y = -3 to 3.  Analytically one computes
+# 96.00 for the integral; this program prints 96.002400.
+# ----------------------------------------------------------------
+
+$xlo = -2.0;
+$xhi =  2.0;
+$ylo = -3.0;
+$yhi =  3.0;
+
+$nx  = 400;
+$ny  = 400;
+
+if (@ARGV) {
+	$nx = $ny = $ARGV[0];
+}
+$dx  = ($xhi - $xlo) / $nx;
+$dy  = ($yhi - $ylo) / $ny;
+
+# Alternatively:
+#$dx  = 0.001;
+#$dy  = 0.001;
+
+$sum = 0.0;
+for ($x = $xlo; $x < $xhi; $x += $dx) {
+	for ($y = $ylo; $y < $yhi; $y += $dy) {
+		$z = f($x, $y);
+		$sum += $z * $dx * $dy;
+	}
+}
+printf "%11.6f\n", $sum;
+
+# ----------------------------------------------------------------
+sub f {
+	my ($x, $y) = @_;
+	return $x*$x * $y*$y;
+}

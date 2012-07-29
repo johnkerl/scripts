@@ -1,0 +1,52 @@
+#!/usr/local/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-01-11
+#
+# This converts complex numbers from rectangular (real-imaginary) coordinates
+# to polar (magnitude-phase) coordinates.  Example:
+#
+# bash$ cat a.txt 
+#      0  0
+#      1  0
+#      0  1
+#     -1  0
+#      0 -1
+#      1  1
+#      1  2
+#      1  3
+# bash$ prect2polar a.txt
+#      0.00000000000      0.00000000000
+#      1.00000000000      0.00000000000
+#      1.00000000000      1.57079632679
+#      1.00000000000      3.14159265359
+#      1.00000000000     -1.57079632679
+#      1.41421356237      0.78539816340
+#      2.23606797750      1.10714871779
+#      3.16227766017      1.24904577240
+# ----------------------------------------------------------------
+
+$lineno = 0;
+while ($line = <>) {
+	chomp $line;
+	$lineno++;
+	$line =~ s/^\s+//;
+	$line =~ s/\s+$//;
+	my @fields = split /\s+/, $line;
+	if (@fields == 2) {
+		$re = $fields[0];
+		$im = $fields[1];
+	}
+	elsif (@fields == 1) {
+		$re = $fields[0];
+		$im = 0.0;
+	}
+	else {
+		die "$0:  unrecognizable input at line $lineno.\n";
+	}
+	$mag = sqrt($re * $re + $im * $im);
+	$phz = atan2($im, $re);
+	printf "%18.11f %18.11f\n", $mag, $phz;
+}

@@ -1,0 +1,68 @@
+#!/usr/local/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-03-29
+#
+# This is an example of numerical path integration.  Here, the numerical
+# estimation is done in terms of dx and dy, rather than in terms of dt.
+#   C : x^2 + y^2 = 9, counterclockwise closed loop.
+#   x  =  3 cos t   y  = 3 sin t
+#   path integral -2y dx + x^2 dy
+#   f(x,y) = -2y   g(x,y) = x^2
+#   path integral f(x(t),y(t)) dx + g(x(t),y(t)) dy   for   t from 0 to 2 pi.
+# Analytically, one expects 18 pi.
+# ----------------------------------------------------------------
+
+$pi  =  4.0 * atan2(1.0,1.0);
+$tlo =  0.0;
+$thi =  2.0 * $pi;
+
+$nt  = 4000;
+$nt  = $ARGV[0] if (@ARGV);
+$dt  = ($thi - $tlo) / $nt;
+
+# Alternatively:
+#$dt  = 0.001;
+
+$sum = 0.0;
+for ($t = $tlo; $t < $thi; $t += $dt) {
+	$t1 = $t;
+	$t2 = $t + $dt;
+
+	$x1 = _x($t1);
+	$y1 = _y($t1); # Can't just write y($t1) in Perl.
+	$x2 = _x($t2);
+	$y2 = _y($t2);
+
+	$dx = $x2 - $x1;
+	$dy = $y2 - $y1;
+
+	$sum += f($x1, $y1) * $dx + g($x1, $y1) * $dy;
+}
+printf "%11.6f\n", $sum;
+
+# ----------------------------------------------------------------
+sub _x {
+	my ($t) = @_;
+	return 3.0 * cos($t);
+}
+
+# ----------------------------------------------------------------
+sub _y {
+	my ($t) = @_;
+	return 3.0 * sin($t);
+}
+
+# ----------------------------------------------------------------
+sub f {
+	my ($x, $y) = @_;
+	return -2.0 * $y;
+}
+
+# ----------------------------------------------------------------
+sub g {
+	my ($x, $y) = @_;
+	return $x * $x;
+}

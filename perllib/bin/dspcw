@@ -1,0 +1,10 @@
+#!/usr/bin/perl
+
+while (<>) {
+	chomp $_;
+	my @chars = split //, $_;
+	for my $char (@chars) {
+		print $char, " ";
+	}
+	print "\n";
+}

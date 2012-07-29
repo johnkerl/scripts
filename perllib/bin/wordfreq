@@ -1,0 +1,39 @@
+#!/usr/bin/perl
+
+# John Kerl
+# john dot r dot kerl at lmco dot com
+
+sub hash_by_value_ascending  { $counts{$a} <=> $counts{$b} }
+sub hash_by_value_descending { $counts{$b} <=> $counts{$a} }
+
+# For each line of input in all files named on the command line:
+while (<>) {
+
+	# Strip off trailing newline, if any.
+	chomp;
+
+	# Count words:
+	foreach $word(split)
+
+	# Count characters:
+	#foreach $word(split //)
+
+	{
+		# Store word-to-frequency (or character-to-frequency)
+		# mapping in an associative array.
+		$counts{lc $word}++;
+	}
+}
+
+# Report on word (or character) frequency, sorting by word (or character).
+foreach $word ( sort keys %counts) {
+	printf "%8d %s\n", $counts{$word}, $word;
+}
+
+# Print a separator line.
+print "-" x 80 , "\n";
+
+# Report on word (or character) frequency, sorting by frequency.
+foreach $word (sort hash_by_value_ascending keys %counts) {
+	printf "%8d %s\n", $counts{$word}, $word;
+}

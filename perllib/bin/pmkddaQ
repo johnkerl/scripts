@@ -1,0 +1,47 @@
+#!/usr/bin/perl -w
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-06-30
+# See http://math.arizona.edu/~kerl/doc/ssdda.pdf for information.
+# ----------------------------------------------------------------
+
+use PMATLIB;
+
+while (@ARGV) {
+	last unless $ARGV[0] =~ m/^-/;
+	if (pmatlib_opt(\@ARGV)) {
+		;
+	}
+	else {
+		usage();
+	}
+}
+
+if (@ARGV != 3) {
+	usage();
+}
+$n = shift @ARGV;
+$d = read_scalar(shift @ARGV);
+$a = read_scalar(shift @ARGV);
+
+for ($i = 0; $i < $n; $i++) {
+	for ($j = 0; $j < $n; $j++) {
+		$Q[$i][$j] = 1.0;
+		for ($k = 0; $k < $n; $k++) {
+			next if $j == $k;
+			$Q[$i][$j] *= ($d + $a*$i - $k) / ($j - $k);
+		}
+	}
+}
+print_matrix(\@Q, $n, $n);
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die
+		"Usage: $0 [options] {n} {d} {a}\n" .
+		"Options:\n" .
+		pmatlib_options_string();
+}

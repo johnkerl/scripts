@@ -1,0 +1,54 @@
+#!/usr/bin/perl -Wall
+
+# ================================================================
+# Finds dangling symlinks.
+#
+# John Kerl
+# kerl.john.r@gmail.com
+# 2008-01-03
+# ================================================================
+
+use File::Basename; # for dirname()
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die 
+		"Usage:   $0 [options] {files ...}\n" .
+		"Example: $0 `find . -type l`\n" .
+		"will examine each symlink in the current tree, reporting on those which dangle." .
+		"Options:\n" .
+		"  --:  subsequent arguments are not treated as options.\n" .
+		"  -h or --help:  print this message.\n";
+}
+
+# ----------------------------------------------------------------
+if (@ARGV == 0) {
+	print "$0:  No arguments were given.";
+}
+
+while (@ARGV) {
+	last unless ($ARGV[0] =~ m/^-/);
+	last if     ($ARGV[0] eq "--");
+	$opt = shift @ARGV;
+	usage() if ($opt eq "-h");
+	usage() if ($opt eq "--help");
+	if (0) {
+	}
+	else {
+		usage();
+	}
+}
+
+# ----------------------------------------------------------------
+foreach $arg (@ARGV) {
+	if (-l $arg) {
+		$dest = readlink($arg);
+		if (!($dest =~ m:^/:)) {
+			$dest = dirname($arg) . "/" . $dest;
+		}
+		if (! -e $dest) {
+			print "$arg -> $dest";
+		}
+	}
+}

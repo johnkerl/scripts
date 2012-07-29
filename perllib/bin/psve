@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-05-18
+# ----------------------------------------------------------------
+
+$sum = 0.0;
+while ($line = <>) {
+	chomp $line;
+
+	# Skip blank lines.
+	next if ($line =~ m/^[ \t]*$/);
+
+	# Strip leading whitespace from line.
+	$line =~ s/^\s+//;
+
+	# Get only the first token on the line.
+	($f) = split /\s+/, $line;
+
+	# Accumulate sum.
+	$sum += $f;
+}
+print "$sum\n";

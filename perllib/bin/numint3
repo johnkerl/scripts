@@ -1,0 +1,38 @@
+#!/usr/local/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-03-29
+#
+# This is an example of numerical path integration.  Here, the path integral in
+# x and y is analytically reduced to a 1-D integral in t, then numerically
+# estimated.
+#   C : x^2 + y^2 = 9, counterclockwise closed loop.
+#   x  =  3 cos t   y  = 3 sin t
+#   dx = -3 sin t   dy = 3 cos t
+#   path integral -2y dx + x^2 dy
+#   f(x,y) = -2y   g(x,y) = x^2
+#   path integral f(x,y) dx + g(x,y) dy
+#   = integral f(x,y) dx/dt dt + g(x,y) dy/dt dt
+#   = integral from 0 to 2 pi of 18 sin^2 t + 27 cos^3 t dt
+# Analytically, one expects 18 pi.
+# ----------------------------------------------------------------
+
+$pi  =  4.0 * atan2(1.0,1.0);
+$tlo =  0.0;
+$thi =  2.0 * $pi;
+
+$nt  = 4000;
+$nt  = $ARGV[0] if (@ARGV);
+$dt  = ($thi - $tlo) / $nt;
+
+# Alternatively:
+#$dt  = 0.001;
+
+$sum = 0.0;
+for ($t = $tlo; $t < $thi; $t += $dt) {
+	$ht = 18 * sin($t)**2 + 27 * cos($t)**3;
+	$sum += $ht * $dt;
+}
+printf "%11.6f\n", $sum;

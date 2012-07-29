@@ -1,0 +1,59 @@
+#!/usr/bin/perl -w
+
+use PMATLIB;
+
+$inv_verbose = 0;
+
+while (@ARGV) {
+	last unless $ARGV[0] =~ m/^-/;
+
+	if (pmatlib_opt(\@ARGV)) {
+		;
+	}
+	elsif ($ARGV[0] eq "-v") {
+		$inv_verbose = 1;
+		shift @ARGV;
+	}
+	else {
+		usage();
+	}
+}
+
+if (@ARGV > 1) {
+	usage();
+}
+
+@A   = (); $nr = 0; $nc = 0; 
+@B   = ();
+
+read_matrix(\@A, \$nr, \$nc, $ARGV[0]);
+die "$0:  Non-square input.  Got $nr x $nc.\n" unless ($nr == $nc);
+matinv(\@A, \@B, $nr, $inv_verbose);
+$normA = matnorm(\@A, $nr, $nc);
+$normB = matnorm(\@B, $nr, $nc);
+printf "%18.11e %18.11e %18.11e\n", $normA, $normB, $normA*$normB;
+
+# ----------------------------------------------------------------
+sub matnorm
+{
+	my ($aref, $nr, $nc) = @_;
+	my ($i, $j, $sum);
+	for ($i = 0; $i < $nr; $i++) {
+		for ($j = 0; $j < $nc; $j++) {
+			$sum += $$aref[$i][$j]**2;
+		}
+	}
+	return sqrt($sum);
+}
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die
+		"Usage: $0 [options] [input file name]\n" .
+		"Options:\n" .
+		"  -w:  specify field width\n" .
+		"  -p:  specify number of decimal places\n" .
+		"  -f:  use %f format\n" .
+		"  -d:  use %d format\n";
+}

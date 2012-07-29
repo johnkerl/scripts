@@ -1,0 +1,122 @@
+#!/usr/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-04-07
+#
+# This is an implementation of extended GCD, using the Blankinship algorithm
+# (following Knuth).
+# ----------------------------------------------------------------
+
+$do_ext = 0;
+
+while (@ARGV) {
+	last unless ($ARGV[0] =~ m/^-/);
+	if ($ARGV[0] eq "-x") {
+		$do_ext = 1;
+		shift @ARGV;
+	}
+	elsif ($ARGV[0] =~ m/^-[0-9]+/) {
+		# Negative inputs are data, not options.
+		last;
+	}
+	else {
+		usage();
+	}
+}
+
+usage() unless (@ARGV == 2);
+$a = shift @ARGV;
+$b = shift @ARGV;
+if ($do_ext) {
+	($d, $m, $n) = ext_gcd($a, $b);
+	if (($m * $a + $n * $b) != $d) {
+		die "$0:  overflow.\n";
+	}
+	print "$d = $m * $a + $n * $b\n";
+}
+else {
+	$d = gcd($a, $b);
+	print "$d\n";
+}
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die "Usage: $0 [-x] {a} {b}.\n" .
+		"Use -x for extended GCD.\n";
+}
+
+# ----------------------------------------------------------------
+sub gcd
+{
+	my ($a, $b) = @_;
+	my ($r);
+
+	return $b if ($a == 0);
+	return $a if ($b == 0);
+
+	while (1) {
+		$r = $a % $b;
+		last if ($r == 0);
+		$a = $b;
+		$b = $r;
+	}
+
+	return $b;
+}
+
+# ----------------------------------------------------------------
+# Returns ($d, $m, $n) where $d is the GCD and $m, $n are the extended-GCD
+# coefficients.
+
+sub ext_gcd
+{
+	my ($a, $b) = @_;
+	my ($mprime, $nprime, $c, $q, $r, $t, $qm, $qn, $d, $m, $n);
+
+	if (($a == 0) && ($b == 0)) {
+		return (0, 0, 0);
+	}
+	if ($a == 0) {
+		return (1, 0, 1);
+	}
+	if ($b == 0) {
+		return (1, 1, 0);
+	}
+
+	# Initialize
+	$mprime = 1;
+	$n      = 1;
+	$m      = 0;
+	$nprime = 0;
+	$c      = $a;
+	$d      = $b;
+
+	while (1) {
+
+		# Divide
+		$q = int($c / $d); # Remember integer/integer = double in Perl!
+		$r = $c % $d;
+		# Note:  now c = qd + r and 0 <= r < d
+
+		# Remainder zero?
+		last if ($r == 0);
+
+		# Recycle
+		$c = $d;
+		$d = $r;
+
+		$t      = $mprime;
+		$mprime = $m;
+		$qm     = $q * $m;
+		$m      = $t - $qm;
+
+		$t      = $nprime;
+		$nprime = $n;
+		$qn     = $q * $n;
+		$n      = $t - $qn;
+	}
+	return ($d, $m, $n);
+}
