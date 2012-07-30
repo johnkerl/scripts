@@ -1,0 +1,309 @@
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="description"
+        content="A simple C program for plotting one-dimensional data">
+  <meta name="keywords" content="pgr, X11, plot, graph">
+  <title>pgr</title>
+</head>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-15651652-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+<body bgcolor="#ffffff" link="#993333" vlink="#888888" alink="#cc3333">
+
+<h1> <h2> <font color="#993333">
+pgr
+</font> </h2> </h1>
+
+<!-- ================================================================ -->
+<p>
+
+<ul>
+<li><a href="#what"> <b>What is pgr?</b></a>
+<li><a href="#where"> <b>Where is pgr?</b></a>
+<li><a href="#why"> <b>Why pgr?</b></a>
+<li><a href="#whynot"> <b>Why not pgr?</b></a>
+<li><a href="#file_formats"> <b>File formats</b></a>
+<li><a href="#mouse_navigation"> <b>Mouse navigation</b></a>
+<li><a href="#command_line_arguments"> <b>Command-line arguments</b></a>
+<li><a href="#examples"> <b>Examples</b></a>
+<li><a href="#status"> <b>Status</b></a>
+<li><a href="#availability"> <b>Availability</b></a>
+<li><a href="#contact"> <b>Contact information</b></a>
+</ul>
+
+<!-- ---------------------------------------------------------------- -->
+<p>
+<hr>
+<font color="#993333">
+<b>What is pgr?</b>
+</font>
+<a id="what">
+
+<p> <tt>pgr</tt> is a simple program to display one-dimensional numerical data
+to the screen or to an encapsulated PostScript (<tt>.eps</tt>) file.  It is
+simply a wrapper around the 1D-plotting functionality of the <tt>pylab</tt>
+module, which strives to emulate much Matlab functionality within Python: see
+also <a href="http://matplotlib.sourceforge.net">pylab documentation</a>.
+
+<p>Here are some screenshots:
+<p>
+<center>
+<img src="pgr-figures/etadot.jpg">
+<img src="pgr-figures/bridge.jpg">
+</center>
+<p>
+<center>
+<img src="pgr-figures/tc.jpg">
+<img src="pgr-figures/histo.jpg">
+<img src="pgr-figures/fs.jpg">
+</center>
+<p>
+<center>
+<img src="pgr-figures/eta.jpg">
+</center>
+
+<!-- ---------------------------------------------------------------- -->
+<p>
+<hr>
+<font color="#993333">
+<b>Where is pgr?</b>
+</font>
+
+<a id="where">
+
+<p>Here is the main script, written in Python:
+<a href="http://math.arizona.edu/~kerl/python/pgr.txt">pgr</a>.
+You will also need this file I/O module:
+<a href="http://math.arizona.edu/~kerl/python/tabutil_m.py.txt">tabutil_m.py</a>.
+Save these with the file names just given, <tt>chmod +x pgr</tt>, and
+put them in your <tt>PATH</tt>.
+
+<p>You also need Python and <tt>pylab</tt>.  I am using Python 2.5.2
+successfully.  To find out if you have <tt>pylab</tt>, follow these
+instructions:
+<pre>
+shell_prompt$ python
+&gt;&gt;&gt; import pylab
+</pre>
+If you get another <tt>&gt;&gt;&gt;</tt> prompt, you have <tt>pylab</tt>; if
+not, you don&rsquo;t.  Presumably the version number of <tt>pylab</tt> matters;
+I don&rsquo;t know what version is required.  I use <tt>pgr</tt> successfully
+within the UA math department Linux network; you should be able to do so as
+well.
+
+<!-- ---------------------------------------------------------------- -->
+<p>
+<hr>
+<font color="#993333">
+<b>Why pgr?</b>
+</font>
+<a id="why">
+
+<p>I prefer <tt>pgr</tt> over Matlab because Matlab is expensive (and thus not
+available on all machines I use), monolithic and slow to start up, and
+cumbersome.  Using <tt>pgr</tt> which is a thin wrapper around some very nice
+open-source Python code I didn&rsquo;t have to write, I can direct data
+(printed by any program in any language) straight into a plotter and look at
+the results within an eyeblink.  <tt>pgr</tt> starts up quickly, reads from
+standard input, and is scriptable.
+
+<p>Data may be displayed to the screen or to an <tt>.eps</tt> file.  I am using
+the latter, on a large scale, for presentation graphics in my doctoral
+dissertation.
+
+<!-- ---------------------------------------------------------------- -->
+<p>
+<hr>
+<font color="#993333">
+<b>Why not pgr?</b>
+</font>
+<a id="whynot">
+
+<p>While <tt>pylab</tt> has support for 2D contour plots, my <tt>pgr</tt>
+wrapper doesn&rsquo;t yet handle this (but easily could be modified to
+do so).
+
+<p>The version of <tt>pylab</tt> I&rsquo;m using does not appear to support
+2D surface plots at all.  So, I still have reason to use Matlab from
+time to time.
+
+<p>When the data size is large (e.g. 100,000 lines), <tt>pgr</tt>
+is slow.  For such data I sometimes prefer to use
+<a href="http://math.arizona.edu/~kerl/src/x11/xgr/doc/xgr.html">
+<tt>xgr</tt></a>, a quick-and-dirty plotter:  it has fewer features but
+permits a quicker look at the data.
+
+<!-- ---------------------------------------------------------------- -->
+<p>
+<hr>
+<font color="#993333">
+<b>File formats</b>
+</font>
+<a id="file_formats">
+
+<p>
+<tt>pgr</tt> takes as input one or more vectors, and creates an X/Y plot of
+them.  The user specifies whether:
+
+<ul>
+<li>the first column of the data file is the abscissa and the rest are
+	ordinates (default), or
+
+<li>all columns of the data file are ordinates and the abscissa is taken
+	from the line number (via the <tt>-n</tt> command-line option).
+</ul>
+
+<p>For example, suppose an input data file is as follows:
+
+<pre>
+1 2
+3 7
+5 9
+</pre>
+
+<p>With <tt>-n</tt>, <tt>pgr</tt> plots two lines: (1,1) (2,3) (3,5), and (1,2)
+(2,7) (3,9).
+
+<p>Without <tt>-n</tt>, <tt>pgr</tt> plots one line: (1,2) (3,7) (5,9).
+
+<!-- ---------------------------------------------------------------- -->
+<p>
+<hr>
+<font color="#993333">
+<b>Mouse navigation</b>
+</font>
+<a id="mouse_navigation">
+
+<ul>
+<li> Click the magnifying glass icon.
+<li> Rubber-band an area of the screen with the left mouse button to zoom in.
+<li> Do that with the right mouse button to zoom out.
+<li> Use the arrow buttons to move back and forth through your zoom/pan
+history.
+<li> Click the house icon to go to the original zoom/pan.
+<li> Click the disk icon to save the plot as a file.
+(Or, re-run <tt>pgr</tt> with <tt>-o myfilename.eps</tt>.)
+</ul>
+
+<!-- ---------------------------------------------------------------- -->
+<p>
+<hr>
+<font color="#993333">
+<b>Command-line arguments</b>
+</font>
+<a id="command_line_arguments">
+
+<pre>
+Usage: ./pgr [options] [file name]
+Use "-" as file name, or omit it, if input is stdin.
+Options:
+  --help                 Print this message.
+  -title {title text}    Specify plot title.
+  -xlabel {x label text} Specify x label.
+  -ylabel {y label text} Specify y label.
+  -labels 'x y1 y2'      Specify legend labels.
+  -flabels               Take x label and legend labels from data file.
+  -width {inches}        Specify figure width.
+  -height {inches}       Specify figure height.
+  -xmin {xmin}:          Specify manual bounds.
+  -xmax {xmax}:          Specify manual bounds.
+  -ymin {ymin}:          Specify manual bounds.
+  -ymax {ymax}:          Specify manual bounds.
+  -n                     Take x coordinate from line number.
+  -l                     Draw lines only.
+  -p                     Draw points only.
+  -lp                    Draw lines and points.
+  -lines                 Line-draw mode.  Input should be
+                         quadruples of x1 y1 x2 y2.
+  -ms {n}                Marker size (default 5) for points.
+  -formats '- -- o'      Specify pylab-style marker formats.
+                         Examples:
+        - solid line       --    dashed line       -.    dash-dot line
+        : dotted line      .     points            o     circle symbols
+        s square symbols   +     plus symbols      x     cross symbols
+        See help(pylab.plot) inside Python for more information.
+  -colors 'red blue green' Specify line colors.
+  -errorbar              1st column is  x, 2nd is y, 3rd is err(y).
+  -bar                   Plot a bar chart.
+  -barwidth {w}          Specify bar width for -bar.
+  -grid                  Include a background grid.
+  -1ox,-1my              Compute 1/input or 1-output before plotting.
+  -logx,-logy,-loglog    Plot log of input, output, or both.
+  -o {file name}         Write file instead of graphing.
+                         Formats: .png, .eps.
+  -dpi {number}          Dots per inch for -o.
+</pre>
+
+<!-- ---------------------------------------------------------------- -->
+<p>
+<hr>
+<font color="#993333">
+<b>Examples</b>
+</font>
+<a id="examples">
+
+<p>
+This example uses some of my <a href="../../../../index.php?v=perl">Perl scripts</a> to generate and transform data.
+
+<pre>
+phatgen 256 10 40 | pfft -fo | pgr -n -xmax 256
+</pre>
+
+<center>
+<img src="pgr-figures/sinc.jpg">
+</center>
+
+Create an <tt>.eps</tt> file:
+<pre>
+phatgen 256 10 40 | pfft -fo | pgr -n -xmax 256 -width 8 -height 3 -o sinc.eps
+</pre>
+
+<!-- ---------------------------------------------------------------- -->
+<p>
+<hr>
+<font color="#993333">
+<b>Status</b>
+</font>
+<a id="status">
+
+<p>I am actively using <tt>pgr</tt>, and I add features to it as they become
+necessary.  I do not see suppport for 2D surface plots in the near future.
+
+<!-- ---------------------------------------------------------------- -->
+<p>
+<hr>
+<font color="#993333">
+<b>Availability</b>
+</font>
+<a id="availability">
+
+<p> <tt>pgr</tt> is released under the terms of the GNU General Public License
+(GPL).  Please see the file <tt>COPYING</tt> for more details.  Also please
+visit <a href="http://www.gnu.org">www.gnu.org</a>.
+
+<!-- ---------------------------------------------------------------- -->
+<p>
+<hr>
+<font color="#993333">
+<b>Contact information</b>
+</font>
+<a id="contact">
+
+<p> John Kerl
+<br><a href="http://math.arizona.edu/~kerl">math.arizona.edu/~kerl</a>
+<br> <a href="mailto:kerl.john.r@gmail.com">kerl.john.r@gmail.com</a>
+
+<!-- ================================================================ -->
+<hr>
+<i> Last updated: 2009-08-24 </i>
+</body>
+</html>

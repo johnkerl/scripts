@@ -1,0 +1,40 @@
+#!/usr/bin/ruby
+
+# ----------------------------------------------------------------
+# John Kerl
+# 2012-07-30
+# Hyperlink extractor snippet for HTML to text.
+# ----------------------------------------------------------------
+
+ARGF.each do |line|
+	line.chomp!
+	line.sub!(/<i>/, '')
+	line.sub!(/<\/i>/, '')
+	line.sub!(/<b>/, '')
+	line.sub!(/<\/b>/, '')
+	line.sub!(/<tt>/, '')
+	line.sub!(/<\/tt>/, '')
+	line.sub!(/<li>/, '')
+	line.sub!(/<\/li>/, '')
+	line.sub!(/<ul>/, '')
+	line.sub!(/<\/ul>/, '')
+
+	if line =~ /<a href="/
+		# "xyzpdq <a href="python/doc/pgr.html">documentation</a> foobar,"
+		#
+		# split:
+		# * "xyzpdq"
+		# * "python/doc/pgr.html"
+		# * "documentation"
+		# * "foobar,"
+		#
+		# "xyzpdq documentation python/doc/pgr.html foobar,"
+
+		pre, link_desc_post = line.split(/<a href="/)
+		link_desc, post = link_desc_post.split(/<\/a>/)
+		link, desc = link_desc.split(/">/)
+		puts "#{pre} #{desc} [#{link}] #{post}"
+	else
+		puts line
+	end
+end

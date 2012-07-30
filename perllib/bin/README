@@ -6,3 +6,130 @@ John Kerl
 kerl.john.r@gmail.com
 2012-07-28
 ================================================================
+
+Descriptions:
+
+Makefile generator ("yet another make-make"):
+* yamm [scripts/fundam/yamm],
+* sample program 1 for yamm [yamm_ex1],
+* sample program 2 for yamm [yamm_ex2].
+
+Substitute for makeindex which correctly handles alphabetization of text including \mathbb etc. in LaTeX files:
+* kmkidx [kmkidx].
+
+Tools for formatting and manipulating tabular data in plain ASCII:
+* colprint [colprint],
+* mwxprint [mxwprint],
+* parside [parside],
+* interleave [interleave],
+* creach [creach],
+* twoper [twoper],
+* xpose [xpose],
+* cpick [cpick],
+* dashes [dashes],
+* caytex [caytex],
+* mattex [mattex].
+
+Tools for large-scale search and replace:
+* krepl [krepl],
+* mrepl [mrepl].
+* Variants of familiar tools:
+* bffind /bffind],
+* mgrep [mgrep].
+
+Windows workalikes for familiar Unix tools:
+* kbc [kbc],
+* grep.pl [grep.pl],
+* head.pl [head.pl],
+* tail.pl [tail.pl],
+* uniq.pl [uniq.pl],
+* wc.pl [wc.pl],
+* whereis.pl [whereis.pl],
+* My_win_glob.pm [My_win_glob.pm],
+* w.pl [w.pl],
+* notes about Perl and Windows file associations [perl-on-windows-notes.txt],
+* toc.pl [toc.pl]  which works around the Windows association/redirection bug.
+
+Unix workalikes for familiar Windows tools:
+* grepr [grepr],
+* lsr [lsr],
+* rmr [rmr].
+
+fixrlinks [fixrlinks.pl] :
+When I rsync -rtlz between hosts on which the spelling of my home directory
+differs (e.g. /u5/kerl on one and /home/kerl on the other), rsync doesn't
+change the symlink referents.  This script can be run after an rsync to fix
+that.
+
+finddang [finddang.pl] : Reports on dangling symlinks.
+
+Miscellaneous text manipulation:
+* upcase [upcase],
+* downcase [downcase],
+* scrunch [scrunch],
+* printtwice [printtwice],
+* printtwicej [printtwicej],
+* printthricej [printthricej],
+* chop [chop],
+* dspc [dspc],
+* dspcw [dspcw],
+* linesort [linesort],
+* detab [detab],
+* retab [retab],
+* fdiff [fdiff],
+* nocolon [nocolon],
+* wordfreq [wordfreq].
+
+Numerical calculus:
+* series estimation [numseries],
+* another series estimation [numseries2],
+* 1-D numerical differentiation [numderiv1],
+* 1-D numerical integration [numint1],
+* 2-D numerical integration [numint2],
+* path integral one way [numint3],
+* same path integral another way [numint4].
+
+Floating-point matrix arithmetic:
+* Matrix multiply [pmatmul],
+* matrix add [pmatadd],
+* matrix inverse [pmatinv],
+* determinant [pdet],
+* row reduction [prred],
+* row echelon form [prech],
+* row rank [prank],
+* kernel basis [pkerbas],
+* Gram-Schmidt orthonormalization [pgramsch],
+* Jacobi eigensolver for real symmetric matrices [prseigsys],
+* elementwise vector sum [pvecadd],
+* elementwise vector difference [pvecsub],
+* elementwise vector product [pvecmul],
+* vector times scalar [pvecsmul],
+* dot product [pdot],
+* vector-to-scalar sum [psve],
+* vector-to-scalar sum of squares [psvesq],
+* matrix library file PMATLIB.pm [PMATLIB.pm].
+
+Generators of special-purpose matrices:
+* Hilbert matrix (famously near-singular) [pmkhilbmx],
+* identity [pmkI],
+* DDA A [pmkddaA],
+* DDA Q [pmkddaQ].
+
+Fast Fourier transform and associated tools:
+* radix-2 FFT [pfft],
+* complex rectangular-to-polar [prect2polar],
+* complex polar-to-rectangular [ppolar2rect],
+* power sum (for discrete Parseval) [ppowersum].
+
+Data generators for testing FFT implementations:
+* pcisgen [pcisgen],
+* pspikegen [pspikegen],
+* phatgen [phatgen],
+* prampgen [prampgen],
+* prandgen [prandgen].
+
+Misc. numerical routines:
+* Lagrange interpolation [lagrinterp],
+* partial sums [sumupx],
+* binomial coefficients and Pascal's triangle [binc],
+* extended GCD using Blankinship's algorithm [pgcd].

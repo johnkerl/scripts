@@ -1,0 +1,66 @@
+#!/usr/bin/python -Wall
+
+import pmtc_tm
+import snc_gm
+import sackint
+
+# ----------------------------------------------------------------
+def test1():
+	ct = [4, 4, 4,  3, 3, 3, 3, 3,  2,  1, 1]
+	# Expect [[4 3] [3 5] [2 1] [1 2]]
+	counts = pmtc_tm.type_to_counts(ct)
+	print ct
+	print counts
+
+# ----------------------------------------------------------------
+def test2(n):
+	reps = pmtc_tm.cycle_type_reps(n)
+	expect = sackint.factorial(n)
+	actual = 0
+	print
+	print "N =", n
+	print
+	for rep in reps:
+		ct = rep.cycle_type()
+		num = pmtc_tm.num_ct_reps(ct)
+		frac = (1.0*num/expect)
+
+		#print "%8d %.5g" % (num, frac),
+		#print rep, ct
+
+		print "%.5g" % (frac),
+		print ct
+
+		actual += num
+	print
+	print "actual =", actual, "expect=", expect
+
+# ----------------------------------------------------------------
+def test3(n):
+	reps = pmtc_tm.cycle_type_reps(n)
+	actual = 0
+	for rep in reps:
+		ct = rep.cycle_type()
+		num = pmtc_tm.num_ct_reps(ct)
+		print num, rep, ct
+		actual += num
+	expect = sackint.factorial(n)
+	print
+	print "actual =", actual, "expect=", expect
+	print
+	Sn = snc_gm.get_elements(n)
+	for pi in Sn:
+		print pi, pi.cycle_decomposition(), pi.cycle_type()
+
+# ----------------------------------------------------------------
+#test2(5)
+#for n in range(1, 10):
+	#test2(n)
+	#print
+#test2(10)
+#test2(20)
+#test2(30)
+#for n in range(10, 110, 10):
+#	test2(n)
+
+test3(4)

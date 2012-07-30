@@ -1,0 +1,335 @@
+#!/usr/bin/python -Wall
+import re
+import copy
+import pmti_tm
+import sys
+
+# Permutations with cycle-decomposition I/O.
+# Inherits from pmti.
+
+class pmtc_t(pmti_tm.pmti_t):
+
+	# e.g. 1,2:3,4
+	# xxx this method needs some comments. :)
+	def scan(self, cycles_string, n):
+		zimages = range(0, n+1)
+		cycle_strings = re.split(':', cycles_string)
+
+		# Loop over cycles, e.g. given 1,2:3,4, we have 3,4 and 1,2.
+		# (Composition goes from right to left so we have to loop backward.)
+		num_cycles = len(cycle_strings)
+		cidx = num_cycles - 1
+		while (cidx >= 0):
+			cycle_string = cycle_strings[cidx]
+			index_strings = re.split(',', cycle_string)
+			indices = []
+			for index_string in index_strings:
+				indices.append(int(index_string))
+
+			# Parse one cycle.
+			# Note that (a b c d) is the same as (a d)(a c)(a b).
+			num_indices = len(indices)
+			k = num_indices-1
+			while (k > 0):
+				# WARNING!  This swap logic doesn't work right if the cycles aren't disjoint.
+				temp = zimages[indices[0]]
+				zimages[indices[0]] = zimages[indices[k]]
+				zimages[indices[k]] = temp
+				k -= 1
+
+			cidx -= 1
+
+		images = zimages[1:]
+		self.__init__(images, n)
+		self.check_permutation()
+
+#	def scan(self, images_string, n):
+#		print "cycle input is unimplemented"
+#		image_strings = re.split(',', images_string)
+#		n = len(image_strings)
+#		images = range(0, n)
+#		for i in range(0, n):
+#			images[i] = int(image_strings[i])
+#		self.__init__(images, n)
+#		self.check_permutation()
+
+	# xxx make a fcn to map an image list to a cycle decomposition.
+	# THEN, a fcn to print a cycle decomposition.
+
+	def __str__(self):
+		cd = self.cycle_decomposition()
+		num_non_trivial_cycles = 0
+		cd_string = ""
+		for cycle in cd:
+			if (len(cycle) > 1):
+				num_non_trivial_cycles += 1
+			else:
+				continue
+			cycle_string = str(cycle[0])
+			cycle_len = len(cycle)
+			for j in range(1, cycle_len):
+				cycle_string += ","
+				cycle_string += str(cycle[j])
+
+			if (num_non_trivial_cycles > 1):
+				cd_string += ":"
+			cd_string += cycle_string
+
+		if (num_non_trivial_cycles == 0):
+			#cd_string = "[]"
+			cd_string = "1"
+		return cd_string
+
+def params_from_string(params_string):
+	return pmti_tm.params_from_string(params_string)
+
+def from_string(value_string, params_string):
+	n = params_from_string(params_string)
+	obj = pmtc_t(range(1, n+1), n)
+	obj.scan(value_string, n)
+	return obj
+
+def kth_pmtc(k, n, nfact):
+	nifact = nfact
+	images = range(0, n)
+	temp   = range(0, n+1)
+
+	ni = n
+	for pos in range(0, n):
+		nifact /= ni
+		r = k % nifact
+		q = k / nifact
+		k = r
+
+		images[pos] = temp[q] + 1
+		for i in range(q, ni):
+			temp[i] = temp[i+1]
+
+		ni -= 1
+	return pmtc_t(images, n)
+
+#// ----------------------------------------------------------------
+#int pmt_count_cycles(
+#	pmt_t * pa,
+#	int n)
+#{
+#	int i;
+#	unsigned char marks[PMT_MAX_N];
+#	unsigned char next;
+#	int rv = 0;
+#
+#	for (i = 0; i < n; i++)
+#		marks[i] = 0;
+#	for (i = 0; i < n; i++) {
+#		if (marks[i])
+#			continue;
+#
+#		rv++;
+#		next = i;
+#		marks[next] = 1;
+#
+#		while (1) {
+#			next = pa->images[next];
+#			if (next == i)
+#				break;
+#			marks[next] = 1;
+#		}
+#	}
+#	return rv;
+#}
+
+#void pmt_print_cycle_type(
+#	pmt_t * pa,
+#	int n)
+#{
+#	int i;
+#	unsigned char marks[PMT_MAX_N];
+#	unsigned char next;
+#	unsigned char lengths[PMT_MAX_N];
+#	int ncyc = 0;
+#
+#	for (i = 0; i < n; i++)
+#		lengths[i] = 0;
+#
+#	for (i = 0; i < n; i++)
+#		marks[i] = 0;
+#
+#	for (i = 0; i < n; i++) {
+#		if (marks[i])
+#			continue;
+#
+#		lengths[ncyc] = 0;
+#		next = i;
+#		marks[next] = 1;
+#		if (pa->images[next] != next) {
+#			lengths[ncyc]++;
+#		}
+#
+#		while (1) {
+#			next = pa->images[next];
+#			if (next == i)
+#				break;
+#			marks[next] = 1;
+#			lengths[ncyc]++;
+#		}
+#		if (lengths[ncyc] > 0)
+#			ncyc++;
+#	}
+#
+#	qsort(lengths, ncyc, sizeof(lengths[0]), uchar_qcmp);
+#	for (i = 0; i < ncyc; i++) {
+#		if (i > 0)
+#			printf(",");
+#		printf("%d", (int)lengths[i]);
+#	}
+#	if (ncyc == 0)
+#		printf("1");
+#}
+
+#// ----------------------------------------------------------------
+#// xxx temp hack hack hack
+#int pmt_vscan(
+#	void * pvout,
+#	char * pin,
+#	void * pvaux,
+#	int    max_elt_bytes)
+#{
+#	pmt_t * ppmt = (pmt_t *)pvout;
+#	int    n = *(int *)pvaux;
+#	int    i;
+##define MAX_ARGC 100
+#	int    argc;
+#	char * argv[MAX_ARGC];
+#	char   temp[256];
+#	unsigned u;
+#
+#	if (sizeof(pmt_t) > max_elt_bytes) {
+#		fprintf(stderr, "sn:  Need %d bytes for element.\n",
+#			sizeof(pmt_t));
+#		exit(1);
+#	}
+#
+#	strcpy(temp, pin);
+#
+#	argc = tokenize(temp, ",", argv, MAX_ARGC);
+#	if (argc != n) {
+#		fprintf(stderr,
+#		"pmt_vscan:  Needed %d item%s but got %d in \"%s\".\n",
+#			n, n == 1 ? "" : "s", argc, pin);
+#		return 0;
+#	}
+#
+#	for (i = 0; i < argc; i++) {
+#		if (sscanf(argv[i], "%u", &u) != 1) {
+#			fprintf(stderr, "pmt_vscan:  Couldn't parse element "
+#				"(\"%s\") of \"%s\".\n",
+#				argv[i], pin);
+#			return 0;
+#		}
+#		ppmt->images[i] = u - 1;
+#	}
+#	if (!pmt_validate_element(ppmt, n)) {
+#		fprintf(stderr,
+#		"pmt_vscan: \"%s\" is not a permutation in S%d\n",
+#			pin, n);
+#		return 0;
+#	}
+#	return 1;
+#}
+#
+#// ----------------------------------------------------------------
+#// xxx temp hack hack hack
+#
+#// 0 1 2 3 4
+#// 0 1 2 3 4
+#
+#// temp = 1,2,4:3,5
+#// outer_argv = 1,2,4   3,5
+#
+#// inner_argc = 1  2  4
+#// u[0] = 0  u[1] = 1  u[2] = 3
+#
+#// 0 1 2 3 4
+#// 1 3 2 0 4
+#
+#// inner_argc = 3  5
+#// u[0] = 2  u[1] = 4
+#
+#// 0 1 2 3 4
+#// 1 3 4 0 2
+#
+#// 0 1 2 3 4
+#// 1 3 2 0 4
+#
+#// This function is a hack job.  It doesn't correctly see that 1,3:1,3
+#// is the identity permutation -- rather, it gets 1,3.
+#
+#int pmt_vscan_cd(
+#	void * pvout,
+#	char * pin,
+#	void * pvaux,
+#	int    max_elt_bytes)
+#{
+#	pmt_t * ppmt = (pmt_t *)pvout;
+#	pmt_t  single;
+#	int    n = *(int *)pvaux;
+#	int    i, j;
+##define MAX_ARGC 100
+#	int    outer_argc;
+#	char * outer_argv[MAX_ARGC];
+#	int    inner_argc;
+#	char * inner_argv[MAX_ARGC];
+#	char   temp[256];
+#	unsigned * u = 0;
+#
+#	if (sizeof(pmt_t) > max_elt_bytes) {
+#		fprintf(stderr, "sn:  Need %d bytes for element.\n",
+#			sizeof(pmt_t));
+#		exit(1);
+#	}
+#
+#	for (i = 0; i < PMT_MAX_N; i++)
+#		ppmt->images[i] = i;
+#
+#	strcpy(temp, pin);
+#
+#	outer_argc = tokenize(temp, ":", outer_argv, MAX_ARGC);
+#	for (i = 0; i < outer_argc; i++) {
+#		inner_argc = tokenize(outer_argv[i], ",", inner_argv, MAX_ARGC);
+#		u = malloc_check(inner_argc * sizeof(unsigned));
+#		for (j = 0; j < inner_argc; j++) {
+#			if (sscanf(inner_argv[j], "%u", &u[j]) != 1) {
+#				fprintf(stderr,
+#				"pmt_vscan_cd:  Couldn't parse element "
+#					"(\"%s\") of \"%s\".\n",
+#					inner_argv[i], pin);
+#				return 0;
+#			}
+#			if ((u[j] < 1) || (u[j] > PMT_MAX_N)) {
+#				fprintf(stderr,
+#				"pmt_vscan_cd:  element %d out of range 1-%d\n",
+#					u[j], n);
+#				return 0;
+#			}
+#			u[j]--;
+#		}
+#
+#		pmt_make_id(&single, n);
+#		for (j = 1; j < inner_argc; j++) {
+#			single.images[u[j-1]] = u[j];
+#		}
+#		single.images[u[inner_argc - 1]] = u[0];
+#		*ppmt = pmt_mul(ppmt, &single, n);
+#		free(u);
+#	}
+#
+#	if (!pmt_validate_element(ppmt, n)) {
+#		printf("pmt_vscan: \"%s\" is not a permutation in S%d: got ",
+#			pin, n);
+#		pmt_print(ppmt, n);
+#		printf("\n");
+#		//return 0;
+#		exit(1);
+#	}
+#	return 1;
+#}

@@ -1,0 +1,44 @@
+#!/usr/bin/python -Wall
+
+from f2poly_tm import *
+import sys
+
+a = f2poly_t(0xff)
+b = f2poly_t(0xf)
+e = 3
+argc = len(sys.argv)
+if (argc == 3):
+	a = f2poly_from_string(sys.argv[1])
+	b = f2poly_from_string(sys.argv[2])
+if (argc == 4):
+	a = f2poly_from_string(sys.argv[1])
+	b = f2poly_from_string(sys.argv[2])
+	e = int(sys.argv[3])
+print "a    =", a
+print "b    =", b
+
+s = a + b
+print "sum  =", s
+
+c = a * b
+print "prod =", c
+
+if (b.bits != 0):
+	q = a / b
+	print "quot =", q
+	r = a % b
+	print "rem  =", r
+	print "imod =", f2poly_t(imod(a.bits, b.bits))
+
+print a, "**", e, "=", a**e
+
+g = f2poly_t.gcd(a,b)
+print "gcd  =", g
+
+[g, r, s] = f2poly_t.ext_gcd(a, b)
+print "ext_gcd:"
+print "  g = ", g
+print "  r = ", r
+print "  s = ", s
+print "  ar + bs = ", a*r + b*s
+

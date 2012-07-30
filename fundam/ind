@@ -20,6 +20,13 @@ while (@ARGV >= 1) {
 		$pat = "- ";
 	}
 
+	elsif ($ARGV[0] eq "-b") {
+		$pat = "*";
+	}
+	elsif ($ARGV[0] eq "-1b") {
+		$pat = "* ";
+	}
+
 	elsif ($ARGV[0] eq "-t") {
 		$pat = "\t";
 	}
