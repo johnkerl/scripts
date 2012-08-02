@@ -122,9 +122,3 @@ Routines for printing images, cycle decompositions, and orders of moves on the R
 * module [rube_m.py],
 * demo [rube_demo.py],
 * demo output [rube_demo.txt].
-
-SACK: A simple algebra calculator. Includes some elementary group routines,
-some linear-algebra functionality, and some support for computation in real
-tensor algebras.
-* Documentation [http://johnkerl.org/doc/kerl-pyaa.pdf],
-* source tree [bin/sack/].
