@@ -109,7 +109,7 @@ Or   : %s [options] row {n}
 Or   : %s [options] tri {nmax}
 Computes binomial coefficients, optionally reduced mod p.
   ch:  compute a single binomial coefficient.
-  row: compute a row of Pascal's triangle: n choose k for k = 0 to kmax.
+  row: compute a row of Pascal's triangle: n choose k for k = 0 to n.
   tri: compute nmax rows of Pascal's triangle.
 Options:
   -p {p}:    Prime to reduce by.
