@@ -4,10 +4,10 @@
 # John Kerl
 # kerl.john.r@gmail.com
 # 2005-01-25
-# Ported to Python 2006-07-15
+# Ported from Perl to Python 2006-07-15
 # ================================================================
 
-xxx port not complete!
+#xxx port not complete!
 
 #
 # This program prints binomial coefficients, optionally reduced mod p.
@@ -104,92 +104,95 @@ xxx port not complete!
 import sys
 
 # ----------------------------------------------------------------
-def usage:
-	print "Usage: 0 [options] ch  {n} {k}" .
-	print "Or   : 0 [options] row {n}" .
-	print "Or   : 0 [options] tri {nmax}" .
-	print "Computes binomial coefficients, optionally reduced mod p." .
-	print "  ch:  compute a single binomial coefficient." .
-	print "  row: compute a row of Pascal's triangle: n choose k for k = 0 to kmax." .
-	print "  tri: compute nmax rows of Pascal's triangle." .
-	print "Options:" .
-	print "  --help:    Print this message." .
-	print "  -p {p}:    Prime to reduce by." .
-	print "  -lucas:    Reduce mod p using Lucas Theorem (default).  p must be prime." .
-	print "  -kerl:     Reduce mod p using Kerl's slow method.  p must be prime." .
-	print "  -modafter: Reduce mod p after computing n choose k (prone to overflow)" .
-	print "  -dot:      Print just a dot for non-zero values, space for zeroes."
+def usage():
+	print >> sys.stderr, """Usage: %s [options] ch  {n} {k}
+Or   : %s [options] row {n}
+Or   : %s [options] tri {nmax}
+Computes binomial coefficients, optionally reduced mod p.
+  ch:  compute a single binomial coefficient.
+  row: compute a row of Pascal's triangle: n choose k for k = 0 to kmax.
+  tri: compute nmax rows of Pascal's triangle.
+Options:
+  --help:    Print this message.
+  -p {p}:    Prime to reduce by.
+  -lucas:    Reduce mod p using Lucas Theorem (default).  p must be prime.
+  -kerl:     Reduce mod p using Kerl's slow method.  p must be prime.
+  -modafter: Reduce mod p after computing n choose k (prone to overflow)
+  -dot:      Print just a dot for non-zero values, space for zeroes.""" \
+	% (sys.argv[0],sys.argv[0],sys.argv[0])
 	sys.exit(1)
 
 # ----------------------------------------------------------------
-how  = "lucas"
-dots = 0
-p    = 0
+def main():
+	how  = "lucas"
+	dots = 0
+	p    = 0
 
-while (@ARGV && (ARGV[0] =~ m/^-/)):
-	opt = shift @ARGV
-	if (opt eq "--help"):
-		usage()
-	elif (opt eq "-p"):
-		usage() unless @ARGV
-		p = shift @ARGV
-	elif (opt eq "-lucas"):
-		how = "lucas"
-	elif (opt eq "-kerl"):
-		how = "kerl"
-	elif (opt eq "-modafter"):
-		how = "modafter"
-	elif (opt eq "-dot"):
-		dots = 1
-	else:
-		usage()
-
-usage() unless @ARGV
-what = shift @ARGV
-if (what eq "ch"):
-	usage() unless (@ARGV == 2)
-	n = shift @ARGV
-	k = shift @ARGV
-	do_one(n, k, p)
-	print
-
-elif (what eq "row"):
-	usage() unless (@ARGV == 1)
-	n    = shift @ARGV
-	for (k = 0; k <= n; k++):
-		if ((k > 0) && !dots):
-			print " "
-		do_one(n, k, p)
-	print
-
-elif (what eq "tri"):
-	usage() unless (@ARGV == 1)
-	nmax = shift @ARGV
-	for (n = 0; n <= nmax; n++):
-		for (k = 0; k <= n; k++):
-			if ((k > 0) && !dots):
-				print " "
-			do_one(n, k, p)
-		print
-
-else:
 	usage()
+#while (@ARGV && (ARGV[0] =~ m/^-/)):
+#	opt = shift @ARGV
+#	if (opt eq "--help"):
+#		usage()
+#	elif (opt eq "-p"):
+#		usage() unless @ARGV
+#		p = shift @ARGV
+#	elif (opt eq "-lucas"):
+#		how = "lucas"
+#	elif (opt eq "-kerl"):
+#		how = "kerl"
+#	elif (opt eq "-modafter"):
+#		how = "modafter"
+#	elif (opt eq "-dot"):
+#		dots = 1
+#	else:
+#		usage()
+
+#usage() unless @ARGV
+#what = shift @ARGV
+#if (what eq "ch"):
+#	usage() unless (@ARGV == 2)
+#	n = shift @ARGV
+#	k = shift @ARGV
+#	do_one(n, k, p)
+#	print
+#
+#elif (what eq "row"):
+#	usage() unless (@ARGV == 1)
+#	n    = shift @ARGV
+#	for (k = 0; k <= n; k++):
+#		if ((k > 0) && !dots):
+#			print " "
+#		do_one(n, k, p)
+#	print
+#
+#elif (what eq "tri"):
+#	usage() unless (@ARGV == 1)
+#	nmax = shift @ARGV
+#	for (n = 0; n <= nmax; n++):
+#		for (k = 0; k <= n; k++):
+#			if ((k > 0) && !dots):
+#				print " "
+#			do_one(n, k, p)
+#		print
+#
+#else:
+#	usage()
 
 # ----------------------------------------------------------------
-def do_one(n, k, p):
-	if ((p == 0) || (how eq "z")):
+def do_one(n, k, p, do_dots):
+	if (p == 0) or (how == "z"):
 		b = binc(n, k)
-	elif (how eq "lucas"):
-		b = bincp_lucas(n, k, p)
-	elif (how eq "kerl"):
-		b = bincp_kerl(n, k, p)
-	elif (how eq "modafter"):
-		b = binc(n, k) % p
+#	elif (how eq "lucas"):
+#		b = bincp_lucas(n, k, p)
+#	elif (how eq "kerl"):
+#		b = bincp_kerl(n, k, p)
+#	elif (how eq "modafter"):
+#		b = binc(n, k) % p
 	else:
 		usage()
 
-	if (dots):
-		if (b == 0):
+	if do_dots:
+		if b == 0:
 			print " "
 		else:
 			#print "."
@@ -218,11 +221,11 @@ def binc(n, k):
 # is equivalent mod p to the product of the (n_i choose k_i)'s.
 
 def bincp_lucas(n, k, p):
-	if (k > int(n/2)):
+	if k > int(n/2):
 		k = n - k
 	rv = 1
 
-	while (n || k):
+	while (n != 0) or (k != 0):
 		n_i = n % p; n = int(n / p)
 		k_i = k % p; k = int(k / p)
 		b = binc(n_i, k_i)
@@ -233,11 +236,11 @@ def bincp_lucas(n, k, p):
 
 # ----------------------------------------------------------------
 def bincp_kerl(n, k, p):
-	if (k > n):
+	if k > n:
 		return 0
-	if (k < 0):
+	if k < 0:
 		return 0
-	if (k > int(n/2)):
+	if k > int(n/2):
 		k = n - k
 
 	numer = 1
@@ -273,12 +276,16 @@ def bincp_kerl(n, k, p):
 # xxx should use modpower(a, p-2) w/ repeated squaring.
 def modrecip(a, p):
 	a %= p
-	if ((a % p) == 0):
+	if (a % p) == 0:
 		print "modrecip: division by zero."
 		sys.exit(1)
 	rv = 1
 	e = p-2
-	while (e--):
+	while e > 0:
 		rv *= a
 		rv %= p
+		e -= 1
 	return rv
+
+# ================================================================
+main()
