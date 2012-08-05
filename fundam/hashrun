@@ -1,4 +1,4 @@
-#!/usr/bin/ruby -Wall
+#!/usr/bin/ruby
 
 # ==============================================================================
 # Given a file name, reads the first #-commented line of the file, strips the #
