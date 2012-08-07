@@ -706,7 +706,7 @@ sub reset_parameters
 	$gl_is_dot_a=0;
 	@gl_source_files=();
 	$gl_object_dir=".";
-	%gl_builders = ( ".c" => "gcc", ".cpp" => "gcc", ".S" => "as" );
+	%gl_builders = ( ".c" => "gcc", ".cpp" => "g++", ".S" => "as" );
 	$gl_linker = "gcc";
 
 	@gl_vars=();
