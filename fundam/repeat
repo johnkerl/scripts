@@ -25,5 +25,12 @@ usage unless count > 0;
 cmd = ARGV.join(' ')
 
 (1..count).each do |i|
-	system(cmd)
+	rc = system(cmd)
+	status = $?
+
+	if status.signaled? and status.termsig == 2
+		# E.g. control-C.  Note that maybe a child process of system()
+		# got the control-C, so we might not get it here.
+		exit 1
+	end
 end
