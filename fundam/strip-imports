@@ -2,7 +2,8 @@
 
 # ==============================================================================
 # Strips out unused Java/Groovy-style import lines from stdin (if given no
-# arguments), or does an in-place-overwrite for each specified file.
+# arguments), or does an in-place-overwrite for each specified file.  Use case
+# for the former:  "%!strip-imports" while vim'ing a Java file.
 #
 # Note that this flags a symbol as used even if it appears in a comment.
 #
