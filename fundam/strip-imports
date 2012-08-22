@@ -1,0 +1,92 @@
+#!/usr/bin/ruby1.9.2
+
+# ==============================================================================
+# Strips out unused Java/Groovy-style import lines from stdin (if given no
+# arguments), or does an in-place-overwrite for each specified file.
+#
+# Note that this flags a symbol as used even if it appears in a comment.
+#
+# John Kerl 2011-06-22
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+def main
+	rc = 0
+	if ARGV.length == 0
+		# Write filtered file contents to stdout.
+		input_lines  = $stdin.readlines
+		output_lines = do_one_file(input_lines)
+		output_lines.each{|line| puts(line)}
+	else
+		ARGV.each do |file_name|
+			if !File.exists?(file_name)
+				$stderr.puts "Can't find \"#{file_name}\"."
+				rc = 1
+			end
+
+			input_lines  = File.readlines(file_name)
+			output_lines = do_one_file(input_lines)
+			change_count = input_lines.length - output_lines.length
+
+			# Write filtered file contents to the file, but only if we changed
+			# something (otherwise, there's no need to modify the file's
+			# timestamp).
+			if change_count > 0
+				File.open(file_name, 'w') do |handle|
+					output_lines.each{|line| handle.puts(line)}
+				end
+			end
+			puts "(#{change_count}) #{file_name}"
+		end
+	end
+	exit rc
+end
+
+# ------------------------------------------------------------------------------
+def do_one_file(all_lines)
+
+	# Separate import lines from non-import lines.
+	import_lines = []
+	non_import_lines = []
+	all_lines.each do |line|
+		if line =~ /^import/
+			import_lines << line
+		else
+			non_import_lines << line
+		end
+	end
+
+	# E.g. "import java.io.IOException" -> "IOException".
+	import_basenames = import_lines.collect {|line| basename_from_import_line(line) }
+
+	# See which basenames are referred to in the non-import lines.
+	usage_count = {}
+	import_basenames.each {|name| usage_count[name] = 0}
+
+	non_import_lines.each do |line|
+		import_basenames.each do |name|
+			usage_count[name] += 1 if line.match(name)
+		end
+	end
+	#import_basenames.each {|name| puts "// name=#{name} count=#{usage_count[name]}"}
+
+	# Filter the file.
+	output_lines = []
+	all_lines.each do |line|
+		if line =~ /^import/
+			output_lines << line if usage_count[basename_from_import_line(line)] > 0
+		else
+			output_lines << line
+		end
+	end
+
+	output_lines
+end
+
+# ------------------------------------------------------------------------------
+def basename_from_import_line(import_line)
+	import_line.sub(/^import .*\./, "").sub(/;.*/,"").chomp!
+end
+
+# ==============================================================================
+main
