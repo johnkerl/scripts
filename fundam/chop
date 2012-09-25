@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+$VERBOSE=nil
 
 # ==============================================================================
 # John Kerl
@@ -25,16 +26,24 @@ end
 
 # ==============================================================================
 # Default chop width is terminal width.
-chop_width = 80
+chop_width         = 80
+decrement          = 0
 use_terminal_width = true
 
 if ARGV.length > 0
 	if ARGV[0] =~ /^-/
-		chop_width = ARGV.shift[1..-1].to_i
-		use_terminal_width = false
+		if ARGV[0] == '-w'
+			# The "watch" command doesn't behave well with perfect chop.
+			ARGV.shift
+			decrement = 1
+			chop_width = get_terminal_width - decrement
+		else
+			chop_width = ARGV.shift[1..-1].to_i
+			use_terminal_width = false
+		end
 	end
 else
-	chop_width = get_terminal_width
+	chop_width = get_terminal_width - decrement
 end
 
 # If they want width 80, they get width 80.  Otherwise we use terminal width,
@@ -50,7 +59,7 @@ Signal.trap("SIGINT") { puts ; exit 1 }
 ARGF.each do |line|
 
 	if (recompute_terminal_width == true) && (use_terminal_width == true)
-		chop_width = get_terminal_width
+		chop_width = get_terminal_width - decrement
 		recompute_terminal_width == false
 	end
 
