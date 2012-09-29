@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
 
+
+
 def A(n)
 	if n <= 1
 		1
