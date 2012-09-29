@@ -1,5 +1,15 @@
 #!/usr/bin/perl
 
+# Prints the average of numbers in an input stream, one number per line.
+# E.g. with input
+#   1
+#   2
+#   3
+#   4
+#   5
+# output is
+#   3
+
 $sum = 0;
 $count = 0;
 

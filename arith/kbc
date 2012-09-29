@@ -38,6 +38,7 @@ while (@ARGV) {
 	}
 }
 
+# REPL loop
 if (@ARGV) {
 	eval_line(join " ", @ARGV);
 }
