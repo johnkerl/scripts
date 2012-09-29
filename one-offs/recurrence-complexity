@@ -1,33 +1,125 @@
 #!/usr/bin/ruby
 
+# ================================================================
+# Doubly (and higher) recursive functions, i.e. second-order (and higher)
+# recurrence relations, have an elegant expression in software.  However, that
+# expression can be prohibitively computationally expensive.  E.g. if F(n) =
+# F(n-1) + F(n-2) (with specified initial conditions at say n=1,2) then F(n-3),
+# F(n-4), etc. get called many times.  An improvement is to cache at each
+# level.  E.g. the first time F(10) is called, F(9) and F(8) need to be
+# computed -- but on subsequent calls to F, F(10) can be looked up in the cache
+# and returned immediately.
+#
+# This little script tabulates the number of uncached function evaluations for
+# first-order, second-order, and third-order recurrence relations.  The numbers
+# speak for themselves, but so (more dramatically) does the script's runtime
+# for larger n (such as, say, 100).
+# ================================================================
+# John Kerl || http://johnkerl.org || 2012
+# ================================================================
 
+# ================================================================
+def usage()
+	$stderr.puts "Usage: #{File.basename $0} {cached|uncached} {n}"
+	exit 1
+end
 
-def A(n)
-	if n <= 1
-		1
+# ----------------------------------------------------------------
+def main()
+	nmax = 10
+	cached  = true
+
+	# Get command-line optoins
+	usage if ARGV.length != 2
+	if ARGV[0] == 'cached'
+		cached = true
+	elsif ARGV[0] == 'uncached'
+		cached = false
 	else
-		1+A(n-1)
+		usage
+	end
+	nmax = ARGV[1].to_i
+
+	# Run the report
+	nmax = ARGV[0].to_i if ARGV.length == 1
+	(1..nmax).each do |n|
+	    puts "#{n} #{A(n, cached)} #{B(n, cached)} #{C(n, cached)}"
 	end
 end
 
-def B(n)
-	if n <= 2
-		1
+# ----------------------------------------------------------------
+$a_cache = {}
+$b_cache = {}
+$c_cache = {}
+
+# ----------------------------------------------------------------
+# First-order recurrence relation
+def A(n, cached)
+	if not cached
+		if n <= 1
+			1
+		else
+			1+A(n-1, cached)
+		end
 	else
-		1+B(n-1)+B(n-2)
+		k = $a_cache[n]
+		return k unless k.nil?
+
+		if n <= 1
+			rv = 1
+		else
+			rv = 1+A(n-1, cached)
+		end
+		$a_cache[n] = rv
+		rv
 	end
 end
 
-def C(n)
-	if n <= 3
-		1
+# ----------------------------------------------------------------
+# Second-order recurrence relation
+def B(n, cached)
+	if not cached
+		if n <= 2
+			1
+		else
+			1 + B(n-1, cached) + B(n-2, cached)
+		end
 	else
-		1+C(n-1)+C(n-2)+C(n-3)
+		k = $b_cache[n]
+		return k unless k.nil?
+		if n <= 2
+			rv = 1
+		else
+			rv = 1 + B(n-1, cached) + B(n-2, cached)
+		end
+		$b_cache[n] = rv
+		rv
 	end
 end
 
-nmax=10
-nmax = ARGV[0].to_i if ARGV.length == 1
-(1..nmax).each do |n|
-    puts "#{n} #{A(n)} #{B(n)} #{C(n)}"
+# ----------------------------------------------------------------
+# Third-order recurrence relation
+def C(n, cached)
+	if not cached
+		if n <= 3
+			1
+		else
+			1 + C(n-1, cached) + C(n-2, cached) + C(n-3, cached)
+		end
+	else
+		k = $c_cache[n]
+		return k unless k.nil?
+
+		if n <= 3
+			rv = 1
+		else
+			rv = 1 + C(n-1, cached) + C(n-2, cached) + C(n-3, cached)
+		end
+		$c_cache[n] = rv
+		rv
+	end
 end
+
+# ================================================================
+# Top-down programming style, please.
+main()

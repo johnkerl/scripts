@@ -4,6 +4,9 @@
 # John Kerl
 # kerl.john.r@gmail.com
 # 2008-09-11
+# Prints pseudorandom words with alternating vowels (such as x) and consonants
+# (such as y).  See also rand-alpha-num in this same directory for slightly
+# less pronounceable output.
 # ================================================================
 
 import sys
@@ -16,7 +19,7 @@ num   = 1
 # ----------------------------------------------------------------
 def usage():
 	print >> sys.stderr, "Usage: %s [option] [count]"
-	print >> sys.stderr, "Options: five, seven, [cv]+ pattern."
+	print >> sys.stderr, "Options: five, seven, [cv]+ pattern e.g. cvvccvc."
 	sys.exit(1)
 
 # ----------------------------------------------------------------
@@ -49,6 +52,5 @@ for i in range(0, num):
 		elif (cvs[j] == 'b'):
 			word += random.choice(v+c)
 		else:
-			print "b0rk"
-			sys.exit(1)
+			usage()
 	print word

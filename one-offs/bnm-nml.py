@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 # ================================================================
-# Plot binomial and normal probability distributions side-by-side.
+# Plots binomial and normal probability distributions side-by-side.
+# Output is comma-delimited, suitable as input to a plotter.
 # John Kerl 2012-08-31
 # ================================================================
 

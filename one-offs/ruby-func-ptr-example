@@ -1,7 +1,8 @@
 #!/usr/bin/ruby
 
 # ==============================================================================
-# Ruby func-ptr example.
+# Ruby function-pointer example/cheat-sheet.  The implementation is a simple
+# example of the age-old verb-first-command-processor pattern.
 # John Kerl 2012-05-22
 # ==============================================================================
 
@@ -13,6 +14,8 @@ $stdout.sync = true
 # ==============================================================================
 def usage()
 	puts "Subcommands:"
+	# List subcommands, nicely tabularly.  (Find max subcommand name length
+	# and then print them all using that length.)
 	max_subcmd_width = @@handler_map.keys.max{|a,b| a.length <=> b.length}.length
 	@@handler_map.keys.sort.each do |abbrev|
 		func, desc = @@handler_map[abbrev]
@@ -51,5 +54,6 @@ end
 }
 
 # ==============================================================================
+# Top-down programming style, please.
 __main__()
 raise "__main__ should have exited with a status code but did not."
