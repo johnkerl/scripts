@@ -4,6 +4,7 @@
 # John Kerl
 # 2007-06-28
 # kerl.john.r@gmail.com
+# Prints a correlation matrix for a pair of columns in an input stream.
 # ================================================================
 # This software is released under the terms of the GNU GPL.
 # Please see LICENSE.txt in the same directory as this file.

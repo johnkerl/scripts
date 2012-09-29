@@ -1,6 +1,7 @@
 #!/usr/bin/python -Wall
 
 # ==============================================================================
+# Prints pseudorandom numbers uniformly distributed within a specified range.
 # John Kerl 2011-11-03
 # ==============================================================================
 

@@ -1,5 +1,13 @@
 #!/usr/bin/python -Wall
 
+# ================================================================
+# Correlated-uniform Markov process invented for the sake of Appendix B to my
+# doctoral dissertation, which is hosted in turn at
+# http://johnkerl.org/rcm/doc/appxB.pdf
+#
+# John Kerl || kerl.john.r@gmail.com || May 2010
+# ================================================================
+
 from __future__ import division
 from math import sqrt
 import sys

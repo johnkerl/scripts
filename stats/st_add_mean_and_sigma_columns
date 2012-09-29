@@ -1,9 +1,10 @@
 #!/usr/bin/python -Wall
 
 # ================================================================
-# John Kerl
-# 2007-06-28
-# kerl.john.r@gmail.com
+# Given columns of numerical data, adds in their mean, mean-sigma,
+# and mean+sigma columns suitable for plotting.
+# 
+# John Kerl || 2007-06-28 || kerl.john.r@gmail.com
 # ================================================================
 # This software is released under the terms of the GNU GPL.
 # Please see LICENSE.txt in the same directory as this file.

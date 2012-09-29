@@ -45,8 +45,6 @@ $pi          = 4.0 * atan2(1.0, 1.0);
 $ugd_iset = 0;
 $ugd_gset = 0.0;
 
-# xxx $do_uniform, $lo, $hi
-
 sub usage {
 	die
 		"Usage: $0 [options] {num samples}\n" .

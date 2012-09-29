@@ -245,8 +245,8 @@ def find_sample_tauint(xs, numk=0):
 # Stop after a flat spot has been found, detected via a turning point.
 # Be clever about re-using previous sums.
 #
-# See my dissertation for details.  Or, Berg's Markov Chain Monte Carlo
-# Simulations and Their Statistical Analysis.
+# See my dissertation (http://johnkerl.org?v=documents) for details.  Or,
+# Berg's _Markov Chain Monte Carlo Simulations and Their Statistical Analysis_.
 
 def find_sample_tauint_flat_spot(xs):
 	N = len(xs)
@@ -403,111 +403,6 @@ def find_sample_autocorr(xs, numk=0):
 	autocorr[0]  = (sumi2 / N - (meani*meani)) / (stdi*stdi)
 
 	return autocorr
-
-## ----------------------------------------------------------------
-#def find_sample_full_autocorr(xs):
-#	N  = len(xs)
-#	autocorr = [0.0] * N
-#
-#	# Sums over first and second windows
-#	sumi  = 0.0; sumi2 = 0.0
-#	sumj  = 0.0; sumj2 = 0.0
-#
-#	# k = N-1: accumulate sums, but set autocorr to zero.  Sample sizes
-#	# are 1; standard deviations would get a division by zero.
-#	i = 0; j = N-1
-#	k = N-1
-#	xi     = xs[i]; xj     = xs[j]
-#	sumi  += xi;    sumi2 += xi**2
-#	sumj  += xj;    sumj2 += xj**2
-#	autocorr[k] = 0.0
-#	i += 1; j -= 1
-#
-#	# k = N-2 down to 1.
-#	for k in range(N-2, 0, -1):
-#		xi     = xs[i]; xj     = xs[j]
-#		sumi  += xi;    sumi2 += xi**2
-#		sumj  += xj;    sumj2 += xj**2
-#		winsz   = N-k;  winszm1 = winsz - 1
-#
-#		sumij = 0.0
-#		for ell in range(0, winsz):
-#			sumij += xs[ell] * xs[ell+k]
-#
-#		meani = sumi / winsz; meanj = sumj / winsz
-#		stdi  = math.sqrt((sumi2 - (sumi**2 / winsz)) / winszm1)
-#		stdj  = math.sqrt((sumj2 - (sumj**2 / winsz)) / winszm1)
-#
-#		autocorr[k] = (sumij / winsz - (meani*meanj)) / (stdi*stdj)
-#		i += 1; j -= 1
-#
-#	# k = 0: sumij, sumi2, and sumj2 are all the same.
-#	k       = 0
-#	winsz   = N; winszm1 = N-1
-#	xi      = xs[N-1]
-#	sumi   += xi
-#	sumi2  += xi**2
-#	meani   = sumi / N
-#	stdi    = math.sqrt((sumi2 - (sumi**2 / winsz)) / winszm1)
-#
-#	autocorr[0]  = (sumi2 / N - (meani*meani)) / (stdi*stdi)
-#
-#	return autocorr
-#
-## ----------------------------------------------------------------
-#def find_sample_short_autocorr(xs, numk):
-#	N  = len(xs)
-#	autocorr = [0.0] * numk
-#
-#	if (numk <= 1) or (numk >= N):
-#		print >> sys.stderr, \
-#			"find_sample_short_autocorr: numk must be > 1 and < N=%d; got %d." \
-#			% (N, numk)
-#		sys.exit(1)
-#
-#	# Sums over first and second windows
-#	sumi  = 0.0; sumi2 = 0.0
-#	sumj  = 0.0; sumj2 = 0.0
-#
-#	# k = N-1: accumulate sums, but set autocorr to zero.  Sample sizes
-#	# are 1; standard deviations would get a division by zero.
-#	i = 0; j = N-1
-#	for k in range(N-1, numk-1, -1):
-#		xi     = xs[i]; xj     = xs[j]
-#		sumi  += xi;    sumi2 += xi**2
-#		sumj  += xj;    sumj2 += xj**2
-#		i += 1; j -= 1
-#
-#	# k = N-2 down to 1.
-#	for k in range(numk-1, 0, -1):
-#		xi     = xs[i]; xj     = xs[j]
-#		sumi  += xi;    sumi2 += xi**2
-#		sumj  += xj;    sumj2 += xj**2
-#		winsz   = N-k;  winszm1 = winsz - 1
-#
-#		sumij = 0.0
-#		for ell in range(0, winsz):
-#			sumij += xs[ell] * xs[ell+k]
-#
-#		meani = sumi / winsz; meanj = sumj / winsz
-#		stdi  = math.sqrt((sumi2 - (sumi**2 / winsz)) / winszm1)
-#		stdj  = math.sqrt((sumj2 - (sumj**2 / winsz)) / winszm1)
-#
-#		autocorr[k] = (sumij / winsz - (meani*meanj)) / (stdi*stdj)
-#		i += 1; j -= 1
-#
-#	# k = 0: sumij, sumi2, and sumj2 are all the same.
-#	k       = 0
-#	winsz   = N; winszm1 = N-1
-#	xi      = xs[N-1]
-#	sumi   += xi
-#	sumi2  += xi**2
-#	meani   = sumi / N
-#	stdi    = math.sqrt((sumi2 - (sumi**2 / winsz)) / winszm1)
-#
-#	autocorr[0]  = (sumi2 / N - (meani*meani)) / (stdi*stdi)
-#
-#	return autocorr
 
 # ----------------------------------------------------------------
 # E[X_i X_j] - mu^2

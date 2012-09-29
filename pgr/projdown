@@ -1,6 +1,17 @@
 #!/usr/bin/perl -Wall
 use line_term_lib;
 
+# ================================================================
+# Projects triples in an input stream (3 whitespace-delimited numbers
+# per line) down to doubles, using various linear (in particular,
+# non-perspective) transformations.
+#
+# For mathematical background please see
+# http://johnkerl.org/doc/python-talk.pdf
+#
+# John Kerl || http://johnkerl.org || October 2009
+# ================================================================
+
 @Pxhat = (-0.5, -0.5);
 @Pyhat = (1, 0);
 @Pzhat = (0, 1);

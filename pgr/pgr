@@ -1,10 +1,3 @@
-#!/usr/bin/python
-
-# I want -Wall on to help find *my* errors.  But at present (2011) at TS, it
-# shows missing-import-directory errors which are not my fault.  And pgr
-# doesn't change much anymore.  So, I'll omit -Wall.
-
-#!/usr/bin/python2.6 -Wall
 #!/usr/bin/python -Wall
 
 # ================================================================
@@ -106,7 +99,7 @@
 #                          Formats: .png, .eps.
 #   -dpi {number}          Dots per inch for -o.
 #
-# See also http://math.arizona.edu/~kerl/python/doc/pgr.html.
+# See also http://johnkerl.org/python/doc/pgr.html.
 # ================================================================
 # John Kerl
 # kerl.john.r@gmail.com

@@ -4,6 +4,8 @@
 # John Kerl
 # 2007-07-02
 # kerl.john.r@gmail.com
+# Prints a line with Gaussian noise.  Useful for testing linear-regression
+# routines.
 # ================================================================
 # This software is released under the terms of the GNU GPL.
 # Please see LICENSE.txt in the same directory as this file.
