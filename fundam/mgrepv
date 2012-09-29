@@ -4,6 +4,7 @@
 # John Kerl
 # http://johnkerl.org
 # Simple inverted grep, operating on paragraphs rather than lines.
+# 1994 or so.
 # ================================================================
 
 me=`basename $0`

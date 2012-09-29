@@ -3,8 +3,7 @@
 # ================================================================
 # John Kerl
 # http://johnkerl.org
-# Gets the colon-delimited value of the PATH environment variable,
-# splitting it up into an array.  
+# Windows workalike for Unix "which".
 # ================================================================
 
 $path_env_var_name = "PATH";

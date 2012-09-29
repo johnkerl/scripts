@@ -1,5 +1,6 @@
 #! /usr/bin/perl
-#
+
+# ================================================================
 # This script does a breadth-first find for filenames matching a
 # given pattern, starting at one or more given directories.
 # For example:
@@ -28,6 +29,7 @@
 # Re-written in Perl:
 # John Kerl
 # 2/25/2003
+# ================================================================
 
 # --------------------------------------------------------------------
 sub usage

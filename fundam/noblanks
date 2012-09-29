@@ -7,7 +7,7 @@ use line_term_lib;
 # kerl.john.r@gmail.com
 # 2000/12/18
 #
-# Removes blank lines.
+# Removes blank lines from the input stream.
 # ----------------------------------------------------------------
 
 while ($line = <>) {

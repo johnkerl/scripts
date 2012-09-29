@@ -4,6 +4,14 @@
 # John Kerl
 # http://johnkerl.org
 # A vim filter for text alignment.
+# Formats an array of text nicely with all columns the same width.
+#
+# E.g.
+#   0 11 3333 44 55
+#   9999 77 888888 333 2222
+# after a pass through this script becomes
+#      0     11   3333     44     55
+#   9999     77 888888    333   2222
 # ================================================================
 
 $left = 0;

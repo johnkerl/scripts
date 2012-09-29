@@ -4,6 +4,10 @@
 # John Kerl
 # http://johnkerl.org
 # Useful for pretty-printing %PATH% on NT.
+# E.g. if $PATH is C:\this;C:\that
+# nocolon PATH prints
+#	C:\this
+#	C:\that
 # ================================================================
 
 die "Usage: $0 {environment variable name}\n"

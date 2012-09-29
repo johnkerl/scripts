@@ -4,6 +4,12 @@
 # John Kerl
 # http://johnkerl.org
 # Useful for pretty-printing $PATH, $CLASSPATH, etc.
+# E.g. if $PATH is /usr/sbin:/usr/bin:/sbin:/bin then
+# nocolon PATH prints
+#	/usr/sbin
+#	/usr/bin
+#	/sbin
+#	/bin
 # ================================================================
 
 die "Usage: $0 {environment variable name}\n"
@@ -14,14 +20,12 @@ if (!$value) {
 	# That is, see if the shell already expanded it.
 	if ($ARGV[0] =~ m/:/) {
 		$value = $ARGV[0];
-		# OK
 	}
 	else {
 		print "Variable \"$ARGV[0]\" not set in environment.\n";
 		exit;
 	}
 }
-
 
 my @fields = split /:/, $value;
 for my $field (@fields) {

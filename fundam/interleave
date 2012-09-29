@@ -4,6 +4,25 @@
 # Interleaves lines of multiple paragraphs.  Believe it or not,
 # this comes up sometimes during coding.
 #
+# E.g. inside vi with cursor at aaa of
+#   aaa
+#   bbb
+#   ccc
+#
+#   ddd
+#   eee
+#   fff
+#
+# then after 2!}interleave we get
+#   aaa
+#   ddd
+#   
+#   bbb
+#   eee
+#   
+#   ccc
+#   fff
+#
 # John Kerl
 # kerl.john.r@gmail.com
 # 2005-06-06

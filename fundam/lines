@@ -5,6 +5,7 @@
 # http://johnkerl.org
 # A keystroke-saver for sed -n '{start},{end}p'.
 # Takes line numbers, patterns, etc. as args.
+# E.g. lines 200 205 myfile.txt prints lines 200-205 of the file.
 # ================================================================
 
 me=`basename $0`

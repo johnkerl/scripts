@@ -3,7 +3,7 @@
 # ================================================================
 # John Kerl
 # http://johnkerl.org
-# A keystroke-saver.
+# A keystroke-saver.  E.g. ls -l | nf is much like ls -1.
 # ================================================================
 
 awk '{print $NF}' $@

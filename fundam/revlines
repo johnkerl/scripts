@@ -4,6 +4,7 @@
 # John Kerl
 # http://johnkerl.org
 # Reverses the order of input lines.
+# It turns out that in Linux there is now the "tac" command.
 # ================================================================
 
 @lines = <>;

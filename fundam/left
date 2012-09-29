@@ -4,6 +4,19 @@
 # John Kerl
 # http://johnkerl.org
 # A vim filter for left-alignment.
+#
+# E.g. with cursor on the first line of the paragraph
+#
+#   String aString = "The quick brown fox";
+#   int n = 3;
+#   boolean someVariable = true;
+#
+# then after !}left we get
+#
+#   String  aString      = "The  quick brown fox";
+#   int     n            = 3;
+#   boolean someVariable = true;
+
 # ================================================================
 
 exec colprint -l "$@"

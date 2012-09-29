@@ -21,6 +21,9 @@ use line_term_lib;
 # 
 # 9
 # 10
+#
+# E.g. if you have one file per month and you're doing ls -l,
+# you can pipe that to creach 12 to group them by years.
 # ================================================================
 
 die "Usage: $0 {n} [input]\n" unless @ARGV;

@@ -5,6 +5,10 @@ use line_term_lib;
 # John Kerl
 # http://johnkerl.org
 # Sorts words within each input line.
+# E.g. input
+#   Sorts words within each input line.
+# maps to output
+#   Sorts each input line. within words
 # ================================================================
 
 $numeric = 0;

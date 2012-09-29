@@ -1,4 +1,4 @@
-#!/usr/bin/python2.6
+#!/usr/bin/python
 
 # I want -Wall on to help find *my* errors.  But at present (2011) at TS, it
 # shows missing-import-directory errors which are not my fault.  And pgr
@@ -308,9 +308,10 @@ def plot_series(x_series, y_series, e_series, num_series, \
 						plot_func = pylab.plot
 
 					# xxx
-					print ""
-					print "xs="+str(curr_x_series)
-					print "ys="+str(curr_y_series)
+					##print ""
+					##print "xs="+str(curr_x_series)
+					##print "ys="+str(curr_y_series)
+
 					plot_line = plot_func(curr_x_series, curr_y_series,
 							curr_format, label=curr_legend_label,
 							markeredgewidth=0, markersize=marker_size,

@@ -3,7 +3,7 @@
 # ================================================================
 # John Kerl
 # http://johnkerl.org
-# A vim filter for text alignment.
+# A vim filter for text alignment.  See colprint.
 # ================================================================
 
 exec colprint -lr $@

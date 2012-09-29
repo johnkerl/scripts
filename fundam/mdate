@@ -3,7 +3,7 @@
 # ================================================================
 # John Kerl
 # http://johnkerl.org
-# date, with my favorite format args.
+# This is simply date, with my favorite format args.
 # ================================================================
 
 if [ "$#" -eq 1 ]; then

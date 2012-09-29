@@ -4,6 +4,7 @@
 # John Kerl
 # kerl.john.r@gmail.com
 # 2009-08-27
+# Prints specifed numbers in specified printf-style format.
 # ================================================================
 
 import sys
@@ -26,16 +27,16 @@ def usage():
 '  If multiple formats are specified, e.g. %s -fmt \'%%.3f %%.9e\', they are ' \
 % (sys.argv[0])
 	print >> sys.stderr, \
-'  applied to the number cyclically.'
+'  applied to the numbers cyclically.'
 	sys.exit(1)
 
 # ----------------------------------------------------------------
 # Examples:
 #
-#        0 1 2 3
+#        0   1   2   3
 # pyfltfmt 1.2 3.4 5.6
 #
-#        0    1      2 3 4 5
+#        0    1      2   3   4   5
 # pyfltfmt -fmt %11.7f 1.2 3.4 5.6
 
 fmts = [default_format]
@@ -48,7 +49,6 @@ if argc >= 2:
 		usage() # Need another argument.
 if argc >= 3:
 	if sys.argv[1] == '-fmt':
-		# xxx to list ... re.split?
 		string = sys.argv[2]
 		string = re.sub(r'^\s+', '', string)
 		string = re.sub(r'\s+$', '', string)

@@ -4,6 +4,8 @@
 # John Kerl sometime in the mid-200x's?
 # http://johnkerl.org
 # Ported to Ruby 2012-07-11.
+# Runs a command a specifed number of times, e.g.
+# repeat 20 'my-random-number-generator | md5sum'
 # ==============================================================================
 
 @@us = File.basename $0

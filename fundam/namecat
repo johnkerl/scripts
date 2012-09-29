@@ -3,6 +3,8 @@
 # ================================================================
 # John Kerl
 # http://johnkerl.org
+# Cats out each file, with separator and filename.
+# E.g. namecat *.txt
 # ================================================================
 
 if [ $# -lt 1 ]; then

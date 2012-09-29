@@ -4,6 +4,8 @@
 # John Kerl
 # 2010-03-27
 # kerl.john.r@gmail.com
+# Prints an array of numbers in the specified input stream
+# as a nice columnar matrix.
 # ================================================================
 # This software is released under the terms of the GNU GPL.
 # Please see LICENSE.txt in the same directory as this file.

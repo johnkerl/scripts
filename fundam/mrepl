@@ -12,9 +12,9 @@
 #
 #   mrepl old_name:new_name YuckyStyle:nice_style Crapoli:marvy */*.[ch]
 #
-# would replace "old_name" with "new_name", "YuckyStyle" with "nice_style"
-# and "Crapoli" with "marvy" in all .c and .h files in all subdirectories
-# of the current directory.
+# would replace "old_name" with "new_name", "YuckyStyle" with "nice_style" and
+# "Crapoli" with "marvy" in all .c and .h files in all direct subdirectories of
+# the current directory.
 # ----------------------------------------------------------------
 
 my @old_new_pairs = ();
