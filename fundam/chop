@@ -4,6 +4,8 @@ $VERBOSE=nil
 # ==============================================================================
 # John Kerl
 # Written in Perl sometime in the 1990s ... ported to Ruby 2012-06-12.
+# This filter trims its input to the window dimensions, or to a specified width.
+#
 # Usage: chop [-200] filename
 # Or:    chop [-200] filename1 filename2
 # Or:    somecmd | chop [-200]
