@@ -7,7 +7,34 @@
 # Runs a command, prefixing each line of output with the floating-point number
 # of seconds since the previous line.  Useful for elementary stdio-based
 # profiling.
+#
+# Example:
+#
+# $ cat myscript
+#   #!/bin/bash
+#   echo this is
+#   echo the start
+#   echo of the script
+#   millisleep $[RANDOM % 1000]
+#   echo hello
+#   millisleep $[RANDOM % 1000]
+#   echo world
+#   millisleep $[RANDOM % 1000]
+#   echo and this
+#   echo is the end
+#   echo of the script
+#
+# $ timelines myscript
+#    0.000030 this is
+#    0.000514 the start
+#    0.000023 of the script
+#    0.911533 hello
+#    0.723015 world
+#    0.946258 and this
+#    0.000043 is the end
+#    0.000015 of the script
+#
 # ==============================================================================
- 
+
 ourdir=$(dirname $0)
 "$@" | $ourdir/timelines-filter

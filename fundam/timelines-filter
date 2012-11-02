@@ -17,7 +17,7 @@ while true
 	rescue EOFError
 		break
 	end
-	t2 = DateTime::now.to_time.to_f
+	t2 = Time::now.to_f
 	printf("%11.6f %s", t2-t1, line)
 	t1 = t2
 end
