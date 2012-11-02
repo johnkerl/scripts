@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# ==============================================================================
+# John Kerl
+# http://johnkerl.org
+# 2012-11-02
+# Runs a command, prefixing each line of output with the floating-point number
+# of seconds since the previous line.  Useful for elementary stdio-based
+# profiling.
+# ==============================================================================
+ 
+ourdir=$(dirname $0)
+"$@" | $ourdir/timelines-filter
