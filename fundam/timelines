@@ -37,4 +37,8 @@
 # ==============================================================================
 
 ourdir=$(dirname $0)
-"$@" | $ourdir/timelines-filter
+if [ $# -eq 0 ]; then
+	exec $ourdir/timelines-filter
+else
+	"$@" | $ourdir/timelines-filter
+fi
