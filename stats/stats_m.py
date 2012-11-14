@@ -698,6 +698,8 @@ def print_normal_quantiles_zx(xarray):
 #   KDA(x) = (1/Nh) sum K((x-x_i)/h)
 #
 # where the kernel K may be taken to be the PDF of the standard normal.
+# (This is quite clear when you see a picture of it.  Basically we put a little
+# bell curve at each point and then add them up to get a nice bumpy curve.)
 
 def kernel_density_estimator(x, xarray, h):
 	N = len(xarray)
