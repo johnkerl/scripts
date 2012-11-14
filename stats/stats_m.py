@@ -712,3 +712,108 @@ def plot_kde(xarray, h, xlo, xhi, nx):
 		x = xlo + i*dx
 		y = kernel_density_estimator(x, xarray, h)
 		print x, y
+
+# ================================================================
+# Basic ordinary least squares.  See e.g.
+# http://en.wikipedia.org/wiki/Ordinary_least_squares
+
+# This class is a container object for the multiple return values from OLS:
+class ols_info_t:
+	def __init__(self, n, p, coeffs, se, tstats, pvalue, R2, adjR2,
+		se_of_regression, model_sum_of_sq, residual_sum_of_sq, total_sum_of_sq):
+
+		self.n                  = n
+		self.p                  = p
+		self.coeffs             = coeffs
+		self.se                 = se
+		self.tstats             = tstats
+		self.pvalue             = pvalue
+		self.R2                 = R2
+		self.adjR2              = adjR2
+		self.se_of_regression   = se_of_regression
+		self.model_sum_of_sq    = model_sum_of_sq
+		self.residual_sum_of_sq = residual_sum_of_sq
+		self.total_sum_of_sq    = total_sum_of_sq
+
+	def __str__(self):
+		s  = 'n                  = ' + str(self.n)                  + '\n'
+		s += 'p                  = ' + str(self.p)                  + '\n'
+		s += 'coeffs             = ' + str(self.coeffs)             + '\n'
+		s += 'se                 = ' + str(self.se)                 + '\n'
+		s += 'tstats             = ' + str(self.tstats)             + '\n'
+		#s += 'pvalue            = ' + str(self.pvalue)             + '\n'
+		s += 'R2                 = ' + str(self.R2)                 + '\n'
+		s += 'adjR2              = ' + str(self.adjR2)              + '\n'
+		s += 'se_of_regression   = ' + str(self.se_of_regression)   + '\n'
+		#s += 'model_sum_of_sq   = ' + str(self.model_sum_of_sq)    + '\n'
+		s += 'residual_sum_of_sq = ' + str(self.residual_sum_of_sq) + '\n'
+		#s += 'total_sum_of_sq   = ' + str(self.total_sum_of_sq)    + '\n'
+		return s
+
+# ----------------------------------------------------------------
+# Dimensions:
+# * n samples of x,y
+# * each x_i is p-dimensional
+# * each y_i is scalar
+# * Fit y = X beta + e
+# * y    is nx1
+# * X    is nxp
+# * beta is px1
+# * e    is nx1
+
+def compute_ols(X, y):
+
+	[n, p] = X.dims()
+
+	# Notation is as in the Wikipedia article
+	Xt      = X.transpose()
+	XtX     = Xt * X
+	XtXi    = XtX.inv()
+	XtXi_Xt = XtXi * Xt
+	P       = X * XtXi_Xt
+	I_n     = sackmat_m.make_identity_matrix(n)
+	M       = I_n - P
+	ones    = [1.0] * n
+	L       = I_n  - sackmat_m.outer(ones, ones).smul(1.0/n)
+
+	# Qxx = E[xi xi']
+	Qxx     = sackmat_m.make_zero_matrix(p, p)
+	for k in xrange(0, n):
+		for i in xrange(0, p):
+			for j in xrange(0, p):
+				Qxx[i][j] += X[k][i] * X[k][j]
+	for i in xrange(0, p):
+		for j in xrange(0, p):
+			Qxx[i][j] /= n
+
+	Qxxi = Qxx.inv()
+
+	# This is the essence of OLS:
+	coeffs = sackmat_m.matrix_times_vector(XtXi_Xt, y)
+	s2 = sackmat_m.vector_times_matrix_times_vector(y, M, y) / (n-p)
+	se_of_regression = math.sqrt(s2)
+	sigmahat2 = s2 * (n-p) / n
+	sigmahats = [0] * p
+	for j in xrange(0, p):
+		sigmahats[j] = math.sqrt(1.0/n * sigmahat2 * Qxxi[j][j])
+
+	# The tstat_j is betahat_j / sigma_j
+	tstats = sackmat_m.vecdiv(coeffs, sigmahats)
+
+	# Same as y - X betahat
+	epsilonhats = sackmat_m.matrix_times_vector(M, y)
+
+	pvalue             = [999.0] * p
+	model_sum_of_sq    = 999.0
+	residual_sum_of_sq = sackmat_m.vecdot(epsilonhats, epsilonhats)
+	total_sum_of_sq    = 999.0
+
+	# One might assert that P, M are symmetric and idempotent; also PX=X and
+	# MX=0.
+
+	R2 = sackmat_m.vector_times_matrix_times_vector(y, L*P, y) / \
+		sackmat_m.vector_times_matrix_times_vector(y, L, y)
+	adjR2 = 1 - (n-1)/(n-p-1) * (1-R2)
+
+	return ols_info_t(n, p, coeffs, sigmahats, tstats, pvalue, R2, adjR2,
+		se_of_regression, model_sum_of_sq, residual_sum_of_sq, total_sum_of_sq)
