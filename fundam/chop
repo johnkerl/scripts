@@ -1,11 +1,9 @@
-#!/usr/bin/ruby
+#!/usr/bin/ruby1.9.2
 $VERBOSE=nil
 
 # ==============================================================================
 # John Kerl
 # Written in Perl sometime in the 1990s ... ported to Ruby 2012-06-12.
-# This filter trims its input to the window dimensions, or to a specified width.
-#
 # Usage: chop [-200] filename
 # Or:    chop [-200] filename1 filename2
 # Or:    somecmd | chop [-200]
@@ -28,8 +26,7 @@ end
 
 # ==============================================================================
 # Default chop width is terminal width.
-chop_width         = 80
-decrement          = 0
+chop_width = get_terminal_width - 1
 use_terminal_width = true
 
 if ARGV.length > 0
@@ -37,15 +34,12 @@ if ARGV.length > 0
 		if ARGV[0] == '-w'
 			# The "watch" command doesn't behave well with perfect chop.
 			ARGV.shift
-			decrement = 1
-			chop_width = get_terminal_width - decrement
+			chop_width = get_terminal_width - 1
 		else
 			chop_width = ARGV.shift[1..-1].to_i
 			use_terminal_width = false
 		end
 	end
-else
-	chop_width = get_terminal_width - decrement
 end
 
 # If they want width 80, they get width 80.  Otherwise we use terminal width,
@@ -60,19 +54,23 @@ Signal.trap("SIGINT") { puts ; exit 1 }
 # command line then they're processed in turn; else, stdin is read.
 ARGF.each do |line|
 
+	# In particular, for tail -f {something} | chop:
 	if (recompute_terminal_width == true) && (use_terminal_width == true)
-		chop_width = get_terminal_width - decrement
+		chop_width = get_terminal_width - 1
 		recompute_terminal_width == false
 	end
 
 	line.chomp!
+
+	# Bug: I count characters one per position.  This is wrong for UTF-8 (no
+	# big problem for me) but also for tabs (a bigger problem for me).
 	len = line.length
 	line = line[0..(chop_width-1)] if len >= chop_width
 
 	begin
-		puts line
+	    puts line
 	rescue Errno::EPIPE
-		# E.g. we're piped to head.  Don't complain.
-		exit 0
+	    # E.g. we're piped to head.  Don't complain.
+	    exit 0
 	end
 end
