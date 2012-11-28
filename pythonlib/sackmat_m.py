@@ -9,8 +9,12 @@
 # and matrices of floating-point numbers.
 #
 # Why not use packages such as Numpy?  Sometimes, I prefer to have a small,
-# simple set of routines which I wrote and completely understand, which do
-# no more and no less than what I want them to do.
+# simple set of routines which I wrote and completely understand, which do no
+# more and no less than what I want them to do.  For black-box linear-algebra
+# software, you're better off with Matlab, Numpy, etc.  The code here is of a
+# different sort:  simple and simple-minded, and intended to be not just used
+# but also read.
+#
 # ================================================================
 # This software is released under the terms of the GNU GPL.
 # Please see LICENSE.txt in the same directory as this file.
@@ -35,6 +39,7 @@ def frac_reader(s):
 		return float(s)
 
 # ----------------------------------------------------------------
+# A keystroke-saver for the matrix constructor.
 def m(list):
 	return sackmat(list)
 
@@ -48,7 +53,8 @@ def check_same_matrix_dims(A, B, func_name):
 	[anr, anc] = A.dims()
 	[bnr, bnc] = B.dims()
 	if (anr != bnr) or (anc != bnc):
-		print >> sys.stderr, "%s: mismatched lengths %dx%d, %dx%d." % (func_name, anr, anc, bnr, bnc)
+		print >> sys.stderr, "%s: mismatched lengths %dx%d, %dx%d." \
+			% (func_name, anr, anc, bnr, bnc)
 		sys.exit(1)
 	return [anr, anc]
 
@@ -124,6 +130,10 @@ def matrix_times_vector(A, v):
 	for i in range(0, nr):
 		Av.append(vecdot(A[i], v))
 	return Av
+
+# ----------------------------------------------------------------
+def vector_times_matrix_times_vector(u, A, v):
+	return vecdot(u, matrix_times_vector(A, v))
 
 # ----------------------------------------------------------------
 def vecadd(u, v):
@@ -1350,6 +1360,10 @@ class sackmat:
 	# in-place.  At the moment, it uses naive pivoting, appropriate for exact
 	# arithmetic (e.g. finite fields).  For floating-point (here), it should be
 	# re-coded to work harder to find the best row to pivot in.
+	#
+	# Also note that I prefer Householder-using algorithms when possible, which
+	# in many cases avoid the need for row-reduction and pivoting in the first
+	# place.  For more information please see http://johnkerl.org/doc/hh.pdf
 
 	def row_reduce_below(self, tol=1e-7):
 		[nr, nc] = self.dims()

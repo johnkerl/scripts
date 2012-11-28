@@ -55,6 +55,8 @@ if argc == 1:
 elif argc == 2:
 	if sys.argv[1] == '-h':
 		usage()
+	elif sys.argv[1] == '--help':
+		usage()
 	eta  = float(sys.argv[1])
 elif argc == 3:
 	eta  = float(sys.argv[1])
