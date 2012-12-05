@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# ==============================================================================
+# John Kerl
+# http://johnkerl.org
+# 2012-12-04
+# Runs a command, prefixing each line of output with a timestamp.  Useful for
+# elementary stdio-based profiling.  See also my timelines script.
+# This is due to an idea by Amy Chuo -- thanks Amy!  :)
+#
+# Example:
+#
+# $ cat myscript
+#   #!/bin/bash
+#   echo this is
+#   echo the start
+#   echo of the script
+#   millisleep $[RANDOM % 1000]
+#   echo hello
+#   millisleep $[RANDOM % 1000]
+#   echo world
+#   millisleep $[RANDOM % 1000]
+#   echo and this
+#   echo is the end
+#   echo of the script
+#
+# $ stamplines myscript
+#   [20121204-22:03:15.181099508] this is
+#   [20121204-22:03:15.181229552] the start
+#   [20121204-22:03:15.181244847] of the script
+#   [20121204-22:03:15.633283448] hello
+#   [20121204-22:03:16.404349081] world
+#   [20121204-22:03:16.990010262] and this
+#   [20121204-22:03:16.990108529] is the end
+#   [20121204-22:03:16.990140517] of the script
+#
+# ==============================================================================
+
+ourdir=$(dirname $0)
+if [ $# -eq 0 ]; then
+	exec $ourdir/stamplines-filter
+else
+	"$@" | $ourdir/stamplines-filter
+fi
