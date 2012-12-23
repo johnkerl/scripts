@@ -79,20 +79,17 @@ def mfrange(start, step, end):
 	step  *= 1.0
 	end   *= 1.0
 
-	list = []
+	# Correctly handle the roundoff cases.  Do this instead of looping
+	# while (current < end) since, depending on step value, that may
+	# slightly undershoot or overshoot the end.
+	n = int(round((end - start) / step)) + 1
+
+	list = [None] * n
 	current = start
-	if (step > 0):
-		while (current < end):
-			list.append(current)
-			current += step
-	elif (step < 0):
-		while (current > end):
-			list.append(current)
-			current += step
-	else:
-		print >> sys.stderr, \
-			"mfrange:  zero step disallowed (an infinite loop would ensue)."
-		sys.exit(1)
+	for i in xrange(0, n):
+		list[i] = current
+		current += step
+
 	return list
 
 # ----------------------------------------------------------------
