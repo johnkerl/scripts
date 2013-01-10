@@ -44,7 +44,7 @@ def func1()
 end
 
 def func2()
-	puts "This is func1"
+	puts "This is func2"
 end
 
 # ------------------------------------------------------------------------------

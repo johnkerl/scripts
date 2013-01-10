@@ -47,6 +47,16 @@ while (@ARGV >= 1) {
 		$pat = "> ";
 	}
 
+	elsif ($ARGV[0] eq "-l") {
+		$pat = ";";
+	}
+	elsif ($ARGV[0] eq "-ll") {
+		$pat = ";;";
+	}
+	elsif ($ARGV[0] eq "-lll") {
+		$pat = ";;;";
+	}
+
 	elsif ($ARGV[0] eq "-gp") {
 		$pat = "\\\\ ";
 	}
