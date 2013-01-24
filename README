@@ -23,6 +23,8 @@ Subdirectories:
 * stats -- Miscellaneous basic statistical routines and wrapper scripts for
   use on Unix pipes:  mean, standard deviation, covariance and correlation, and
   histograms.
+
+There are a few C items at https://github.com/johnkerl/ctools
 ================================================================
 John Kerl
 kerl.john.r@gmail.com
