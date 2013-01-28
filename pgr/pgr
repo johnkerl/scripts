@@ -117,28 +117,36 @@ def usage():
 	print >> sys.stderr, "Use \"-\" as file name, or omit it, if input is stdin."
 	print >> sys.stderr, "Options:"
 	print >> sys.stderr, "  --help                 Print this message."
+
 	print >> sys.stderr, "  -title {title text}    Specify plot title."
+
 	print >> sys.stderr, "  -xlabel {x label text} Specify x label."
 	print >> sys.stderr, "  -ylabel {y label text} Specify y label."
+
 	print >> sys.stderr, "  -legend 'y1 y2'        Specify legend labels."
 	print >> sys.stderr, "  -lop                   Place the legend outside the plot."
 	print >> sys.stderr, "  -lip                   Place the legend inside the plot."
 	print >> sys.stderr, "  -flabels (or -f)       Take x label and legend labels from the data file."
+
 	print >> sys.stderr, "  -width {inches}        Specify figure width."
 	print >> sys.stderr, "  -height {inches}       Specify figure height."
+
 	print >> sys.stderr, "  -xmin {xmin}:          Specify manual bounds."
 	print >> sys.stderr, "  -xmax {xmax}:          Specify manual bounds."
 	print >> sys.stderr, "  -ymin {ymin}:          Specify manual bounds."
 	print >> sys.stderr, "  -ymax {ymax}:          Specify manual bounds."
+
+	print >> sys.stderr, "  -grid                  Include a background grid."
+
 	print >> sys.stderr, "  -c                     Use comma as column delimiter."
 	print >> sys.stderr, "  -nc                    Do not use comma as column delimiter."
+
 	print >> sys.stderr, "  -t                     X coordinate is time."
 	print >> sys.stderr, "  -n                     Take x coordinate from line number."
+
 	print >> sys.stderr, "  -l                     Draw lines only."
 	print >> sys.stderr, "  -p                     Draw points only."
 	print >> sys.stderr, "  -lp                    Draw lines and points."
-	print >> sys.stderr, "  -lines                 Line-draw mode.  Input should be"
-	print >> sys.stderr, "                         quadruples of x1 y1 x2 y2."
 	print >> sys.stderr, "  -ms {n}                Marker size (default 5) for points."
 	print >> sys.stderr, "  -formats '- -- o'      Specify pylab-style marker formats."
 	print >> sys.stderr, "                         Examples:"
@@ -150,17 +158,22 @@ def usage():
 	print >> sys.stderr, "  -colors 'red blue green' Specify line colors."
 	print >> sys.stderr, "  -greyup                First series is light grey ... last series is black."
 	print >> sys.stderr, "  -greydown              First series is black ... last series is light grey."
+
+	print >> sys.stderr, "  -lines                 Line-draw mode.  Input should be"
+	print >> sys.stderr, "                         quadruples of x1 y1 x2 y2."
 	print >> sys.stderr, "  -xyxy                  1st column is x1, 2nd is y1, 3rd is x2, 4th is y2, ...."
 	print >> sys.stderr, "                         Otherwise, a single x column is used for all y columns."
+
 	print >> sys.stderr, "  -errorbar or -eb       1st column is  x, 2nd is y, 3rd is err(y)."
 	print >> sys.stderr, "  -bar                   Plot a bar chart."
 	print >> sys.stderr, "  -barwidth {w}          Specify bar width for -bar."
-	print >> sys.stderr, "  -grid                  Include a background grid."
 	print >> sys.stderr, "  -lct                   Plot last column on top."
 	print >> sys.stderr, "  -fct                   Plot first column on top."
+
 	print >> sys.stderr, "  -1ox,-1my              Compute 1/input or 1-output before plotting."
 	print >> sys.stderr, "  -colscale {a b c ...}  Multiply column 1 by a, column 2 by b, ..."
 	print >> sys.stderr, "  -logx,-logy,-loglog    Plot log of input, output, or both."
+
 	print >> sys.stderr, "  -o {file name}         Write file instead of graphing."
 	print >> sys.stderr, "                         Formats: .png, .eps."
 	print >> sys.stderr, "  -dpi {number}          Dots per inch for -o."
@@ -170,44 +183,14 @@ def usage():
 def main():
 	opts = set_defaults()
 	parse_command_line(opts)
-
-	# Read data from the file
-	# At this point, there are:
-	# * all_labels
-	# * file_columns
-	if opts['use_file_labels']:
-		all_labels = tabutil_m.labels_from_file(opts['file_name'], opts['split_on_comma'])
-		if opts['x_is_line_number']:
-			legend_labels = all_labels
-		elif opts['multiple_x_columns']:
-			print >> sys.stderr, "Sorry, I haven't written -flabels for -xyxy yet."
-			sys.exit(1)
-		else:
-			opts['xlabel'] = all_labels[0] # xxx fix me for -n or -xyxy.
-			legend_labels = all_labels[1:]
-
-	if opts['x_is_time']:
-		if opts['x_is_line_number']:
-			print >> sys.stderr, "Sorry, -n and -t don't make sense together."
-			sys.exit(1)
-		# Note:  For pylab plots, we convert the time to float where we
-		# read the input data (right here), and we also need to tell it
-		# at plot time that those floats really mean dates.
-		if opts['multiple_x_columns']: # With -xyxy: even columns are time
-			file_columns = tabutil_m.float_or_time_columns_from_file(opts['file_name'], 'xyxy', split_on_comma)
-		else: # Without -xyxy: column 0 is time
-			file_columns = tabutil_m.float_or_time_columns_from_file(opts['file_name'], 'col0', split_on_comma)
-	else:
-		file_columns = tabutil_m.float_columns_from_file(opts['file_name'], opts['split_on_comma'])
+	(file_columns, legend_labels) = read_input_file(opts)
 
 	# debug tap:
 	# tabutil_m.float_columns_to_file(file_columns, '-')
 
 	# Do line plot.
 	if opts['do_lines']:
-		plot_lines(file_columns, opts['title'], opts['xlabel'], opts['ylabel'], \
-			opts['width_inches'], opts['height_inches'],
-			opts['marker_size'], opts['draw_points'], opts['draw_connectors'], opts['output_file'], opts['dpi'])
+		plot_lines(file_columns, opts)
 		sys.exit(0)
 
 	# Rearrange file columns into some combination of x, y, and error-bar series.
@@ -320,7 +303,7 @@ def main():
 		else:
 			formats = arg_formats.split()
 	if opts['arg_legend_labels'] != '':
-		if split_on_comma:
+		if opts['split_on_comma']:
 			legend_labels = arg_legend_labels.split(',')
 		else:
 			legend_labels = arg_legend_labels.split()
@@ -377,22 +360,8 @@ def main():
 					y_series[j][i] *= scale
 
 	# Now plot the data.
-	plot_series(
-		x_series, y_series, e_series, num_series, formats,
-		legend_labels, opts['do_legend'], colors, opts['title'],
-		opts['xlabel'], opts['ylabel'], opts['legend_outside_plot'],
-		opts['width_inches'], opts['height_inches'],
-		opts['adjust_bottom'], opts['adjust_top'], opts['adjust_left'],
-		opts['adjust_right'], opts['have_x_min'], opts['x_min'],
-		opts['have_x_max'], opts['x_max'], opts['have_y_min'],
-		opts['y_min'], opts['have_y_max'], opts['y_max'],
-		opts['legend_loc'], opts['do_logx'], opts['do_logy'],
-		opts['x_is_line_number'], opts['x_is_time'],
-		opts['marker_size'], opts['line_widths'], opts['draw_points'],
-		opts['draw_connectors'], opts['do_errorbar'],
-		opts['eb_is_var'], opts['do_bar'], opts['bar_width_given'],
-		opts['bar_width'], opts['do_grid'],
-		opts['first_column_on_top'], opts['output_file'], opts['dpi'])
+	plot_series(x_series, y_series, e_series, num_series, formats,
+		legend_labels, colors, opts)
 
 # ----------------------------------------------------------------
 def set_defaults():
@@ -738,6 +707,36 @@ def parse_command_line(opts):
 		opts['column_scales'] = opts['column_scales_string'].split()
 
 # ----------------------------------------------------------------
+def read_input_file(opts):
+	legend_labels = []
+	if opts['use_file_labels']:
+		all_labels = tabutil_m.labels_from_file(opts['file_name'], opts['split_on_comma'])
+		if opts['x_is_line_number']:
+			legend_labels = all_labels
+		elif opts['multiple_x_columns']:
+			print >> sys.stderr, "Sorry, I haven't written -flabels for -xyxy yet."
+			sys.exit(1)
+		else:
+			opts['xlabel'] = all_labels[0] # xxx fix me for -n or -xyxy.
+			legend_labels = all_labels[1:]
+
+	if opts['x_is_time']:
+		if opts['x_is_line_number']:
+			print >> sys.stderr, "Sorry, -n and -t don't make sense together."
+			sys.exit(1)
+		# Note:  For pylab plots, we convert the time to float where we
+		# read the input data (right here), and we also need to tell it
+		# at plot time that those floats really mean dates.
+		if opts['multiple_x_columns']: # With -xyxy: even columns are time
+			file_columns = tabutil_m.float_or_time_columns_from_file(opts['file_name'], 'xyxy', opts['split_on_comma'])
+		else: # Without -xyxy: column 0 is time
+			file_columns = tabutil_m.float_or_time_columns_from_file(opts['file_name'], 'col0', opts['split_on_comma'])
+	else:
+		file_columns = tabutil_m.float_columns_from_file(opts['file_name'], opts['split_on_comma'])
+
+	return (file_columns, legend_labels)
+
+# ----------------------------------------------------------------
 def trim_missing_points2(xs, ys):
 	n = len(xs)
 	trim_xs = []
@@ -762,27 +761,7 @@ def trim_missing_points3(xs, ys, es):
 	return [trim_xs, trim_ys, trim_es]
 
 # ----------------------------------------------------------------
-def plot_series(x_series, y_series, e_series, num_series, \
-	formats, legend_labels, do_legend,
-	colors=[], title='', xlabel='', ylabel='', \
-	legend_outside_plot=True, \
-	width_inches=6, height_inches=4, \
-	adjust_bottom=0.15, adjust_top=0.85, \
-	adjust_left=0.12, adjust_right=0.90, \
-	have_x_min=0, x_min=-1, \
-	have_x_max=0, x_max=-1, \
-	have_y_min=0, y_min=-1, \
-	have_y_max=0, y_max=-1, \
-	legend_loc='', \
-	do_logx=0, do_logy=0, \
-	x_is_line_number=False, x_is_time=False, \
-	marker_size=1, line_widths=[1], \
-	draw_points=0, draw_connectors=1, do_errorbar=False, eb_is_var=False,
-	do_bar=False, bar_width_given=0, bar_width=0.8, \
-	do_grid=0, \
-	first_column_on_top=True, \
-	output_file='', dpi=150):
-#
+def plot_series(x_series, y_series, e_series, num_series, formats, legend_labels, colors, opts):
 
 	if num_series < 1:
 		print >> sys.stderr, \
@@ -795,28 +774,28 @@ def plot_series(x_series, y_series, e_series, num_series, \
 	num_e_series = len(e_series)
 
 	series_order = range(0, num_series)
-	if first_column_on_top:
+	if opts['first_column_on_top']:
 		series_order.reverse()
 
 	# Create a blank figure object on which to plot.
-	fig = pylab.figure(1, figsize=(width_inches, height_inches))
+	fig = pylab.figure(1, figsize=(opts['width_inches'], opts['height_inches']))
 	# The issue is that axis labels show up fine, with default window sizing --
 	# but if I make the window less tall, the x label gets clipped off.
-	fig.subplots_adjust(bottom=adjust_bottom)
-	fig.subplots_adjust(top=adjust_top)
-	fig.subplots_adjust(left=adjust_left)
-	fig.subplots_adjust(right=adjust_right)
+	fig.subplots_adjust(bottom=opts['adjust_bottom'])
+	fig.subplots_adjust(top=opts['adjust_top'])
+	fig.subplots_adjust(left=opts['adjust_left'])
+	fig.subplots_adjust(right=opts['adjust_right'])
 
 	# Take bar-plot bar width to be x spacing, unless the user requested
 	# something else.  (pylab.errorbar default is spacing 0.8.)
-	if do_bar:
-		if not bar_width_given:
-			bar_width = x_series[0][1] - x_series[0][0]
+	if opts['do_bar']:
+		if not opts['bar_width_given']:
+			opts['bar_width'] = x_series[0][1] - x_series[0][0]
 
 	plot_lines_for_figlegend = []
 
 	# Error-bar plot.
-	if do_errorbar:
+	if opts['do_errorbar']:
 		for j in series_order:
 
 			[curr_x_series, curr_y_series, curr_e_series] = \
@@ -833,8 +812,8 @@ def plot_series(x_series, y_series, e_series, num_series, \
 						curr_e_series, \
 						fmt=formats[j], \
 						label=legend_labels[j], \
-						markersize=marker_size,
-						linewidth=line_widths[j % len(line_widths)])
+						markersize=opts['marker_size'],
+						linewidth=opts['line_widths'][j % len(opts['line_widths'])])
 				else:
 					plot_line = pylab.errorbar(
 						curr_x_series, \
@@ -844,8 +823,8 @@ def plot_series(x_series, y_series, e_series, num_series, \
 						color=colors[j % len(colors)], \
 						fmt=formats[j], \
 						label=legend_labels[j], \
-						markersize=marker_size,
-						linewidth=line_widths[j % len(line_widths)])
+						markersize=opts['marker_size'],
+						linewidth=opts['line_widths'][j % len(opts['line_widths'])])
 
 			plot_lines_for_figlegend.append(plot_line)
 
@@ -856,15 +835,15 @@ def plot_series(x_series, y_series, e_series, num_series, \
 			curr_y_series = y_series     [j % num_y_series]
 			curr_format   = formats      [j % len(formats)]
 			curr_legend_label = legend_labels[j % len(legend_labels)]
-			curr_line_width = line_widths[j % len(line_widths)]
+			curr_line_width = opts['line_widths'][j % len(opts['line_widths'])]
 
 			[curr_x_series, curr_y_series] = trim_missing_points2( \
 				curr_x_series, curr_y_series)
 
 			# Bar-chart plot.
-			if do_bar:
+			if opts['do_bar']:
 				if len(colors) > 0:
-					plot_line = pylab.bar(curr_x_series, curr_y_series, width=bar_width, \
+					plot_line = pylab.bar(curr_x_series, curr_y_series, width=opts['bar_width'], \
 						linewidth=curr_line_width, \
 						color=colors[j % len(colors)])
 				else:
@@ -875,25 +854,20 @@ def plot_series(x_series, y_series, e_series, num_series, \
 			else:
 				if colors == []:
 
-					if do_logx and not do_logy:
+					if opts['do_logx'] and not opts['do_logy']:
 						plot_func = pylab.semilogx
-					elif do_logy and not do_logx:
+					elif opts['do_logy'] and not opts['do_logx']:
 						plot_func = pylab.semilogy
-					elif do_logx and do_logy:
+					elif opts['do_logx'] and opts['do_logy']:
 						plot_func = pylab.loglog
-					elif x_is_time:
+					elif opts['x_is_time']:
 						plot_func = pylab.plot_date
 					else:
 						plot_func = pylab.plot
 
-					# xxx
-					##print ""
-					##print "xs="+str(curr_x_series)
-					##print "ys="+str(curr_y_series)
-
 					plot_line = plot_func(curr_x_series, curr_y_series,
 							curr_format, label=curr_legend_label,
-							markeredgewidth=0, markersize=marker_size,
+							markeredgewidth=0, markersize=opts['marker_size'],
 							linewidth=curr_line_width,
 							drawstyle='steps')
 
@@ -914,16 +888,16 @@ def plot_series(x_series, y_series, e_series, num_series, \
 					plot_line = plot_func(curr_x_series, curr_y_series,
 						curr_format, label=curr_legend_label, color=curr_color,
 						markerfacecolor=curr_color, markeredgecolor=curr_color,
-						markersize=marker_size,
+						markersize=opts['marker_size'],
 						linewidth=curr_line_width,
 						drawstyle='steps')
 
 			plot_lines_for_figlegend.append(plot_line)
 
 	# Axis labels and title.
-	pylab.xlabel(xlabel)
-	pylab.ylabel(ylabel)
-	pylab.title(title)
+	pylab.xlabel(opts['xlabel'])
+	pylab.ylabel(opts['ylabel'])
+	pylab.title(opts['title'])
 
 	# Put four decimal places in mouseovers.
 	ax = pylab.axes()
@@ -932,45 +906,45 @@ def plot_series(x_series, y_series, e_series, num_series, \
 
 	# Set min/max values for axes.  By default, pylab uses the X & Y data
 	# min & max.
-	if have_x_min:
+	if opts['have_x_min']:
 		[           old_x_min, old_x_max, old_y_min, old_y_max] = pylab.axis()
 		pylab.axis([    x_min, old_x_max, old_y_min, old_y_max])
 
-	if have_x_max:
+	if opts['have_x_max']:
 		[           old_x_min, old_x_max, old_y_min, old_y_max] = pylab.axis()
 		pylab.axis([old_x_min,     x_max, old_y_min, old_y_max])
 
-	if have_y_min:
+	if opts['have_y_min']:
 		[           old_x_min, old_x_max, old_y_min, old_y_max] = pylab.axis()
 		pylab.axis([old_x_min, old_x_max,     y_min, old_y_max])
 
-	if have_y_max:
+	if opts['have_y_max']:
 		[           old_x_min, old_x_max, old_y_min, old_y_max] = pylab.axis()
 		pylab.axis([old_x_min, old_x_max, old_y_min,     y_max])
 
-	if x_is_time:
+	if opts['x_is_time']:
 		# Write dates on the x axis vertically to avoid overlap
-		fig.autofmt_xdate(bottom=adjust_bottom, rotation=90)
+		fig.autofmt_xdate(bottom=opts['adjust_bottom'], rotation=90)
 		#ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y%m%d-%H:%M:%S'))
 		ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y%m%d\n%H:%M:%S'))
 
 	# Show the grid, if it was requested.
-	if do_grid:
+	if opts['do_grid']:
 		pylab.grid(color='grey')
 	# Show the legend, if it was requested.
-	if do_legend:
-		if legend_outside_plot:
-			pylab.figlegend(plot_lines_for_figlegend, legend_labels, legend_loc)
+	if opts['do_legend']:
+		if opts['legend_outside_plot']:
+			pylab.figlegend(plot_lines_for_figlegend, legend_labels, opts['legend_loc'])
 		else:
-			pylab.legend(loc=legend_loc)
+			pylab.legend(loc=opts['legend_loc'])
 
-	if output_file == '':
+	if opts['output_file'] == '':
 		# To screen
 		pylab.show()
 	else:
 		# To file (e.g. .eps, .png).  pylab will pick the output-file format
 		# based on output-file-name extension.
-		pylab.savefig(output_file, dpi=dpi)
+		pylab.savefig(opts['output_file'], dpi=opts['dpi'])
 
 # ----------------------------------------------------------------
 # Line plot takes four columns:
@@ -982,9 +956,7 @@ def plot_series(x_series, y_series, e_series, num_series, \
 # For each row in the file, we draw a line from (x1, y1) to (x2, y2).
 # This can be used for an (arrowless) vector-field plot, among other things.
 
-def plot_lines(data_columns, title='', xlabel='', ylabel='', \
-width_inches=6, height_inches=4, \
-marker_size=1, draw_points=0, draw_connectors=1, output_file='', dpi=150):
+def plot_lines(data_columns, opts):
 
 	if len(data_columns) != 4:
 		print >> sys.stderr, \
@@ -993,13 +965,13 @@ marker_size=1, draw_points=0, draw_connectors=1, output_file='', dpi=150):
 		sys.exit(1)
 
 	fmt="-"
-	if draw_points:
-		if draw_connectors:
+	if opts['draw_points']:
+		if opts['draw_connectors']:
 			fmt="bo-"
 		else:
 			fmt="bo"
 	else:
-		if draw_connectors:
+		if opts['draw_connectors']:
 			fmt="b-"
 		else:
 			# At least one of draw_points and draw_connectors must be
@@ -1012,23 +984,23 @@ marker_size=1, draw_points=0, draw_connectors=1, output_file='', dpi=150):
 	x2s = data_columns[2]
 	y2s = data_columns[3]
 
-	pylab.figure(1, figsize=(width_inches, height_inches))
+	pylab.figure(1, figsize=(opts['width_inches'], opts['height_inches']))
 	num_points = len(x1s)
 	for k in range(0, num_points):
 		x = [x1s[k], x2s[k]]
 		y = [y1s[k], y2s[k]]
 		pylab.plot(x,y, fmt, markeredgewidth=0, markersize=1)
-	pylab.title(title)
+	pylab.title(opts['title'])
 
 	# Put four decimal places in mouseovers.
 	ax = pylab.axes()
 	ax.fmt_xdata = lambda x: '%.4f'%x
 	ax.fmt_ydata = lambda y: '%.4f'%y
 
-	if output_file == '':
+	if opts['output_file'] == '':
 		pylab.show()
 	else:
-		pylab.savefig(output_file, dpi=dpi)
+		pylab.savefig(opts['output_file'], dpi=opts['dpi'])
 
 # ================================================================
 # Top-down programming style, please.
