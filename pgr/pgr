@@ -106,50 +106,636 @@
 # 2008-04-13
 # ================================================================
 
-# to merge:
-#
-#  '-.'            dash-dot line style
-#  ':'             dotted line style
-#  '.'             point marker
-#  ','             pixel marker
-#  'o'             circle marker
-#  'v'             triangle_down marker
-#  '^'             triangle_up marker
-#  '<'             triangle_left marker
-#  '>'             triangle_right marker
-#  '1'             tri_down marker
-#  '2'             tri_up marker
-#  '3'             tri_left marker
-#  '4'             tri_right marker
-#  's'             square marker
-#  'p'             pentagon marker
-#  '*'             star marker
-#  'h'             hexagon1 marker
-#  'H'             hexagon2 marker
-#  '+'             plus marker
-#  'x'             x marker
-#  'D'             diamond marker
-#  'd'             thin_diamond marker
-#  '|'             vline marker
-#  '_'             hline marker
-
-#  ==========  ========
-#  character   color
-#  ==========  ========
-#  'b'         blue
-#  'g'         green
-#  'r'         red
-#  'c'         cyan
-#  'm'         magenta
-#  'y'         yellow
-#  'k'         black
-#  'w'         white
-#  ==========  ========
-
 import pylab, matplotlib
 import sys, re, copy
-import tabutil_m
 from math import *
+import tabutil_m
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage: %s [options] [file name]" % (sys.argv[0])
+	print >> sys.stderr, "Use \"-\" as file name, or omit it, if input is stdin."
+	print >> sys.stderr, "Options:"
+	print >> sys.stderr, "  --help                 Print this message."
+	print >> sys.stderr, "  -title {title text}    Specify plot title."
+	print >> sys.stderr, "  -xlabel {x label text} Specify x label."
+	print >> sys.stderr, "  -ylabel {y label text} Specify y label."
+	print >> sys.stderr, "  -legend 'y1 y2'        Specify legend labels."
+	print >> sys.stderr, "  -lop                   Place the legend outside the plot."
+	print >> sys.stderr, "  -lip                   Place the legend inside the plot."
+	print >> sys.stderr, "  -flabels (or -f)       Take x label and legend labels from the data file."
+	print >> sys.stderr, "  -width {inches}        Specify figure width."
+	print >> sys.stderr, "  -height {inches}       Specify figure height."
+	print >> sys.stderr, "  -xmin {xmin}:          Specify manual bounds."
+	print >> sys.stderr, "  -xmax {xmax}:          Specify manual bounds."
+	print >> sys.stderr, "  -ymin {ymin}:          Specify manual bounds."
+	print >> sys.stderr, "  -ymax {ymax}:          Specify manual bounds."
+	print >> sys.stderr, "  -c                     Use comma as column delimiter."
+	print >> sys.stderr, "  -nc                    Do not use comma as column delimiter."
+	print >> sys.stderr, "  -t                     X coordinate is time."
+	print >> sys.stderr, "  -n                     Take x coordinate from line number."
+	print >> sys.stderr, "  -l                     Draw lines only."
+	print >> sys.stderr, "  -p                     Draw points only."
+	print >> sys.stderr, "  -lp                    Draw lines and points."
+	print >> sys.stderr, "  -lines                 Line-draw mode.  Input should be"
+	print >> sys.stderr, "                         quadruples of x1 y1 x2 y2."
+	print >> sys.stderr, "  -ms {n}                Marker size (default 5) for points."
+	print >> sys.stderr, "  -formats '- -- o'      Specify pylab-style marker formats."
+	print >> sys.stderr, "                         Examples:"
+	print >> sys.stderr, "        - solid line       --    dashed line       -.    dash-dot line"
+	print >> sys.stderr, "        : dotted line      .     points            o     circle symbols"
+	print >> sys.stderr, "        s square symbols   +     plus symbols      x     cross symbols"
+	print >> sys.stderr, "        Type \"help(pylab.plot)\", after \"import pylab\", inside Python for more"
+	print >> sys.stderr, "        information."
+	print >> sys.stderr, "  -colors 'red blue green' Specify line colors."
+	print >> sys.stderr, "  -greyup                First series is light grey ... last series is black."
+	print >> sys.stderr, "  -greydown              First series is black ... last series is light grey."
+	print >> sys.stderr, "  -xyxy                  1st column is x1, 2nd is y1, 3rd is x2, 4th is y2, ...."
+	print >> sys.stderr, "                         Otherwise, a single x column is used for all y columns."
+	print >> sys.stderr, "  -errorbar or -eb       1st column is  x, 2nd is y, 3rd is err(y)."
+	print >> sys.stderr, "  -bar                   Plot a bar chart."
+	print >> sys.stderr, "  -barwidth {w}          Specify bar width for -bar."
+	print >> sys.stderr, "  -grid                  Include a background grid."
+	print >> sys.stderr, "  -lct                   Plot last column on top."
+	print >> sys.stderr, "  -fct                   Plot first column on top."
+	print >> sys.stderr, "  -1ox,-1my              Compute 1/input or 1-output before plotting."
+	print >> sys.stderr, "  -colscale {a b c ...}  Multiply column 1 by a, column 2 by b, ..."
+	print >> sys.stderr, "  -logx,-logy,-loglog    Plot log of input, output, or both."
+	print >> sys.stderr, "  -o {file name}         Write file instead of graphing."
+	print >> sys.stderr, "                         Formats: .png, .eps."
+	print >> sys.stderr, "  -dpi {number}          Dots per inch for -o."
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+def main():
+	opts = set_defaults()
+	parse_command_line(opts)
+
+	# Read data from the file
+	# At this point, there are:
+	# * all_labels
+	# * file_columns
+	if opts['use_file_labels']:
+		all_labels = tabutil_m.labels_from_file(opts['file_name'], opts['split_on_comma'])
+		if opts['x_is_line_number']:
+			legend_labels = all_labels
+		elif opts['multiple_x_columns']:
+			print >> sys.stderr, "Sorry, I haven't written -flabels for -xyxy yet."
+			sys.exit(1)
+		else:
+			opts['xlabel'] = all_labels[0] # xxx fix me for -n or -xyxy.
+			legend_labels = all_labels[1:]
+
+	if opts['x_is_time']:
+		if opts['x_is_line_number']:
+			print >> sys.stderr, "Sorry, -n and -t don't make sense together."
+			sys.exit(1)
+		# Note:  For pylab plots, we convert the time to float where we
+		# read the input data (right here), and we also need to tell it
+		# at plot time that those floats really mean dates.
+		if opts['multiple_x_columns']: # With -xyxy: even columns are time
+			file_columns = tabutil_m.float_or_time_columns_from_file(opts['file_name'], 'xyxy', split_on_comma)
+		else: # Without -xyxy: column 0 is time
+			file_columns = tabutil_m.float_or_time_columns_from_file(opts['file_name'], 'col0', split_on_comma)
+	else:
+		file_columns = tabutil_m.float_columns_from_file(opts['file_name'], opts['split_on_comma'])
+
+	# debug tap:
+	# tabutil_m.float_columns_to_file(file_columns, '-')
+
+	# Do line plot.
+	if opts['do_lines']:
+		plot_lines(file_columns, opts['title'], opts['xlabel'], opts['ylabel'], \
+			opts['width_inches'], opts['height_inches'],
+			opts['marker_size'], opts['draw_points'], opts['draw_connectors'], opts['output_file'], opts['dpi'])
+		sys.exit(0)
+
+	# Rearrange file columns into some combination of x, y, and error-bar series.
+	# We will then have:
+	# * x_series
+	# * y_series
+	# * e_series
+	# * num_series
+	x_series = []
+	y_series = []
+	e_series = []
+	if len(file_columns) == 1:
+		opts['x_is_line_number'] = True
+
+	if opts['multiple_x_columns'] and do_errorbar:
+		print >> sys.stderr, \
+			'%s: Sorry, the code to use -xyxy and -eb together hasn\'t been written yet.' \
+			% sys.argv[0]
+		sys.exit(1)
+
+	if opts['multiple_x_columns'] and x_is_line_number:
+		print >> sys.stderr, \
+			'%s: Sorry, the code to use -xyxy and -n together hasn\'t been written yet.' \
+			% sys.argv[0]
+		sys.exit(1)
+
+	# Rearrange XYXY-format data.
+	if opts['multiple_x_columns']:
+		if (len(file_columns) % 2) != 0:
+			print >> sys.stderr, "XYXY plot needs an even number of data columns."
+			sys.exit(1)
+
+		# Before:  file_columns looks like this:  |  After:  x_series looks like this:
+		#   Column 0: x1 data                     |    0: x1 data
+		#   Column 1: y1 data                     |    1: x2 data
+		#   Column 2: x2 data                     |  and y_series looks like this:
+		#   Column 3: y2 data                     |    0: y1 data
+		#                                         |    1: y2 data
+		num_series = int(len(file_columns) / 2)
+		x_series = [[]] * num_series
+		y_series = [[]] * num_series
+		for j in range(0, num_series):
+			x_series[j] = file_columns[2*j]
+			y_series[j] = file_columns[2*j+1]
+			print
+			print 'j=%d x_series=%s' % (j, str(x_series[j]))
+			print 'j=%d y_series=%s' % (j, str(y_series[j]))
+
+	# Use line number as first column, if requested.
+	elif opts['x_is_line_number']:
+		n = len(file_columns[0])
+		x_series = [range(0, n)]
+		y_series = file_columns
+	else:
+		x_series = [file_columns[0]]
+		y_series = file_columns[1:]
+	num_series = len(y_series)
+
+	# Make sure there are an even number of y series, if we're doing an errorbar
+	# plot.  Then, separate out data columns from error columns.
+	if opts['do_errorbar']:
+		if (num_series % 2) != 0:
+			print >> sys.stderr, "Error-bar plot needs an even number of y data columns."
+			sys.exit(1)
+
+		# Before:  y_series looks like this:  |  After:  y_series looks like this:
+		#   Column 0: y1 data                 |    0: y1 data
+		#   Column 1: y1 error                |    1: y2 data
+		#   Column 2: y2 data                 |  and e_series looks like this:
+		#   Column 3: y2 error                |    0: y1 error
+		# and e_series is empty.              |    1: y2 error
+		num_series = int(num_series / 2)
+		temp = y_series
+		y_series = [[]] * num_series
+		e_series = [[]] * num_series
+		for j in range(0, num_series):
+			y_series[j] = temp[2*j]
+			e_series[j] = temp[2*j+1]
+
+		# If the error columns are estimated variances, square-root them.
+		if opts['eb_is_var']:
+			for j in range(0, num_series):
+				var = e_series[j]
+				for i in range(0, len(e_series[j])):
+					e_series[j][i] = sqrt(e_series[j][i])
+
+	# These are the default formats.
+	format="-"
+	if opts['draw_points']:
+		if opts['draw_connectors']:
+			format="o-"
+		else:
+			format="o"
+	else:
+		if opts['draw_connectors']:
+			format="-"
+		else:
+			# At least one of draw_points and draw_connectors must be
+			# specified.  The command-line parser shouldn't have allowed this.
+			print >> sys.stderr, "plot_series:  coding error."
+			sys.exit(1)
+	formats = [format] * num_series
+	if not opts['use_file_labels']:
+		legend_labels  = [''] * num_series
+
+	# Use specified formats, if any.
+	if opts['arg_formats'] != '':
+		if opts['split_on_comma']:
+			formats = arg_formats.split(',')
+		else:
+			formats = arg_formats.split()
+	if opts['arg_legend_labels'] != '':
+		if split_on_comma:
+			legend_labels = arg_legend_labels.split(',')
+		else:
+			legend_labels = arg_legend_labels.split()
+		do_legend = True
+	colors = []
+	if opts['arg_colors'] != '':
+		if opts['split_on_comma']:
+			colors = opts['arg_colors'].split(',')
+		else:
+			colors = opts['arg_colors'].split()
+
+	# Grey
+	if opts['do_colors_grey']:
+		if num_series == 1:
+			colors = ['0.0']
+		else:
+			lo = 0.8 # light grey
+			hi = 0.0 # black
+			colors = []
+			for i in range(0, num_series):
+				float_color = lo + (hi-lo) * float(i)/float(num_series-1)
+				colors.append('%f' % float_color)
+			if do_colors_grey < 0:
+				colors.reverse()
+
+	# Optionally remap.  These really aren't drawing-program tasks; a separate
+	# script could do them.  Log remap is handled by pylab's log-plot feature,
+	# so we don't do it here.
+	n = len(y_series[0])
+
+	if opts['xshift'] != 0.0:
+		for i in range(0, n):
+			for j in range(0, len(x_series)):
+				x_series[j][i] += xshift
+	if opts['xmul'] != 1.0:
+		for i in range(0, n):
+			for j in range(0, len(x_series)):
+				x_series[j][i] *= xmul
+
+	if opts['do_one_over_x']:
+		for i in range(0, n):
+			for j in range(0, len(x_series)):
+				x_series[j][i] = 1.0 / x_series[j][i]
+	if opts['do_one_minus_y']:
+		for i in range(0, n):
+			for j in range(0, num_series):
+				y_series[j][i] = 1.0 - y_series[j][i]
+
+	if opts['column_scales'] != [] and opts['column_scales'] != ['']:
+		for j in range(0, len(y_series)):
+			scale = float(opts['column_scales'][j % num_series])
+			for i in range(0, n):
+				if y_series[j][i] != None:
+					y_series[j][i] *= scale
+
+	# Now plot the data.
+	plot_series(
+		x_series, y_series, e_series, num_series, formats,
+		legend_labels, opts['do_legend'], colors, opts['title'],
+		opts['xlabel'], opts['ylabel'], opts['legend_outside_plot'],
+		opts['width_inches'], opts['height_inches'],
+		opts['adjust_bottom'], opts['adjust_top'], opts['adjust_left'],
+		opts['adjust_right'], opts['have_x_min'], opts['x_min'],
+		opts['have_x_max'], opts['x_max'], opts['have_y_min'],
+		opts['y_min'], opts['have_y_max'], opts['y_max'],
+		opts['legend_loc'], opts['do_logx'], opts['do_logy'],
+		opts['x_is_line_number'], opts['x_is_time'],
+		opts['marker_size'], opts['line_widths'], opts['draw_points'],
+		opts['draw_connectors'], opts['do_errorbar'],
+		opts['eb_is_var'], opts['do_bar'], opts['bar_width_given'],
+		opts['bar_width'], opts['do_grid'],
+		opts['first_column_on_top'], opts['output_file'], opts['dpi'])
+
+# ----------------------------------------------------------------
+def set_defaults():
+	opts = {}
+
+	opts['title']              = ''
+	opts['xlabel']             = ''
+	opts['ylabel']             = ''
+	opts['do_legend']          = False
+	opts['split_on_comma']     = True
+	opts['x_is_line_number']   = False
+	opts['x_is_time']          = False
+	opts['multiple_x_columns'] = 0
+	opts['do_lines']           = False
+	opts['do_errorbar']        = False
+	opts['eb_is_var']          = False
+	opts['do_bar']             = False
+	opts['bar_width']          = 0.8
+	opts['bar_width_given']    = 0
+	opts['do_grid']            = 0
+	opts['first_column_on_top']  = False
+	opts['xshift']             = 0.0
+	opts['xmul']               = 1.0
+	opts['do_one_over_x']      = 0
+	opts['do_one_minus_y']     = 0
+	opts['column_scales_string'] = ''
+	opts['do_logx']            = 0
+	opts['do_logy']            = 0
+	opts['marker_size']        = 2
+	opts['line_widths_string'] = '1'
+	opts['draw_points']        = 1
+	opts['draw_connectors']    = 1
+	opts['output_file']        = ''
+	opts['dpi']                = 150
+	opts['arg_formats']        = ''
+	opts['arg_legend_labels']  = ''
+	opts['arg_colors']         = ''
+	# 0 for not doing it, +1 for light to dark (last series is black),
+	# -1 for dark to light (first series is black).
+	opts['do_colors_grey']     = 0
+	opts['use_file_labels']    = 0
+	opts['width_inches']       = 6
+	opts['height_inches']      = 4
+	opts['adjust_bottom']      = 0.15
+	opts['adjust_top']         = 0.85
+	opts['adjust_left']        = 0.12
+	opts['adjust_right']       = 0.90
+	opts['legend_loc']         = 'tbd'
+	opts['legend_outside_plot']= True
+	opts['have_x_min']         = 0
+	opts['have_x_max']         = 0
+	opts['have_y_min']         = 0
+	opts['have_y_max']         = 0
+	opts['x_min']              = -1
+	opts['x_max']              = -1
+	opts['y_min']              = -1
+	opts['y_max']              = -1
+
+	return opts
+
+# ----------------------------------------------------------------
+def parse_command_line(opts):
+	argc = len(sys.argv)
+	argi = 1
+	while argi < argc:
+		if sys.argv[argi] == '-':
+			break
+		elif sys.argv[argi][0] != '-':
+			break
+		elif sys.argv[argi] == "-h":
+			usage()
+		elif sys.argv[argi] == "--help":
+			usage()
+		elif sys.argv[argi] == "-title":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['title'] = sys.argv[argi]
+		elif sys.argv[argi] == "-xlabel":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['xlabel'] = sys.argv[argi]
+		elif sys.argv[argi] == "-ylabel":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['ylabel'] = sys.argv[argi]
+
+		elif sys.argv[argi] == "-d": # -f and -t; dcat style
+			opts['use_file_labels'] = 1
+			opts['do_legend'] = True
+			opts['x_is_time'] = True
+		elif sys.argv[argi] == "-k": # my style
+			opts['use_file_labels'] = 1
+			opts['do_legend'] = True
+			opts['split_on_comma'] = False
+
+		elif sys.argv[argi] == "-flabels":
+			opts['use_file_labels'] = 1
+			opts['do_legend'] = True
+		elif sys.argv[argi] == "-f":
+			opts['use_file_labels'] = 1
+			opts['do_legend'] = True
+		elif sys.argv[argi] == "-width":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['width_inches'] = float(sys.argv[argi])
+		elif sys.argv[argi] == "-height":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['height_inches'] = float(sys.argv[argi])
+
+		elif sys.argv[argi] == "-adjbottom":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['adjust_bottom'] = float(sys.argv[argi])
+		elif sys.argv[argi] == "-adjtop":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['adjust_top'] = float(sys.argv[argi])
+		elif sys.argv[argi] == "-adjleft":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['adjust_left'] = float(sys.argv[argi])
+		elif sys.argv[argi] == "-adjright":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['adjust_right'] = float(sys.argv[argi])
+
+		elif sys.argv[argi] == "-c":
+			opts['split_on_comma'] = True
+		elif sys.argv[argi] == "-nc":
+			opts['split_on_comma'] = False
+
+		elif sys.argv[argi] == "-n":
+			opts['x_is_line_number'] = True
+		elif sys.argv[argi] == "-t":
+			opts['x_is_time'] = True
+		elif sys.argv[argi] == "-l":
+			opts['draw_points    '] = 0
+			opts['draw_connectors'] = 1
+		elif sys.argv[argi] == "-p":
+			opts['draw_points    '] = 1
+			opts['draw_connectors'] = 0
+		elif sys.argv[argi] == "-lp":
+			opts['draw_points    '] = 1
+			opts['draw_connectors'] = 1
+		elif sys.argv[argi] == "-lines":
+			opts['do_lines'] = True
+		elif sys.argv[argi] == "-ms":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['marker_size'] = int(sys.argv[argi])
+		elif sys.argv[argi] == "-lws":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['line_widths_string'] = sys.argv[argi]
+
+		elif sys.argv[argi] == "-legend":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['arg_legend_labels'] = sys.argv[argi]
+
+		elif sys.argv[argi] == "-lop":
+			opts['legend_outside_plot'] = True
+		elif sys.argv[argi] == "-lip":
+			opts['legend_outside_plot'] = False
+
+		elif sys.argv[argi] == "-labels":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['arg_legend_labels'] = sys.argv[argi]
+		elif sys.argv[argi] == "-formats":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['arg_formats'] = sys.argv[argi]
+		elif sys.argv[argi] == "-colors":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['arg_colors'] = sys.argv[argi]
+		elif sys.argv[argi] == "-grey":
+			opts['do_colors_grey'] =  1
+		elif sys.argv[argi] == "-greyup":
+			opts['do_colors_grey'] =  1
+		elif sys.argv[argi] == "-greydown":
+			opts['do_colors_grey'] = -1
+
+		elif sys.argv[argi] == "-xyxy":
+			opts['multiple_x_columns'] = 1
+
+		elif sys.argv[argi] == "-eb":
+			opts['do_errorbar'] = True
+		elif sys.argv[argi] == "-errorbar":
+			opts['do_errorbar'] = True
+		elif sys.argv[argi] == "-verrorbar":
+			opts['do_errorbar'] = True
+			opts['eb_is_var'] = True
+		elif sys.argv[argi] == "-bar":
+			opts['do_bar'] = True
+		elif sys.argv[argi] == "-barwidth":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['bar_width'] = float(sys.argv[argi])
+			opts['bar_width_given'] = 1
+
+		elif sys.argv[argi] == "-lct":
+			opts['first_column_on_top'] = False
+		elif sys.argv[argi] == "-fct":
+			opts['first_column_on_top'] = True
+		elif sys.argv[argi] == "-grid":
+			opts['do_grid'] = 1
+
+		elif sys.argv[argi] == "-xshift":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['xshift'] = float(sys.argv[argi])
+		elif sys.argv[argi] == "-xmul":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['xmul'] = float(sys.argv[argi])
+		elif sys.argv[argi] == "-1ox":
+			opts['do_one_over_x'] = 1
+		elif sys.argv[argi] == "-1my":
+			opts['do_one_minus_y'] = 1
+		elif sys.argv[argi] == "-colscale":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['column_scales_string'] = sys.argv[argi]
+
+		elif sys.argv[argi] == "-logx":
+			opts['do_logx'] = 1
+		elif sys.argv[argi] == "-logy":
+			opts['do_logy'] = 1
+		elif sys.argv[argi] == "-loglog":
+			opts['do_logx'] = 1
+			opts['do_logy'] = 1
+
+		elif sys.argv[argi] == "-lbest": opts['legend_loc'] = 'best'
+		elif sys.argv[argi] == "-lur"  : opts['legend_loc'] = 'upper right'
+		elif sys.argv[argi] == "-lul"  : opts['legend_loc'] = 'upper left'
+		elif sys.argv[argi] == "-lll"  : opts['legend_loc'] = 'lower left'
+		elif sys.argv[argi] == "-llr"  : opts['legend_loc'] = 'lower right'
+		elif sys.argv[argi] == "-lr"   : opts['legend_loc'] = 'right'
+		elif sys.argv[argi] == "-lcl"  : opts['legend_loc'] = 'center left'
+		elif sys.argv[argi] == "-lcr"  : opts['legend_loc'] = 'center right'
+		elif sys.argv[argi] == "-llc"  : opts['legend_loc'] = 'lower center'
+		elif sys.argv[argi] == "-luc"  : opts['legend_loc'] = 'upper center'
+		elif sys.argv[argi] == "-lc"   : opts['legend_loc'] = 'center'
+
+		elif sys.argv[argi] == "-xmin":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['have_x_min'] = 1
+			opts['x_min'] = float(sys.argv[argi])
+
+		elif sys.argv[argi] == "-xmax":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['have_x_max'] = 1
+			opts['x_max'] = float(sys.argv[argi])
+
+		elif sys.argv[argi] == "-ymin":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['have_y_min'] = 1
+			opts['y_min'] = float(sys.argv[argi])
+
+		elif sys.argv[argi] == "-ymax":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['have_y_max'] = 1
+			opts['y_max'] = float(sys.argv[argi])
+
+		elif sys.argv[argi] == "-o":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['output_file'] = sys.argv[argi]
+		elif sys.argv[argi] == "-dpi":
+			argi += 1
+			if argi >= argc:
+				usage()
+			opts['dpi'] = int(sys.argv[argi])
+		else:
+			print >> sys.stderr, "Unrecognized option \"%s\"." \
+				% (sys.argv[argi])
+			usage()
+		argi += 1
+
+	# There must be either zero or one remaining argument:  the file name to
+	# use as input.  (A to-do item is to take input from multiple files.)
+
+	# No remaining arguments:  input is from stdin.
+	if (argc - argi) == 0:
+		opts['file_name'] = "-"
+	# One remaing argument:  input is from that file.
+	elif (argc - argi) == 1:
+		opts['file_name'] = sys.argv[argi]
+	else:
+		usage()
+
+	# Use the file name as the title, as long as the user hasn't requested
+	# something else.
+	if opts['title'] == '':
+		if opts['file_name'] != "-":
+			opts['title'] = opts['file_name']
+
+	# If the user didn't specify legend location, pick the default.
+	# For legend-inside-plot (pylab.legend()) there's a 'best'.
+	# For legend-outside-plot (pylab.figlegend()) there isn't.
+	if opts['legend_loc'] == 'tbd':
+		if opts['legend_outside_plot']:
+			opts['legend_loc'] = 'upper right'
+		else:
+			opts['legend_loc'] = 'best'
+
+	if opts['split_on_comma']:
+		opts['line_widths'] = map(int, opts['line_widths_string'].split(','))
+		opts['column_scales'] = opts['column_scales_string'].split(',')
+	else:
+		opts['line_widths'] = map(int, opts['line_widths_string'].split())
+		opts['column_scales'] = opts['column_scales_string'].split()
 
 # ----------------------------------------------------------------
 def trim_missing_points2(xs, ys):
@@ -444,616 +1030,6 @@ marker_size=1, draw_points=0, draw_connectors=1, output_file='', dpi=150):
 	else:
 		pylab.savefig(output_file, dpi=dpi)
 
-# ----------------------------------------------------------------
-def usage():
-	print >> sys.stderr, "Usage: %s [options] [file name]" % (sys.argv[0])
-	print >> sys.stderr, "Use \"-\" as file name, or omit it, if input is stdin."
-	print >> sys.stderr, "Options:"
-	print >> sys.stderr, "  --help                 Print this message."
-	print >> sys.stderr, "  -title {title text}    Specify plot title."
-	print >> sys.stderr, "  -xlabel {x label text} Specify x label."
-	print >> sys.stderr, "  -ylabel {y label text} Specify y label."
-	print >> sys.stderr, "  -legend 'y1 y2'        Specify legend labels."
-	print >> sys.stderr, "  -lop                   Place the legend outside the plot."
-	print >> sys.stderr, "  -lip                   Place the legend inside the plot."
-	print >> sys.stderr, "  -flabels (or -f)       Take x label and legend labels from the data file."
-	print >> sys.stderr, "  -width {inches}        Specify figure width."
-	print >> sys.stderr, "  -height {inches}       Specify figure height."
-	print >> sys.stderr, "  -xmin {xmin}:          Specify manual bounds."
-	print >> sys.stderr, "  -xmax {xmax}:          Specify manual bounds."
-	print >> sys.stderr, "  -ymin {ymin}:          Specify manual bounds."
-	print >> sys.stderr, "  -ymax {ymax}:          Specify manual bounds."
-	print >> sys.stderr, "  -c                     Use comma as column delimiter."
-	print >> sys.stderr, "  -nc                    Do not use comma as column delimiter."
-	print >> sys.stderr, "  -t                     X coordinate is time."
-	print >> sys.stderr, "  -n                     Take x coordinate from line number."
-	print >> sys.stderr, "  -l                     Draw lines only."
-	print >> sys.stderr, "  -p                     Draw points only."
-	print >> sys.stderr, "  -lp                    Draw lines and points."
-	print >> sys.stderr, "  -lines                 Line-draw mode.  Input should be"
-	print >> sys.stderr, "                         quadruples of x1 y1 x2 y2."
-	print >> sys.stderr, "  -ms {n}                Marker size (default 5) for points."
-	print >> sys.stderr, "  -formats '- -- o'      Specify pylab-style marker formats."
-	print >> sys.stderr, "                         Examples:"
-	print >> sys.stderr, "        - solid line       --    dashed line       -.    dash-dot line"
-	print >> sys.stderr, "        : dotted line      .     points            o     circle symbols"
-	print >> sys.stderr, "        s square symbols   +     plus symbols      x     cross symbols"
-	print >> sys.stderr, "        Type \"help(pylab.plot)\", after \"import pylab\", inside Python for more"
-	print >> sys.stderr, "        information."
-	print >> sys.stderr, "  -colors 'red blue green' Specify line colors."
-	print >> sys.stderr, "  -greyup                First series is light grey ... last series is black."
-	print >> sys.stderr, "  -greydown              First series is black ... last series is light grey."
-	print >> sys.stderr, "  -xyxy                  1st column is x1, 2nd is y1, 3rd is x2, 4th is y2, ...."
-	print >> sys.stderr, "                         Otherwise, a single x column is used for all y columns."
-	print >> sys.stderr, "  -errorbar or -eb       1st column is  x, 2nd is y, 3rd is err(y)."
-	print >> sys.stderr, "  -bar                   Plot a bar chart."
-	print >> sys.stderr, "  -barwidth {w}          Specify bar width for -bar."
-	print >> sys.stderr, "  -grid                  Include a background grid."
-	print >> sys.stderr, "  -lct                   Plot last column on top."
-	print >> sys.stderr, "  -fct                   Plot first column on top."
-	print >> sys.stderr, "  -1ox,-1my              Compute 1/input or 1-output before plotting."
-	print >> sys.stderr, "  -colscale {a b c ...}  Multiply column 1 by a, column 2 by b, ..."
-	print >> sys.stderr, "  -logx,-logy,-loglog    Plot log of input, output, or both."
-	print >> sys.stderr, "  -o {file name}         Write file instead of graphing."
-	print >> sys.stderr, "                         Formats: .png, .eps."
-	print >> sys.stderr, "  -dpi {number}          Dots per inch for -o."
-	sys.exit(1)
-
-# ----------------------------------------------------------------
-title               = ''
-xlabel              = ''
-ylabel              = ''
-do_legend           = False
-split_on_comma      = True
-x_is_line_number    = False
-x_is_time           = False
-multiple_x_columns  = 0
-do_lines            = False
-do_errorbar         = False
-eb_is_var           = False
-do_bar              = False
-bar_width           = 0.8
-bar_width_given     = 0
-do_grid             = 0
-first_column_on_top   = False
-xshift              = 0.0
-xmul                = 1.0
-do_one_over_x       = 0
-do_one_minus_y      = 0
-column_scales_string  = ''
-do_logx             = 0
-do_logy             = 0
-marker_size         = 2
-line_widths_string  = '1'
-draw_points         = 1
-draw_connectors     = 1
-output_file         = ''
-dpi                 = 150
-arg_formats         = ''
-arg_legend_labels   = ''
-arg_colors          = ''
-# 0 for not doing it, +1 for light to dark (last series is black),
-# -1 for dark to light (first series is black).
-do_colors_grey      = 0
-use_file_labels     = 0
-width_inches        = 6
-height_inches       = 4
-adjust_bottom       = 0.15
-adjust_top          = 0.85
-adjust_left         = 0.12
-adjust_right        = 0.90
-legend_loc          = 'tbd'
-legend_outside_plot = True
-have_x_min          = 0
-have_x_max          = 0
-have_y_min          = 0
-have_y_max          = 0
-x_min               = -1
-x_max               = -1
-y_min               = -1
-y_max               = -1
-
-# Parse the command line.
-argc = len(sys.argv)
-argi = 1
-while argi < argc:
-	if sys.argv[argi] == '-':
-		break
-	elif sys.argv[argi][0] != '-':
-		break
-	elif sys.argv[argi] == "-h":
-		usage()
-	elif sys.argv[argi] == "--help":
-		usage()
-	elif sys.argv[argi] == "-title":
-		argi += 1
-		if argi >= argc:
-			usage()
-		title = sys.argv[argi]
-	elif sys.argv[argi] == "-xlabel":
-		argi += 1
-		if argi >= argc:
-			usage()
-		xlabel = sys.argv[argi]
-	elif sys.argv[argi] == "-ylabel":
-		argi += 1
-		if argi >= argc:
-			usage()
-		ylabel = sys.argv[argi]
-
-	elif sys.argv[argi] == "-d": # -f and -t; dcat style
-		use_file_labels = 1
-		do_legend = True
-		x_is_time = True
-	elif sys.argv[argi] == "-k": # my style
-		use_file_labels = 1
-		do_legend = True
-		split_on_comma = False
-
-	elif sys.argv[argi] == "-flabels":
-		use_file_labels = 1
-		do_legend = True
-	elif sys.argv[argi] == "-f":
-		use_file_labels = 1
-		do_legend = True
-	elif sys.argv[argi] == "-width":
-		argi += 1
-		if argi >= argc:
-			usage()
-		width_inches = float(sys.argv[argi])
-	elif sys.argv[argi] == "-height":
-		argi += 1
-		if argi >= argc:
-			usage()
-		height_inches = float(sys.argv[argi])
-
-	elif sys.argv[argi] == "-adjbottom":
-		argi += 1
-		if argi >= argc:
-			usage()
-		adjust_bottom = float(sys.argv[argi])
-	elif sys.argv[argi] == "-adjtop":
-		argi += 1
-		if argi >= argc:
-			usage()
-		adjust_top = float(sys.argv[argi])
-	elif sys.argv[argi] == "-adjleft":
-		argi += 1
-		if argi >= argc:
-			usage()
-		adjust_left = float(sys.argv[argi])
-	elif sys.argv[argi] == "-adjright":
-		argi += 1
-		if argi >= argc:
-			usage()
-		adjust_right = float(sys.argv[argi])
-
-	elif sys.argv[argi] == "-c":
-		split_on_comma = True
-	elif sys.argv[argi] == "-nc":
-		split_on_comma = False
-
-	elif sys.argv[argi] == "-n":
-		x_is_line_number = True
-	elif sys.argv[argi] == "-t":
-		x_is_time = True
-	elif sys.argv[argi] == "-l":
-		draw_points     = 0
-		draw_connectors = 1
-	elif sys.argv[argi] == "-p":
-		draw_points     = 1
-		draw_connectors = 0
-	elif sys.argv[argi] == "-lp":
-		draw_points     = 1
-		draw_connectors = 1
-	elif sys.argv[argi] == "-lines":
-		do_lines = True
-	elif sys.argv[argi] == "-ms":
-		argi += 1
-		if argi >= argc:
-			usage()
-		marker_size = int(sys.argv[argi])
-	elif sys.argv[argi] == "-lws":
-		argi += 1
-		if argi >= argc:
-			usage()
-		line_widths_string = sys.argv[argi]
-
-	elif sys.argv[argi] == "-legend":
-		argi += 1
-		if argi >= argc:
-			usage()
-		arg_legend_labels = sys.argv[argi]
-
-	elif sys.argv[argi] == "-lop":
-		legend_outside_plot = True
-	elif sys.argv[argi] == "-lip":
-		legend_outside_plot = False
-
-	elif sys.argv[argi] == "-labels":
-		argi += 1
-		if argi >= argc:
-			usage()
-		arg_legend_labels = sys.argv[argi]
-	elif sys.argv[argi] == "-formats":
-		argi += 1
-		if argi >= argc:
-			usage()
-		arg_formats = sys.argv[argi]
-	elif sys.argv[argi] == "-colors":
-		argi += 1
-		if argi >= argc:
-			usage()
-		arg_colors = sys.argv[argi]
-	elif sys.argv[argi] == "-grey":
-		do_colors_grey =  1
-	elif sys.argv[argi] == "-greyup":
-		do_colors_grey =  1
-	elif sys.argv[argi] == "-greydown":
-		do_colors_grey = -1
-
-	elif sys.argv[argi] == "-xyxy":
-		multiple_x_columns = 1
-
-	elif sys.argv[argi] == "-eb":
-		do_errorbar = True
-	elif sys.argv[argi] == "-errorbar":
-		do_errorbar = True
-	elif sys.argv[argi] == "-verrorbar":
-		do_errorbar = True
-		eb_is_var = True
-	elif sys.argv[argi] == "-bar":
-		do_bar = True
-	elif sys.argv[argi] == "-barwidth":
-		argi += 1
-		if argi >= argc:
-			usage()
-		bar_width = float(sys.argv[argi])
-		bar_width_given = 1
-
-	elif sys.argv[argi] == "-lct":
-		first_column_on_top = False
-	elif sys.argv[argi] == "-fct":
-		first_column_on_top = True
-	elif sys.argv[argi] == "-grid":
-		do_grid = 1
-
-	elif sys.argv[argi] == "-xshift":
-		argi += 1
-		if argi >= argc:
-			usage()
-		xshift = float(sys.argv[argi])
-	elif sys.argv[argi] == "-xmul":
-		argi += 1
-		if argi >= argc:
-			usage()
-		xmul = float(sys.argv[argi])
-	elif sys.argv[argi] == "-1ox":
-		do_one_over_x = 1
-	elif sys.argv[argi] == "-1my":
-		do_one_minus_y = 1
-	elif sys.argv[argi] == "-colscale":
-		argi += 1
-		if argi >= argc:
-			usage()
-		column_scales_string = sys.argv[argi]
-
-	elif sys.argv[argi] == "-logx":
-		do_logx = 1
-	elif sys.argv[argi] == "-logy":
-		do_logy = 1
-	elif sys.argv[argi] == "-loglog":
-		do_logx = 1
-		do_logy = 1
-
-	elif sys.argv[argi] == "-lbest": legend_loc = 'best'
-	elif sys.argv[argi] == "-lur"  : legend_loc = 'upper right'
-	elif sys.argv[argi] == "-lul"  : legend_loc = 'upper left'
-	elif sys.argv[argi] == "-lll"  : legend_loc = 'lower left'
-	elif sys.argv[argi] == "-llr"  : legend_loc = 'lower right'
-	elif sys.argv[argi] == "-lr"   : legend_loc = 'right'
-	elif sys.argv[argi] == "-lcl"  : legend_loc = 'center left'
-	elif sys.argv[argi] == "-lcr"  : legend_loc = 'center right'
-	elif sys.argv[argi] == "-llc"  : legend_loc = 'lower center'
-	elif sys.argv[argi] == "-luc"  : legend_loc = 'upper center'
-	elif sys.argv[argi] == "-lc"   : legend_loc = 'center'
-
-	elif sys.argv[argi] == "-xmin":
-		argi += 1
-		if argi >= argc:
-			usage()
-		have_x_min = 1
-		x_min = float(sys.argv[argi])
-
-	elif sys.argv[argi] == "-xmax":
-		argi += 1
-		if argi >= argc:
-			usage()
-		have_x_max = 1
-		x_max = float(sys.argv[argi])
-
-	elif sys.argv[argi] == "-ymin":
-		argi += 1
-		if argi >= argc:
-			usage()
-		have_y_min = 1
-		y_min = float(sys.argv[argi])
-
-	elif sys.argv[argi] == "-ymax":
-		argi += 1
-		if argi >= argc:
-			usage()
-		have_y_max = 1
-		y_max = float(sys.argv[argi])
-
-	elif sys.argv[argi] == "-o":
-		argi += 1
-		if argi >= argc:
-			usage()
-		output_file = sys.argv[argi]
-	elif sys.argv[argi] == "-dpi":
-		argi += 1
-		if argi >= argc:
-			usage()
-		dpi = int(sys.argv[argi])
-	else:
-		print >> sys.stderr, "Unrecognized option \"%s\"." \
-			% (sys.argv[argi])
-		usage()
-	argi += 1
-
-# There must be either zero or one remaining argument:  the file name to
-# use as input.  (A to-do item is to take input from multiple files.)
-
-# No remaining arguments:  input is from stdin.
-if (argc - argi) == 0:
-	file_name = "-"
-# One remaing argument:  input is from that file.
-elif (argc - argi) == 1:
-	file_name = sys.argv[argi]
-else:
-	usage()
-
-if split_on_comma:
-	line_widths = map(int, line_widths_string.split(','))
-	column_scales = column_scales_string.split(',')
-else:
-	line_widths = map(int, line_widths_string.split())
-	column_scales = column_scales_string.split()
-
-# Use the file name as the title, as long as the user hasn't requested
-# something else.
-if title == '':
-	if file_name != "-":
-		title = file_name
-
-# If the user didn't specify legend location, pick the default.
-# For legend-inside-plot (pylab.legend()) there's a 'best'.
-# For legend-outside-plot (pylab.figlegend()) there isn't.
-if legend_loc == 'tbd':
-	if legend_outside_plot:
-		legend_loc = 'upper right'
-	else:
-		legend_loc = 'best'
-
-
-# Read data from the file
-# At this point, there are:
-# * all_labels
-# * file_columns
-if use_file_labels:
-	all_labels = tabutil_m.labels_from_file(file_name, split_on_comma)
-	if x_is_line_number:
-		legend_labels = all_labels
-	elif multiple_x_columns:
-		print >> sys.stderr, "Sorry, I haven't written -flabels for -xyxy yet."
-		sys.exit(1)
-	else:
-		xlabel = all_labels[0] # xxx fix me for -n or -xyxy.
-		legend_labels = all_labels[1:]
-if x_is_time:
-	if x_is_line_number:
-		print >> sys.stderr, "Sorry, -n and -t don't make sense together."
-		sys.exit(1)
-	# Note:  For pylab plots, we convert the time to float where read the
-	# input data (right here), and we also need to tell it at plot time
-	# that those floats really mean dates.
-	if multiple_x_columns: # With -xyxy: even columns are time
-		file_columns = tabutil_m.float_or_time_columns_from_file(file_name, 'xyxy', split_on_comma)
-	else: # Without -xyxy: column 0 is time
-		file_columns = tabutil_m.float_or_time_columns_from_file(file_name, 'col0', split_on_comma)
-else:
-	file_columns = tabutil_m.float_columns_from_file(file_name, split_on_comma)
-
-# debug tap:
-# tabutil_m.float_columns_to_file(file_columns, '-')
-
-# Do line plot.
-if do_lines:
-	plot_lines(file_columns, title, xlabel, ylabel, \
-		width_inches, height_inches,
-		marker_size, draw_points, draw_connectors, output_file, dpi)
-	sys.exit(0)
-
-# Rearrange file columns into some combination of x, y, and error-bar series.
-# We will then have:
-# * x_series
-# * y_series
-# * e_series
-# * num_series
-x_series = []
-y_series = []
-e_series = []
-if len(file_columns) == 1:
-	x_is_line_number = True
-
-if multiple_x_columns and do_errorbar:
-	print >> sys.stderr, \
-		'%s: Sorry, the code to use -xyxy and -eb together hasn\'t been written yet.' \
-		% sys.argv[0]
-	sys.exit(1)
-
-if multiple_x_columns and x_is_line_number:
-	print >> sys.stderr, \
-		'%s: Sorry, the code to use -xyxy and -n together hasn\'t been written yet.' \
-		% sys.argv[0]
-	sys.exit(1)
-
-# Rearrange XYXY-format data.
-if multiple_x_columns:
-	if (len(file_columns) % 2) != 0:
-		print >> sys.stderr, "XYXY plot needs an even number of data columns."
-		sys.exit(1)
-
-	# Before:  file_columns looks like this:  |  After:  x_series looks like this:
-	#   Column 0: x1 data                     |    0: x1 data
-	#   Column 1: y1 data                     |    1: x2 data
-	#   Column 2: x2 data                     |  and y_series looks like this:
-	#   Column 3: y2 data                     |    0: y1 data
-	#                                         |    1: y2 data
-	num_series = int(len(file_columns) / 2)
-	x_series = [[]] * num_series
-	y_series = [[]] * num_series
-	for j in range(0, num_series):
-		x_series[j] = file_columns[2*j]
-		y_series[j] = file_columns[2*j+1]
-		print
-		print 'j=%d x_series=%s' % (j, str(x_series[j]))
-		print 'j=%d y_series=%s' % (j, str(y_series[j]))
-
-# Use line number as first column, if requested.
-elif x_is_line_number:
-	n = len(file_columns[0])
-	x_series = [range(0, n)]
-	y_series = file_columns
-else:
-	x_series = [file_columns[0]]
-	y_series = file_columns[1:]
-num_series = len(y_series)
-
-# Make sure there are an even number of y series, if we're doing an errorbar
-# plot.  Then, separate out data columns from error columns.
-if do_errorbar:
-	if (num_series % 2) != 0:
-		print >> sys.stderr, "Error-bar plot needs an even number of y data columns."
-		sys.exit(1)
-
-	# Before:  y_series looks like this:  |  After:  y_series looks like this:
-	#   Column 0: y1 data                 |    0: y1 data
-	#   Column 1: y1 error                |    1: y2 data
-	#   Column 2: y2 data                 |  and e_series looks like this:
-	#   Column 3: y2 error                |    0: y1 error
-	# and e_series is empty.              |    1: y2 error
-	num_series = int(num_series / 2)
-	temp = y_series
-	y_series = [[]] * num_series
-	e_series = [[]] * num_series
-	for j in range(0, num_series):
-		y_series[j] = temp[2*j]
-		e_series[j] = temp[2*j+1]
-
-	# If the error columns are estimated variances, square-root them.
-	if eb_is_var:
-		for j in range(0, num_series):
-			var = e_series[j]
-			for i in range(0, len(e_series[j])):
-				e_series[j][i] = sqrt(e_series[j][i])
-
-# These are the default formats.
-format="-"
-if draw_points:
-	if draw_connectors:
-		format="o-"
-	else:
-		format="o"
-else:
-	if draw_connectors:
-		format="-"
-	else:
-		# At least one of draw_points and draw_connectors must be
-		# specified.  The command-line parser shouldn't have allowed this.
-		print >> sys.stderr, "plot_series:  coding error."
-		sys.exit(1)
-formats = [format] * num_series
-if not use_file_labels:
-	legend_labels  = [''] * num_series
-
-# Use specified formats, if any.
-if arg_formats != '':
-	if split_on_comma:
-		formats = arg_formats.split(',')
-	else:
-		formats = arg_formats.split()
-if arg_legend_labels != '':
-	if split_on_comma:
-		legend_labels = arg_legend_labels.split(',')
-	else:
-		legend_labels = arg_legend_labels.split()
-	do_legend = True
-colors = []
-if arg_colors != '':
-	if split_on_comma:
-		colors = arg_colors.split(',')
-	else:
-		colors = arg_colors.split()
-
-# Grey
-if do_colors_grey:
-	if num_series == 1:
-		colors = ['0.0']
-	else:
-		lo = 0.8 # light grey
-		hi = 0.0 # black
-		colors = []
-		for i in range(0, num_series):
-			float_color = lo + (hi-lo) * float(i)/float(num_series-1)
-			colors.append('%f' % float_color)
-		if do_colors_grey < 0:
-			colors.reverse()
-
-# Optionally remap.  These really aren't drawing-program tasks; a separate
-# script could do them.  Log remap is handled by pylab's log-plot feature,
-# so we don't do it here.
-n = len(y_series[0])
-
-if xshift != 0.0:
-	for i in range(0, n):
-		for j in range(0, len(x_series)):
-			x_series[j][i] += xshift
-if xmul != 1.0:
-	for i in range(0, n):
-		for j in range(0, len(x_series)):
-			x_series[j][i] *= xmul
-	
-if do_one_over_x:
-	for i in range(0, n):
-		for j in range(0, len(x_series)):
-			x_series[j][i] = 1.0 / x_series[j][i]
-if do_one_minus_y:
-	for i in range(0, n):
-		for j in range(0, num_series):
-			y_series[j][i] = 1.0 - y_series[j][i]
-
-if column_scales != [] and column_scales != ['']:
-	for j in range(0, len(y_series)):
-		scale = float(column_scales[j % num_series])
-		for i in range(0, n):
-			if y_series[j][i] != None:
-				y_series[j][i] *= scale
-
-# Now plot the data.
-plot_series(x_series, y_series, e_series, num_series, \
-	formats, legend_labels, do_legend,
-	colors, title, xlabel, ylabel, \
-	legend_outside_plot, \
-	width_inches, height_inches, \
-	adjust_bottom, adjust_top, adjust_left, adjust_right, \
-	have_x_min, x_min, have_x_max, x_max, \
-	have_y_min, y_min, have_y_max, y_max, \
-	legend_loc, \
-	do_logx, do_logy, \
-	x_is_line_number, x_is_time, \
-	marker_size, line_widths, \
-	draw_points, draw_connectors, do_errorbar, eb_is_var, \
-	do_bar, bar_width_given, bar_width, do_grid, first_column_on_top, \
-	output_file, dpi)
+# ================================================================
+# Top-down programming style, please.
+main()
