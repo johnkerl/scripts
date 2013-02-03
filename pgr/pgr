@@ -152,6 +152,8 @@ def usage():
 	print >> sys.stderr, "  -p                     Draw points only."
 	print >> sys.stderr, "  -lp                    Draw lines and points."
 	print >> sys.stderr, "  -ms {n}                Marker size (default 5) for points."
+	print >> sys.stderr, "  -steps                 Draw step-style lines."
+	print >> sys.stderr, "  -nosteps               Draw point-to-point lines."
 	print >> sys.stderr, "  -formats '- -- o'      Specify pylab-style marker formats."
 	print >> sys.stderr, "                         Examples:"
 	print >> sys.stderr, "        - solid line       --    dashed line       -.    dash-dot line"
@@ -398,6 +400,7 @@ def set_defaults():
 	opts['line_widths_string'] = '1'
 	opts['draw_points']        = 1
 	opts['draw_connectors']    = 1
+	opts['do_steps']           = 1
 	opts['output_file']        = ''
 	opts['dpi']                = 150
 	opts['arg_formats']        = ''
@@ -520,6 +523,10 @@ def parse_command_line(opts):
 		elif sys.argv[argi] == "-lp":
 			opts['draw_points    '] = 1
 			opts['draw_connectors'] = 1
+		elif sys.argv[argi] == "-steps":
+			opts['do_steps'] = 1
+		elif sys.argv[argi] == "-nosteps":
+			opts['do_steps'] = 0
 		elif sys.argv[argi] == "-lines":
 			opts['do_lines'] = True
 		elif sys.argv[argi] == "-ms":
@@ -869,11 +876,17 @@ def plot_series(x_series, y_series, e_series, num_series, formats, legend_labels
 					else:
 						plot_func = pylab.plot
 
-					plot_line = plot_func(curr_x_series, curr_y_series,
-							curr_format, label=curr_legend_label,
-							markeredgewidth=0, markersize=opts['marker_size'],
-							linewidth=curr_line_width,
-							drawstyle='steps')
+					if opts['do_steps']:
+						plot_line = plot_func(curr_x_series, curr_y_series,
+								curr_format, label=curr_legend_label,
+								markeredgewidth=0, markersize=opts['marker_size'],
+								linewidth=curr_line_width,
+								drawstyle='steps')
+					else:
+						plot_line = plot_func(curr_x_series, curr_y_series,
+								curr_format, label=curr_legend_label,
+								markeredgewidth=0, markersize=opts['marker_size'],
+								linewidth=curr_line_width)
 
 				else:
 					curr_color = colors[j % len(colors)]
@@ -889,12 +902,20 @@ def plot_series(x_series, y_series, e_series, num_series, formats, legend_labels
 					else:
 						plot_func = pylab.plot
 
-					plot_line = plot_func(curr_x_series, curr_y_series,
-						curr_format, label=curr_legend_label, color=curr_color,
-						markerfacecolor=curr_color, markeredgecolor=curr_color,
-						markersize=opts['marker_size'],
-						linewidth=curr_line_width,
-						drawstyle='steps')
+					if opts['do_steps']:
+						plot_line = plot_func(curr_x_series, curr_y_series,
+							curr_format, label=curr_legend_label, color=curr_color,
+							markerfacecolor=curr_color, markeredgecolor=curr_color,
+							markersize=opts['marker_size'],
+							linewidth=curr_line_width,
+							drawstyle='steps')
+					else:
+						plot_line = plot_func(curr_x_series, curr_y_series,
+							curr_format, label=curr_legend_label, color=curr_color,
+							markerfacecolor=curr_color, markeredgecolor=curr_color,
+							markersize=opts['marker_size'],
+							linewidth=curr_line_width,
+							drawstyle='steps')
 
 			plot_lines_for_figlegend.append(plot_line)
 
