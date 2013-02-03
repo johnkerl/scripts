@@ -100,6 +100,10 @@
 #   -dpi {number}          Dots per inch for -o.
 #
 # See also http://johnkerl.org/python/doc/pgr.html.
+#
+# ================================================================
+# Disclaimer:  This is one of the more sprawling and unplesant-reading pieces
+# of code I've ever written.
 # ================================================================
 # John Kerl
 # kerl.john.r@gmail.com
@@ -299,14 +303,14 @@ def main():
 	# Use specified formats, if any.
 	if opts['arg_formats'] != '':
 		if opts['split_on_comma']:
-			formats = arg_formats.split(',')
+			formats = opts['arg_formats'].split(',')
 		else:
-			formats = arg_formats.split()
+			formats = opts['arg_formats'].split()
 	if opts['arg_legend_labels'] != '':
 		if opts['split_on_comma']:
-			legend_labels = arg_legend_labels.split(',')
+			legend_labels = opts['arg_legend_labels'].split(',')
 		else:
-			legend_labels = arg_legend_labels.split()
+			legend_labels = opts['arg_legend_labels'].split()
 		do_legend = True
 	colors = []
 	if opts['arg_colors'] != '':
@@ -847,7 +851,7 @@ def plot_series(x_series, y_series, e_series, num_series, formats, legend_labels
 						linewidth=curr_line_width, \
 						color=colors[j % len(colors)])
 				else:
-					plot_line = pylab.bar(curr_x_series, curr_y_series, width=bar_width, \
+					plot_line = pylab.bar(curr_x_series, curr_y_series, width=opts['bar_width'], \
 						linewidth=curr_line_width)
 
 			# Regular XY plot.

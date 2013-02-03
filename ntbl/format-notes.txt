@@ -5,12 +5,12 @@
 
   - options:
     > csv: just one
-	> jkh: aligned or not; spenc or not
-	> jkv: spenc or not
+    > jkh: aligned or not; spenc or not
+    > jkv: spenc or not
 
   - test pipe-compositions:
 
-	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     c2h    test.csv  | h2v    == c2v    test.csv
     c2h -e test.csv  | h2v    == c2v -e test.csv
     c2h    test.csv  | h2v -e == c2v -e test.csv
@@ -19,7 +19,7 @@
     c2h    test.csv  | h2c    ==        test.csv
     c2h -e test.csv  | h2c -d == cat
 
-	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     c2v    test.csv  | v2h    == c2h    test.csv
     c2v -e test.csv  | v2h    == c2h -e test.csv
     c2v    test.csv  | v2h -e == c2h -e test.csv
@@ -28,23 +28,23 @@
     c2v    test.csv  | v2c    == cat    test.csv
     c2v -e test.csv  | v2c    == cat    test.csv
 
-	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     h2c    test.jkhe | c2v    == h2v
     h2c    test.jkhe | c2h    == cat
 
-	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     h2v    test.jkhe | v2c    == h2c
     h2v    test.jkhe | v2h    == cat
 
-	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     v2c    test.jkve | c2h    == v2h
     v2c    test.jkve | c2v    == cat
 
-	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     v2h    test.jkve | h2c    == v2c
     v2h    test.jkve | h2v    == cat
 
-	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ----------------------------------------------------------------
 Formats:
