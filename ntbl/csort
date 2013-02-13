@@ -36,7 +36,7 @@ usage() {
     echo "Usage: $us  {column} [table]" 1>&2
     echo "Or:    $us +{column} [table]" 1>&2
     echo "Or:    $us -{column} [table]" 1>&2
-    echo "Sorts a CSV table by a specified column.  If column name is omitted," 1>&2
+    echo "Sorts a CSV table by a specified column.  If table name is omitted," 1>&2
     echo "standard input is read.  Use +, or no prefix, for ascending; - for descending." 1>&2
     echo "Precede column name with --numeric to do numeric sort." 1>&2
     exit 1
