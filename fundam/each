@@ -22,9 +22,17 @@ cmd = ARGV.join(' ')
 
 loop do
 	system(cmd)
+	status = $?
+	if status.signaled? and status.termsig == 2
+		# E.g. control-C.  Note that maybe a child process of system()
+		# got the control-C, so we might not get it here.
+		exit 1
+	end
+
 	begin
 		sleep(delay)
-	rescue Interrupt => e # E.g. control-C out of loop
+	rescue Interrupt => e # E.g. control-C during the sleep
 		exit 0
 	end
+
 end
