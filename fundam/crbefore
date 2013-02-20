@@ -3,7 +3,7 @@
 # ================================================================
 # John Kerl
 # http://johnkerl.org
-# Prints a carriage return after lines matching a specified pattern.
+# Prints a carriage return before lines matching a specified pattern.
 # ================================================================
 
 use line_term_lib;
@@ -12,8 +12,8 @@ $pattern = shift @ARGV;
 
 while ($line = <>) {
 	($line, $term) = split_line_ending($line);
-	print "$line$term";
 	if ($line =~ m/$pattern/) {
 		print "$term";
 	}
+	print "$line$term";
 }

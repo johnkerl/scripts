@@ -3,17 +3,19 @@
 # ================================================================
 # John Kerl
 # http://johnkerl.org
-# Prints a carriage return after lines matching a specified pattern.
+# Prints a carriage return after the nth line.
 # ================================================================
 
 use line_term_lib;
-die "Usage: $0 {pattern} [input]\n" unless @ARGV;
-$pattern = shift @ARGV;
+die "Usage: $0 {n} [input]\n" unless @ARGV;
+$n = shift @ARGV;
 
+$i = 0;
 while ($line = <>) {
 	($line, $term) = split_line_ending($line);
+	$i++;
 	print "$line$term";
-	if ($line =~ m/$pattern/) {
+	if ($i == $n) {
 		print "$term";
 	}
 }
