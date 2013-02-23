@@ -24,7 +24,9 @@ Subdirectories:
   use on Unix pipes:  mean, standard deviation, covariance and correlation, and
   histograms.
 
+Language mix: Python, Perl, Bash, Ruby.
 There are a few C items at https://github.com/johnkerl/ctools
+
 ================================================================
 John Kerl
 kerl.john.r@gmail.com
