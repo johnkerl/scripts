@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+use line_term_lib;
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Double-spaces the input horizontally.
+#
+# Example output:
+# J o h n   K e r l
+# h t t p : / / j o h n k e r l . o r g
+# D o u b l e - s p a c e s   t h e   i n p u t   h o r i z o n t a l l y .
+# ================================================================
+
+while ($line = <>) {
+	($line, $term) = split_line_ending($line);
+	$line =~ s/(.)/ \1/g;
+	$line =~ s/^ //;
+	print $line . "$term";
+}
