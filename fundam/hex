@@ -30,6 +30,7 @@ def usage()
 	$stderr.puts "Options:"
 	$stderr.puts "-r  Print only hex dump, without offsets and ASCII dump."
 	$stderr.puts "-h  Print this message."
+	$stderr.puts "If filename is omitted, or is \"-\", stdin is read."
 	exit 1
 end
 
