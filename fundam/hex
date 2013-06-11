@@ -128,7 +128,7 @@ if ARGV.length >= 1
 		usage
 	elsif ARGV[0] == '-'
 		;
-	elsif ARGV[0][0..0] == '-'
+	elsif ARGV[0][0..0] == '-' # ARGV[0][0] is an integer. :/
 		usage
 	end
 end
