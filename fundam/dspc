@@ -1,5 +1,4 @@
-#!/usr/bin/perl
-use line_term_lib;
+#!/usr/bin/ruby
 
 # ================================================================
 # John Kerl
@@ -7,8 +6,7 @@ use line_term_lib;
 # Double-spaces the input.
 # ================================================================
 
-while ($line = <>) {
-	($line, $term) = split_line_ending($line);
-	print $line . "$term";
-	print "$term";
-}
+ARGF.each do |line|
+	puts
+	puts line
+end

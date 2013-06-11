@@ -893,9 +893,9 @@ def plot_series(x_series, y_series, e_series, num_series, formats, legend_labels
 
 					if opts['do_logx'] and not opts['do_logy']:
 						plot_func = pylab.semilogx
-					elif opts['do_logy' and not opts['do_logx']:
+					elif opts['do_logy'] and not opts['do_logx']:
 						plot_func = pylab.semilogy
-					elif opts['do_logx'] and opts['do_logy':
+					elif opts['do_logx'] and opts['do_logy']:
 						plot_func = pylab.loglog
 					elif opts['x_is_time']:
 						plot_func = pylab.plot_date
