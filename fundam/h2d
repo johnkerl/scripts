@@ -1,0 +1,24 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# John Kerl, 2004
+# Ported from C to Ruby 2013-06-10.
+# ================================================================
+
+$us = File.basename $0
+
+# ----------------------------------------------------------------
+def usage()
+	$stderr.puts "Usage: #{$us} {one or more hex integers ...}"
+	$stderr.puts "Converts from hex to decimal. Input may be written with or"
+	$stderr.puts "without leading \"0x\"."
+	exit 1
+end
+
+# ----------------------------------------------------------------
+usage unless ARGV.length >= 1
+
+ARGV.each do |arg|
+	i = arg.hex
+	puts i
+end

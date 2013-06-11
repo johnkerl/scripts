@@ -105,7 +105,7 @@ def hex_dump_file_name(file_name, do_raw)
 		begin
 			stream = File.open(file_name, "rb")
 		rescue Exception => e
-			puts e
+			puts "#{$us}: #{e.to_s}"
 			return false
 		end
 	end
