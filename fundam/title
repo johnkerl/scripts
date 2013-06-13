@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+	#echo "Usage: $(basename $0) {title text here}." 1>&2
+	#exit 1
+	text="Terminal"
+else
+    text="$@"
+fi
+
+echo -e "\e]0;${text}\007"
