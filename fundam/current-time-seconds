@@ -1,0 +1,4 @@
+#!/usr/bin/python -Wall
+# Mimics Java's System.out.println(System.currentUptimeMillis()).
+import sys, time
+print int(time.time())
