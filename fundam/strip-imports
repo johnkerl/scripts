@@ -1,4 +1,4 @@
-#!/usr/bin/ruby1.9.2
+#!/usr/bin/ruby
 
 # ==============================================================================
 # Strips out unused Java/Groovy-style import lines from stdin (if given no
