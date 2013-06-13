@@ -1,2 +1,2 @@
 #!/bin/bash
-exec ind -4 ""
+exec ind -4 "$@"

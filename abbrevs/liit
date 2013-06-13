@@ -1,2 +1,2 @@
 #!/bin/bash
-exec left "" | ind -t
+exec left "$@" | ind -t

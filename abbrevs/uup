@@ -1,2 +1,2 @@
 #!/bin/bash
-exec uind -p ""
+exec uind -p "$@"

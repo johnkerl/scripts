@@ -1,2 +1,2 @@
 #!/bin/sh
-exec fmt -1 ""
+exec fmt -1 "$@"
