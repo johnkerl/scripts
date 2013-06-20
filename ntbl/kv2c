@@ -40,46 +40,38 @@ def main()
 end
 
 # ----------------------------------------------------------------
-def do_line(input_line, line_number)
-	# xxx assert homogeneity
-	kvs = input_line.split(/,/)
-	if line_number == 0
-		puts kvs.collect{|kv| kv.sub(/=.*/, "")}.join(',')
-	end
-	puts kvs.collect{|kv| kv.sub(/.*=/, "")}.join(',')
-end
-
-# ----------------------------------------------------------------
-# Streaming
 def do_stdin()
-	# xxx refactor to do stream logic only once; also, make sure this is really streaming.
-	$stdin.readlines().each_with_index do |input_line, line_number|
-		input_line.chomp!
-		begin
-			do_line(input_line, line_number)
-		rescue Errno::EPIPE # E.g. we're piped to head
-			break
-		end
-	end
-	return true
+	do_stream($stdin)
 end
 
 # ----------------------------------------------------------------
-# Streaming
 def do_file(filename)
 	if ! File.exists?(filename)
 		$stderr.puts "Can't find \"#{filename}\"."
 		return false
 	end
-	File.readlines(filename).each_with_index do |input_line, line_number|
+	handle = File.open(filename)
+	rc = do_stream(handle)
+	handle.close
+	rc
+end
+
+# ----------------------------------------------------------------
+def do_stream(stream)
+	stream.each_with_index do |input_line, line_number|
 		input_line.chomp!
 		begin
-			do_line(input_line, line_number)
+			# xxx to do: assert homogeneity (with performance penalty)
+			kvs = input_line.split(/,/)
+			if line_number == 0
+				puts kvs.collect{|kv| kv.sub(/=.*/, "")}.join(',')
+			end
+			puts kvs.collect{|kv| kv.sub(/.*=/, "")}.join(',')
 		rescue Errno::EPIPE # E.g. we're piped to head
 			break
 		end
 	end
-	return true
+	true
 end
 
 # ================================================================

@@ -5,7 +5,7 @@
 # * Get the header line e.g. "x,y,z".
 # * For each data line of the form "1,2,3", write "x=1,y=2,z=3".
 #
-# John Kerl, 2012-03-31
+# John Kerl, 2013-06-19
 # ================================================================
 
 @@us     = File.basename($0)
@@ -40,52 +40,40 @@ def main()
 end
 
 # ----------------------------------------------------------------
-def do_line(input_line, column_names, col_range)
-	# xxx assert hdr #cols == data #cols
-	data_fields = input_line.split(/,/)
-	puts col_range.collect{|i| "#{column_names[i]}=#{data_fields[i]}"}.join(',')
+def do_stdin()
+	do_stream($stdin)
 end
 
 # ----------------------------------------------------------------
-# Streaming
-def do_stdin()
-	# xxx refactor to do stream logic only once; also, make sure this is really streaming.
+def do_file(filename)
+	if ! File.exists?(filename)
+		$stderr.puts "Can't find \"#{filename}\"."
+		return false
+	end
+	handle = File.open(filename)
+	rc = do_stream(handle)
+	handle.close
+	rc
+end
+
+# ----------------------------------------------------------------
+def do_stream(stream)
 	column_names = nil
-	col_range = nil
-	$stdin.readlines().each_with_index do |input_line, line_number|
+	col_range    = nil
+
+	stream.each_with_index do |input_line, line_number|
 		input_line.chomp!
 		begin
 			if line_number == 0
 				column_names = input_line.split(/,/)
 				col_range = (0..(column_names.length-1))
 			else
-				do_line(input_line, column_names, col_range)
-			end
-		rescue Errno::EPIPE # E.g. we're piped to head
-			break
-		end
-	end
-	return true
-end
-
-# ----------------------------------------------------------------
-# Streaming
-
-def do_file(filename)
-	if ! File.exists?(filename)
-		$stderr.puts "Can't find \"#{filename}\"."
-		return false
-	end
-	column_names = nil
-	col_range = nil
-	File.readlines(filename).each_with_index do |input_line, line_number|
-		begin
-			input_line.chomp!
-			if line_number == 0
-				column_names = input_line.split(/,/)
-				col_range = (0..(column_names.length-1))
-			else
-				do_line(input_line, column_names, col_range)
+				# xxx to do: assert hdr #cols == data #cols (with performance
+				# penalty)
+				data_fields = input_line.split(/,/)
+				puts col_range.collect { |i|
+					"#{column_names[i]}=#{data_fields[i]}"
+				}.join(',')
 			end
 		rescue Errno::EPIPE # E.g. we're piped to head
 			break
