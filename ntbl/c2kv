@@ -1,0 +1,99 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# We convert from CSV to CSKV format as follows:
+# * Get the header line e.g. "x,y,z".
+# * For each data line of the form "1,2,3", write "x=1,y=2,z=3".
+#
+# John Kerl, 2012-03-31
+# ================================================================
+
+@@us     = File.basename($0)
+@@ourdir = File.dirname($0)
+
+require 'getoptlong'
+
+# ================================================================
+def main()
+	filenames = []
+
+	getopt = GetoptLong.new(
+		[ '-h', '--help',    GetoptLong::NO_ARGUMENT ]
+	)
+	getopt.each do |opt, arg|
+		case opt
+			when "-h"; puts "help"
+		end
+	end
+	filenames = ARGV
+
+	ok = true
+	if filenames.length == 0:
+		ok &= do_stdin
+	else
+		for filename in filenames
+			ok &= do_file(filename)
+		end
+	end
+
+	exit ok ? 0 : 1
+end
+
+# ----------------------------------------------------------------
+def do_line(input_line, column_names, col_range)
+	# xxx assert hdr #cols == data #cols
+	data_fields = input_line.split(/,/)
+	puts col_range.collect{|i| "#{column_names[i]}=#{data_fields[i]}"}.join(',')
+end
+
+# ----------------------------------------------------------------
+# Streaming
+def do_stdin()
+	# xxx refactor to do stream logic only once; also, make sure this is really streaming.
+	column_names = nil
+	col_range = nil
+	$stdin.readlines().each_with_index do |input_line, line_number|
+		input_line.chomp!
+		begin
+			if line_number == 0
+				column_names = input_line.split(/,/)
+				col_range = (0..(column_names.length-1))
+			else
+				do_line(input_line, column_names, col_range)
+			end
+		rescue Errno::EPIPE # E.g. we're piped to head
+			break
+		end
+	end
+	return true
+end
+
+# ----------------------------------------------------------------
+# Streaming
+
+def do_file(filename)
+	if ! File.exists?(filename)
+		$stderr.puts "Can't find \"#{filename}\"."
+		return false
+	end
+	column_names = nil
+	col_range = nil
+	File.readlines(filename).each_with_index do |input_line, line_number|
+		begin
+			input_line.chomp!
+			if line_number == 0
+				column_names = input_line.split(/,/)
+				col_range = (0..(column_names.length-1))
+			else
+				do_line(input_line, column_names, col_range)
+			end
+		rescue Errno::EPIPE # E.g. we're piped to head
+			break
+		end
+	end
+	return true
+end
+
+# ================================================================
+# Top-down programming style, please.
+main()
