@@ -52,7 +52,7 @@ def parse_command_line(args)
 		[ '--simple', GetoptLong::NO_ARGUMENT ],
 		[ '--spin',   GetoptLong::NO_ARGUMENT ],
 		[ '--nospin', GetoptLong::NO_ARGUMENT ],
-	    [ '--help',   GetoptLong::NO_ARGUMENT ]
+		[ '--help',   GetoptLong::NO_ARGUMENT ]
 	)
 
 	begin
