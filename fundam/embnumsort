@@ -1,0 +1,47 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# 2013-07-04
+# Sorts lines by numbers embedded within them, if any.
+# E.g. input
+#
+#   abc12def
+#   abc3def
+#   def7ghi
+#   def56ghi
+#
+# would lexically sort to
+#
+#   abc12def
+#   abc3def
+#   def56ghi
+#   def7ghi
+#
+# but here sorts to
+#
+#   abc3def
+#   abc12def
+#   def7ghi
+#   def56ghi
+#
+# ================================================================
+
+ilines = ARGF.readlines
+olines = ilines.sort do |a,b|
+	asnum = a.match(/\d+/).to_s # E.g. "", or "12"
+	bsnum = b.match(/\d+/).to_s
+	if asnum == "" || bsnum == ""
+		a <=> b
+	else
+		aprefix = a.split(asnum)[0]
+		bprefix = b.split(bsnum)[0]
+		if aprefix != bprefix
+			aprefix <=> bprefix
+		else
+			asnum.to_i <=> bsnum.to_i
+		end
+	end
+end
+olines.each {|line| puts line}
