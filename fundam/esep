@@ -62,6 +62,11 @@ def main()
 	rescue GetoptLong::Error
 	    usage
 	end
+	non_option_arg_count = ARGV.length
+	if non_option_arg_count != 0
+		$stderr.puts "Extraneous argument(s): \"#{ARGV.join(' ')}\""
+		usage
+	end
 
 	# The -1 is because the "watch" command doesn't behave well with
 	# perfect chop.
