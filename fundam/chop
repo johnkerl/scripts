@@ -129,16 +129,16 @@ def main()
 		use_terminal_width = false
 	end
 
-	# If they want width 80, they get width 80.  Otherwise we use terminal width,
-	# and we should recompute that when the window is resized.
+	# If they want width 80, they get width 80.  Otherwise we use terminal
+	# width, and we should recompute that when the window is resized.
 	recompute_terminal_width = false
 	Signal.trap("SIGWINCH") { recompute_terminal_width = true }
 
 	# Control-C handler while we're at it:
 	Signal.trap("SIGINT") { puts ; exit 1 }
 
-	# "ARGF.each do |line|" is like Perl's line=<>: if there are arguments on the
-	# command line then they're processed in turn; else, stdin is read.
+	# "ARGF.each do |line|" is like Perl's line=<>: if there are arguments on
+	# the command line then they're processed in turn; else, stdin is read.
 	ARGF.each do |line|
 
 		# In particular, for tail -f {something} | chop, we might get resized
@@ -150,9 +150,9 @@ def main()
 
 		line.chomp!
 
-		# Below I will count characters one per position.  This is
-		# wrong for UTF-8 (no big problem for me) but also for tabs (a
-		# bigger problem for me).  So at very least, I can expand tabs.
+		# Below I will count characters one per position.  This is wrong for
+		# UTF-8 (no big problem for me) but also for tabs (a bigger problem for
+		# me).  So at very least, I can expand tabs.
 		line = expand_tabs(line, tab_width)
 
 		len = line.length
