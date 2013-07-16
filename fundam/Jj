@@ -1,0 +1,41 @@
+#!/usr/bin/ruby
+$stdout.sync = true
+
+# ==============================================================================
+# John Kerl
+# http://johnkerl.org
+# 2013-07-15
+# ----------------------------------------------------------------
+# Given input of the form
+#
+#   these are
+#   lines of
+#   text here they
+#   are
+#
+# joins adjacent pairs of lines to produce
+#
+#   these are lines of
+#   text here they are
+#
+# Similar to the result of doing Jj repeatedly in vim.
+# Useful surprisingly often during development work.
+# ==============================================================================
+
+i = 0
+while true
+	begin
+		line = $stdin.readline
+		i += 1
+	rescue EOFError
+		break
+	end
+	line.chomp!
+	if (i % 2) == 1
+		print line
+	else
+		print " "
+		puts line
+	end
+end
+puts if (i % 2) == 1
