@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+
+# ================================================================
+# Prints the cumulative (running) sum of numbers in an input stream, one number
+# per line.  E.g. with input
+#   1
+#   2
+#   3
+#   4
+#   5
+# output is
+#   1
+#   3
+#   6
+#   10
+#   15
+# ================================================================
+
+use line_term_lib;
+$recip_log_10 = 1.0 / log(10.0);
+$sum = 0.0;
+while ($line = <>) {
+	($line, $term) = split_line_ending($line);
+
+	# Strip leading whitespace from line.
+	$line =~ s/^\s+//;
+
+	# Get only the first token on the line.
+	($f) = split /\s+/, $line;
+
+	# Skip blank lines.
+	next if ($f =~ m/^[ \t]*$/);
+
+	# Accumulate sum.
+	$ell = log($f) * $recip_log_10;
+	print "$ell$term";
+}
