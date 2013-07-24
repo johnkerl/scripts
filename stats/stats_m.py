@@ -455,6 +455,16 @@ def find_vector_mean(varray):
 	return sum
 
 # ----------------------------------------------------------------
+def find_sorted_distro(farray):
+	sarray = copy.copy(farray)
+	sarray.sort()
+	n = len(sarray)
+	percents = [0] * n
+	for i in xrange(0, n):
+		percents[i] = i*100.0/n
+	return [percents, sarray]
+
+# ----------------------------------------------------------------
 # Vector standard deviation:  varray is a list of N vectors, each having n
 # elements.  This could be done more elegantly using calls to sackmat routines
 # but it seems tighter performancewise this way.
