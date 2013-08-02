@@ -41,7 +41,7 @@ def main()
 	filenames = ARGV
 
 	ok = true
-	if filenames.length == 0:
+	if filenames.length == 0
 		ok &= $align == "left" ?  do_stdin_aligned() : do_stdin_non_aligned()
 	else
 		for filename in filenames

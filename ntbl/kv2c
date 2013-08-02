@@ -28,7 +28,7 @@ def main()
 	filenames = ARGV
 
 	ok = true
-	if filenames.length == 0:
+	if filenames.length == 0
 		ok &= do_stdin
 	else
 		for filename in filenames
