@@ -51,12 +51,14 @@ $neither =  0;
 $right   = -1;
 
 # Defaults
-$absdiff    = 0;
-$hex_input  = 0;
-$hex_output = 0;
-$divide     = 0;
-$negate     = 0;
-$paste      = $neither;
+$absdiff      = 0;
+$hex_input    = 0;
+$hex_output   = 0;
+$divide       = 0;
+$negate       = 0;
+$paste        = $neither;
+$havefmtwidth = 0;
+$fmt          = "none";
 
 # Parse options
 while (@ARGV) {
@@ -105,6 +107,48 @@ while (@ARGV) {
 
 	elsif ($ARGV[0] eq "-r") {
 		$paste = $right;
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-0") {
+		$havefmtwidth = 1;
+		$fmt = "%.0f";
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-1") {
+		$havefmtwidth = 1;
+		$fmt = "%.1f";
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-2") {
+		$havefmtwidth = 1;
+		$fmt = "%.2f";
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-3") {
+		$havefmtwidth = 1;
+		$fmt = "%.3f";
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-4") {
+		$havefmtwidth = 1;
+		$fmt = "%.4f";
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-5") {
+		$havefmtwidth = 1;
+		$fmt = "%.5f";
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-6") {
+		$havefmtwidth = 1;
+		$fmt = "%.6f";
 		shift @ARGV;
 	}
 
@@ -165,7 +209,10 @@ while ($line = <>) {
 		}
 		
 		if ($hex_output) {
- 			printf "0x%08x", $diff;
+			printf "0x%08x", $diff;
+		}
+		elsif ($havefmtwidth) {
+			printf $fmt, $diff;
 		}
 		else {
 			print $diff;
