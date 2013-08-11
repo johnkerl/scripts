@@ -1,0 +1,35 @@
+#!/usr/bin/ruby
+$stdout.sync = true
+
+# ==============================================================================
+# John Kerl
+# http://johnkerl.org
+# 2013-08-10
+#
+# Given input of the form
+#   1
+#   2
+#   3
+#   4
+#   5
+# produces output of the form
+#   1 2
+#   2 3
+#   3 4
+#   4 5
+#   5
+# ==============================================================================
+
+currline = nil
+nextline = nil
+while true
+	begin
+		nextline = $stdin.readline
+	rescue EOFError
+		break
+	end
+	nextline.chomp!
+	puts currline + " " + nextline unless currline.nil?
+	currline = nextline
+end
+puts nextline unless nextline.nil?
