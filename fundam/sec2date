@@ -24,7 +24,7 @@ def main():
 			ok = False
 			continue
 		t = time.gmtime(seconds)
-		s = time.strftime("%Y%m%d %H:%M:%S.%l %z", t)
+		s = time.strftime("%Y%m%d %H:%M:%S %z", t)
 		print s
 	if ok:
 		sys.exit(0)
