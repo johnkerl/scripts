@@ -1,0 +1,3 @@
+#!/bin/bash
+ourdir=$(dirname $0)
+$ourdir/kv2c "$@" | $ourdir/c2v

@@ -149,6 +149,10 @@ sub do_option
 	elsif ($arg =~ m:^[/-]ob$:i) { $obase =  2; }
 	elsif ($arg =~ m:^[/-]e$:i)  { $fp_output_fmt =  "%e"; }
 	elsif ($arg =~ m:^[/-]w$:i)  { $fp_output_fmt =  "%.18f"; }
+	elsif ($arg =~ m:^[/-]3$:i)  { $fp_output_fmt =  "%.3f"; }
+	elsif ($arg =~ m:^[/-]2$:i)  { $fp_output_fmt =  "%.2fe"; }
+	elsif ($arg =~ m:^[/-]1$:i)  { $fp_output_fmt =  "%.1fe"; }
+	elsif ($arg =~ m:^[/-]0$:i)  { $fp_output_fmt =  "%.0fe"; }
 
 	elsif ($arg =~ m:^[/-]p$:i)  { $want_prompt = 1; }
 	elsif ($arg =~ m:^[/-]np$:i) { $want_prompt = 0; }

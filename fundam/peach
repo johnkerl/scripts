@@ -6,11 +6,12 @@
 # Runs a command every some number of seconds.  Use quotes to include pipes,
 # semicolons, etc.
 #
-# Does not account for the command's execution time: see "peach" for that.
+# Compare to "each", which runs the command and sleeps n seconds: this one
+# accounts for the command's execution time and sleeps for n minus that.
 #
 # Examples:
-# each 20 df -h .
-# echo  1 'ls -lrt | tail; echo ""'
+# peach 20 df -h .
+# peach  1 'ls -lrt | tail; echo ""'
 # ==============================================================================
 
 @@us = File.basename($0)
@@ -23,6 +24,8 @@ delay = ARGV.shift.to_i
 cmd = ARGV.join(' ')
 
 loop do
+
+	t1 = Time::now.to_i
 	system(cmd)
 	status = $?
 	if status.signaled? and status.termsig == 2
@@ -30,11 +33,14 @@ loop do
 		# got the control-C, so we might not get it here.
 		exit 1
 	end
+	t2 = Time::now.to_i
+	diff = t2 - t1
+	sleep_seconds = delay - diff
+	sleep_seconds = 0 if sleep_seconds < 0
 
 	begin
-		sleep(delay)
+		sleep(sleep_seconds)
 	rescue Interrupt => e # E.g. control-C during the sleep
 		exit 0
 	end
-
 end

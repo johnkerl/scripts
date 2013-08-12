@@ -6,25 +6,27 @@ us = os.path.basename(sys.argv[0])
 
 # ----------------------------------------------------------------
 def usage():
-	print >> sys.stderr, \
-		"Usage: %s {one or more integers counting seconds since the epoch}" % us
+	print >> sys.stderr, "Usage: %s {one or more shift seconds ...}" % us
 	sys.exit(1)
 
 # ----------------------------------------------------------------
 def main():
+	now_epoch = int(time.time())
+
 	ok = True
 	if len(sys.argv) < 2:
 		usage()
 	for arg in sys.argv[1:]:
-		seconds = 0
+		shift_seconds = 0
 		try:
-			seconds = float(arg)
+			shift_seconds = int(arg)
 		except:
 			print >> sys.stderr, "%s: can't parse \"%s\" as integer." % (us, arg)
 			ok = False
 			continue
-		t = time.gmtime(seconds)
-		s = time.strftime("%Y%m%d %H:%M:%S.%l %z", t)
+
+		t = time.gmtime(now_epoch + shift_seconds)
+		s = time.strftime("%Y-%m-%dT%H:%M:%S", t)
 		print s
 	if ok:
 		sys.exit(0)

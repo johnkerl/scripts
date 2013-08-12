@@ -20,6 +20,7 @@ usage() if @ARGV;
 $value = $start;
 for ($i = 0; $i < $reps; $i++) {
 	print "$value\n";
+	#printf "%03d\n", $value;
 	$value += $stride;
 }
 

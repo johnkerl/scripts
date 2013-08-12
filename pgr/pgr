@@ -933,19 +933,19 @@ def plot_series(x_series, y_series, e_series, num_series, formats, legend_labels
 	# min & max.
 	if opts['have_x_min']:
 		[           old_x_min, old_x_max, old_y_min, old_y_max] = pylab.axis()
-		pylab.axis([    x_min, old_x_max, old_y_min, old_y_max])
+		pylab.axis([opts[:x_min], old_x_max, old_y_min, old_y_max])
 
 	if opts['have_x_max']:
 		[           old_x_min, old_x_max, old_y_min, old_y_max] = pylab.axis()
-		pylab.axis([old_x_min,     x_max, old_y_min, old_y_max])
+		pylab.axis([old_x_min, opts[:x_max], old_y_min, old_y_max])
 
 	if opts['have_y_min']:
 		[           old_x_min, old_x_max, old_y_min, old_y_max] = pylab.axis()
-		pylab.axis([old_x_min, old_x_max,     y_min, old_y_max])
+		pylab.axis([old_x_min, old_x_max, opts[:y_min], old_y_max])
 
 	if opts['have_y_max']:
 		[           old_x_min, old_x_max, old_y_min, old_y_max] = pylab.axis()
-		pylab.axis([old_x_min, old_x_max, old_y_min,     y_max])
+		pylab.axis([old_x_min, old_x_max, old_y_min, opts[:y_max]])
 
 	if opts['x_is_time']:
 		# Write dates on the x axis vertically to avoid overlap

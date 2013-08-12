@@ -59,6 +59,8 @@ while true
 	end
 end
 
+$stdout.puts # Needed when invoked from zsh
+
 unless file_name == "-"
 	stream.close
 end

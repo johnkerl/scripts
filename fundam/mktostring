@@ -38,13 +38,14 @@ if [ "$1" = "-c" ]; then
 	shift
 fi
 
+indent="\t"
 if [ $doCSKV = "true" ]; then
-	echo -e "\tpublic String toCSKV() {"
+	echo -e "${indent}public String toCSKV() {"
 else
-	echo -e "\t@Override"
-	echo -e "\tpublic String toString() {"
+	echo -e "${indent}@Override"
+	echo -e "${indent}public String toString() {"
 fi
-echo -e "\t\tStringBuffer sb = new StringBuffer();"
+echo -e "${indent}${indent}StringBuffer sb = new StringBuffer();"
 i=0
 for name in $(cat "$@" | fmt -1); do
 	if [ $i -eq 0 ]; then
@@ -56,11 +57,11 @@ for name in $(cat "$@" | fmt -1); do
 	else
 		sep=','
 	fi
-	echo -e "\t\tsb.append(\"${sep}${name}=\").append(${name});"
+	echo -e "${indent}${indent}sb.append(\"${sep}${name}=\").append(${name});"
 	i=$[i+1]
 done
 if [ $doCSKV = "false" ]; then
-	echo -e "\t\tsb.append(\"]\");"
+	echo -e "${indent}${indent}sb.append(\"]\");"
 fi
-echo -e "\t\treturn sb.toString();"
-echo -e "\t}"
+echo -e "${indent}${indent}return sb.toString();"
+echo -e "${indent}}"
