@@ -1,0 +1,103 @@
+#!/usr/bin/ruby
+
+@@us = File.basename $0
+
+require 'enumerator'
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Picks out columns by name from CSV files.
+# E.g. "colpick x,y,y,z myfile.csv"
+# 2013-08-12
+# ================================================================
+
+# ----------------------------------------------------------------
+def usage()
+	puts ""
+	puts "Usage: #{@@us} [column delimiters] {comma-separated column names ...} {file names ...}"
+	puts "  There must be at least one column name."
+	puts "  There may be zero file names, in which case input is taken from stdin."
+	puts ""
+	puts "Column delimiters for input and output:"
+	puts "  -t:  Column delimiter is one tab."
+	puts "  -s:  Column delimiter is one or more whitespace characters (default)."
+	puts "  -c:  Column delimiter is one comma."
+	puts "  -n:  Column delimiter is the empty string, e.g. each character is a column."
+	puts ""
+	exit 1
+end
+
+# ----------------------------------------------------------------
+# Defaults:
+delimpat = ","
+delimout = ","
+
+# Scan the command line for column-delimiter specifications, removing them from
+# @ARGV.
+while ARGV.length > 0 && ARGV[0] =~ /^-/
+	arg = ARGV[0]
+	if arg == '--help'
+		usage
+	elsif arg == '-h'
+		usage
+
+	elsif arg == '-t'
+		$delimpat = "\t"
+		$delimout = "\t"
+	elsif arg == '-c'
+		$delimpat = ","
+		$delimout = ","
+	elsif arg == '-s'
+		$delimpat = "\s+"
+		$delimout = " "
+	elsif arg == '-n'
+		$delimpat = ""
+		$delimout = ""
+
+	else
+		print "Unrecognized option \"#{arg}\"."
+		usage()
+	end
+	ARGV.shift
+end
+
+# There must be at least one argument for column names.
+usage unless ARGV.length > 0
+
+selected_column_names = ARGV.shift.split(delimpat)
+usage unless selected_column_names.length > 0
+
+on_header = true
+
+# Whatever is left on the command line is treated as a file name.
+lineno = 0
+selected_column_indices = []
+
+ARGF.each do |line|
+	lineno += 1
+	line = line.chomp.rstrip
+
+	fields = line.split(delimpat)
+
+	if on_header
+		selected_column_names.each do |selected_column_name|
+			found = false
+			fields.each_with_index do |field, i|
+				if field == selected_column_name
+					selected_column_indices << i
+					found = true
+					break
+				end
+			end
+			unless found
+				raise "Can't find selected column name \"#{selected_column_name}\" in header \"#{line}\""
+			end
+		end
+
+		puts selected_column_names.join(delimout)
+		on_header = false
+	else
+		puts selected_column_indices.collect{|i| fields[i]}.join(delimout)
+	end
+end
