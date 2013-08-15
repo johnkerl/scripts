@@ -32,4 +32,4 @@ while true
 	puts currline + " " + nextline unless currline.nil?
 	currline = nextline
 end
-puts nextline unless nextline.nil?
+#puts nextline unless nextline.nil?
