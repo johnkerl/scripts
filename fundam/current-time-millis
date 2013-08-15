@@ -1,4 +1,4 @@
-#!/usr/bin/python -Wall
+#!/usr/bin/ruby
 # Mimics Java's System.out.println(System.currentUptimeMillis()).
-import sys, time
-print int(time.time()) * 1000
+require 'time'
+puts (Time::now.to_f * 1000).round

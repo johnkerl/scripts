@@ -1,35 +1,38 @@
-#!/usr/bin/python -Wall
+#!/usr/bin/ruby
 
-import sys, os, time
+require 'time'
 
-us = os.path.basename(sys.argv[0])
-
-# ----------------------------------------------------------------
-def usage():
-	print >> sys.stderr, \
-		"Usage: %s {one or more integers counting seconds since the epoch}" % us
-	sys.exit(1)
+@@us = File.basename $0
 
 # ----------------------------------------------------------------
-def main():
-	ok = True
-	if len(sys.argv) < 2:
-		usage()
-	for arg in sys.argv[1:]:
+def usage()
+	$stderr.puts "Usage: #{@@us} {one or more integers/floats counting seconds since the epoch}"
+	exit 1
+end
+
+# ----------------------------------------------------------------
+def main()
+	usage unless ARGV.length > 0
+	ok = true
+	for arg in ARGV
 		seconds = 0
-		try:
-			seconds = float(arg)
-		except:
-			print >> sys.stderr, "%s: can't parse \"%s\" as integer." % (us, arg)
-			ok = False
-			continue
-		t = time.gmtime(seconds)
-		s = time.strftime("%Y%m%d %H:%M:%S %z", t)
-		print s
-	if ok:
-		sys.exit(0)
-	else:
-		sys.exit(1)
+		begin
+			#seconds = arg.to_f
+			seconds = Float(arg)
+			t = Time.at(seconds).gmtime
+			s = t.strftime("%Y-%m-%dT%H:%M:%SZ")
+			puts s
+		rescue ArgumentError => e
+			$stderr.puts "#{@@us} can't parse \"#{arg}\" as float."
+			ok = false
+		end
+	end
+	if ok
+		exit 0
+	else
+		exit 1
+	end
+end
 
 # ----------------------------------------------------------------
 main()
