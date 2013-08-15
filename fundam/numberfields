@@ -1,0 +1,39 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# 2013-08-12
+#
+# Given input of the form
+#
+#   apple ball cat dog
+#   apple ball cat dog
+#
+# produces output of the form
+#
+#       1    2   3   4
+#   apple ball cat dog
+#   apple ball cat dog
+#
+# This is helpful (especially in !} context within vim) for preparing to run an
+# awk (or other column-indexed) expression.
+# ================================================================
+
+require 'enumerator'
+
+lno = 0
+ARGF.each do |line|
+	begin
+		lno += 1
+		if lno == 1
+			fields = line.split(/\s+/)
+			lengths = fields.collect{|field| field.length}
+			puts fields.enum_with_index.collect{|field, i| "%*s" % [field.length, i+1]}.join(" ")
+		end
+		puts line.split(/\s+/).join(" ")
+	rescue Errno::EPIPE
+		# E.g. we're piped to head.  Don't complain.
+		exit 0
+	end
+end
