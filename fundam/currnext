@@ -29,7 +29,10 @@ while true
 		break
 	end
 	nextline.chomp!
-	puts currline + " " + nextline unless currline.nil?
+	unless currline.nil?
+		pair = currline + " " + nextline
+		puts pair.rstrip
+	end
 	currline = nextline
 end
 #puts nextline unless nextline.nil?
