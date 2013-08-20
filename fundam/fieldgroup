@@ -1,0 +1,45 @@
+#!/usr/bin/ruby
+$stdout.sync = true
+
+@@us = File.basename $0
+
+# ==============================================================================
+# John Kerl
+# http://johnkerl.org
+# 2013-08-10
+#
+# Similar to cgroup (in this directory) but takes a field number rather than a
+# column name.  This is a bit more general than cgroup in that it can handle
+# non-CSV input.
+# ==============================================================================
+
+# ----------------------------------------------------------------
+def usage()
+	$stderr.puts "Usage: #{@@us} {field number, one-up} [one or more file names ...]"
+	$stderr.puts "Standard input is processed if no file names are supplied."
+	$stderr.puts "xxx write the rest of me please."
+	exit 1
+end
+
+# ----------------------------------------------------------------
+usage unless ARGV.length >= 1
+delimiter = /\s+/ # to do: parameterize
+fieldNumber = Integer(ARGV.shift)
+
+# xxx ARGF ...
+prevField = nil
+currField = nil
+while true
+	begin
+		line = $stdin.readline
+	rescue EOFError
+		break
+	end
+	line.chomp!
+	currField = line.split(delimiter)[fieldNumber-1]
+	currField = line if currField.nil?
+
+	puts if prevField != nil && currField != prevField
+	puts line
+	prevField = currField
+end

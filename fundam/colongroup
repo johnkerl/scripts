@@ -39,7 +39,7 @@ while true
 	else
 		currname = line
 	end
-	puts if currname != prevname
+	puts if prevname != nil && currname != prevname
 	puts line
 	prevname = currname
 end
