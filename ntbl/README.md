@@ -1,12 +1,18 @@
 These are some little utility scripts for manipulating CSV files.
 
-Formats are CSV, horizontal, and vertical.  Examples:
+Formats are CSV, CSKV, horizontal, and vertical.  Examples:
 
 CSV:
 ```
 a,b,c
 1,2,3
 4,5,6
+```
+
+CSKV:
+```
+a=1,b=2,c=3
+a=4,b=5,c=6
 ```
 
 Horizontal:
@@ -24,12 +30,14 @@ b 2 5
 c 3 6
 ```
 
-CSV is best for storage and piping to various programs -- i.e. for
-machine-readability.  I prefer horizontal format for viewing not-to-wide
-tables.  I prefer vertical format for viewing the top few columns of very wide
-tables.
+* CSV is best for storage and piping to various programs -- i.e. for machine-readability.
+* CSKV has the same benefits, at the cost of column names appearing on each row. The chief advantage of CSKV is for heterogeneous data.  Namely, I can print different schema lines interleaved -- a=1,b=2,c=3 on one line, and x=7,y=9 on another -- then pipe to grep, sort, etc. This is very handy in log files.
+* I prefer horizontal format for viewing not-too-wide tables.
+* I prefer vertical format for viewing the top few columns of very wide tables.
 
-Converters are `c2h`, `c2v`, `h2c`, `h2v`, `v2c`, `v2h`.  Depending on the data (e.g. data containing whitespace or commas) they are not always invertible transformations.
+Converters include `c2h`, `c2v`, `h2c`, `h2v`, `v2c`, `v2h`, `c2kv`, `kv2c`,
+`kv2h`, `kv2v`.  Depending on the data (e.g. data containing whitespace or
+commas) they are not always invertible transformations.
 
 John Kerl
 2013-02-03

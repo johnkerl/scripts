@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # ================================================================
-# We convert from CSV to JKV format as follows:
+# We convert from CSV to vertical format as follows:
 # * split on commas
 # * replace "" with "_"
 # * print transposed

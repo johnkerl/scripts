@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # ================================================================
-# We convert from JKH to CSV format as follows:
+# We convert from horizontal to CSV format as follows:
 # * replace %20/%09 with space/tab
 # * replace comma with %2c
 # * split on whitespace
