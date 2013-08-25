@@ -6,10 +6,6 @@
 # kerl.john.r@gmail.com
 # 2007-07-09
 # ================================================================
-# This software is released under the terms of the GNU GPL.
-# Please see LICENSE.txt in the same directory as this file.
-# Copyright (c) John Kerl 2007
-# ================================================================
 
 from __future__ import division # 1/2 = 0.5, not 0.
 import sackmat_m

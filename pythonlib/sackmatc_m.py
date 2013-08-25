@@ -10,9 +10,6 @@
 #
 # 2007-12-26:  In progress of a complex port.
 # ================================================================
-# This software is released under the terms of the GNU GPL.
-# Please see LICENSE.txt in the same directory as this file.
-# ================================================================
 
 # xxx tol_zero, tol_non_zero routines.  fold into sackutil. *also* have
 # the latter export the tol

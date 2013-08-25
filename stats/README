@@ -10,8 +10,4 @@
 # do.  For black-box statistics software (with far more features), you're
 # better off with R, etc.  The code here is of a different sort: simple and
 # simple-minded, and intended to be not just used but also read.
-#
-# ================================================================
-# This software is released under the terms of the GNU GPL.
-# Please see LICENSE.txt in the same directory as this file.
 # ================================================================

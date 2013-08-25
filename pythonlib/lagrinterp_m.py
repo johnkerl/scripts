@@ -25,9 +25,7 @@
 #     (x - x_0)(x - x_1)(x - x_2)
 # y_3 ------------------------------------
 #     (x_3-x_0)(x_3-x_1)(x_3-x_2)
-# ----------------------------------------------------------------
-# This software is released under the terms of the GNU GPL.
-# Please see LICENSE.txt in the same directory as this file.
+#
 # ================================================================
 
 from __future__ import division # 1/2 = 0.5, not 0.

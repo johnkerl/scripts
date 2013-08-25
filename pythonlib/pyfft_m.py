@@ -8,9 +8,6 @@
 #
 # This is a radix-2 fast Fourier transform.
 # This file contains the library routines.  The I/O wrapper is the file pyfft.
-# ----------------------------------------------------------------
-# This software is released under the terms of the GNU GPL.
-# Please see LICENSE.txt in the same directory as this file.
 # ================================================================
 
 from __future__ import division # 1/2 = 0.5, not 0.

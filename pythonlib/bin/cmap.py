@@ -13,9 +13,6 @@ import kerlutil
 # Some routines for visualizing complex maps (e.g. conformals including LFTs).
 # Output is meant to be piped to my xgr -lines.
 # ================================================================
-# This software is released under the terms of the GNU GPL.
-# Please see LICENSE.txt in the same directory as this file.
-# ================================================================
 
 # ----------------------------------------------------------------
 def xy2uv(f, x, y):

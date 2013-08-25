@@ -25,9 +25,6 @@
 # kerl.john.r@gmail.com
 # 2007-08-13
 # ================================================================
-# This software is released under the terms of the GNU GPL.
-# Please see LICENSE.txt in the same directory as this file.
-# ================================================================
 
 from __future__ import division # 1/2 = 0.5, not 0.
 from math     import *

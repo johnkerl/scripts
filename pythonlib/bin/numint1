@@ -9,9 +9,6 @@
 # pi to 2 pi.  A reference value for the integral is 2.83630; this program
 # prints 2.836350.
 # ----------------------------------------------------------------
-# This software is released under the terms of the GNU GPL.
-# Please see LICENSE.txt in the same directory as this file.
-# ================================================================
 
 from __future__ import division # 1/2 = 0.5, not 0.
 from math import *

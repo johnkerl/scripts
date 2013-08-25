@@ -1,3 +1,4 @@
+# ================================================================
 # RUBE.L / RUBE.PY
 #
 # Constructs the cycle decomposition of sequences of moves on the Rubik's Cube.
@@ -17,10 +18,6 @@
 # Written in Lisp 12/93
 # Ported to Python 4/06
 # kerl.john.r@gmail.com
-
-# ================================================================
-# This software is released under the terms of the GNU GPL.
-# Please see LICENSE.txt in the same directory as this file.
 # ================================================================
 
 import sys

@@ -8,9 +8,6 @@
 # Some simple I/O routines for real and complex scalars, vectors,
 # and matrices.
 # ================================================================
-# This software is released under the terms of the GNU GPL.
-# Please see LICENSE.txt in the same directory as this file.
-# ================================================================
 
 from __future__ import division # 1/2 = 0.5, not 0.
 import sys

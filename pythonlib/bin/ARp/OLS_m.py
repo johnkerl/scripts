@@ -6,9 +6,6 @@
 # 2010-11-22
 # kerl.john.r@gmail.com
 # ================================================================
-# This software is released under the terms of the GNU GPL.
-# Please see LICENSE.txt in the same directory as this file.
-# ================================================================
 
 # ----------------------------------------------------------------
 # i=1,..,n samples

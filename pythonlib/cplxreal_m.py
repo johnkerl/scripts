@@ -9,9 +9,6 @@
 # annoying.  Here I implement a substitute.  Likewise for real(),
 # imag(), and phz().  Note that abs() is already properly overloaded.
 # ================================================================
-# This software is released under the terms of the GNU GPL.
-# Please see LICENSE.txt in the same directory as this file.
-# ================================================================
 
 from __future__ import division # 1/2 = 0.5, not 0.
 import math
