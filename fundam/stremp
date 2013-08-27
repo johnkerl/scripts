@@ -9,6 +9,6 @@
 # ----------------------------------------------------------------
 
 ARGF.each do |line|
-	line.strip!
+	line.chomp!
 	puts line unless line =~ /^\s*$/
 end
