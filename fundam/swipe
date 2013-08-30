@@ -6,4 +6,6 @@
 # A filter to strip trailing whitespace.
 # ================================================================
 
-sed -r 's/\s+$//'
+#sed -r 's/\s+$//'
+# Darwin compatibility:
+sed 's/[ \t]+$//'
