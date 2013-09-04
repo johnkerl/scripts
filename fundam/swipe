@@ -8,4 +8,4 @@
 
 #sed -r 's/\s+$//'
 # Darwin compatibility:
-sed 's/[ \t]+$//'
+sed 's/[ \t][ \t]*$//'
