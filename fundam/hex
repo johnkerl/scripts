@@ -56,7 +56,7 @@ def hex_dump_stream(stream, do_raw)
 			end
 
 			# Print hex payload
-			for i in 0..(num_bytes_read-1)
+			for i in 0..($buffer_size-1)
 				if i < num_bytes_read
 					printf("%02x ", buffer[i])
 				else
