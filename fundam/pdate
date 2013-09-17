@@ -3,7 +3,7 @@
 # ================================================================
 # John Kerl
 # http://johnkerl.org
-# UTC date
+# This is simply date, with my favorite format args.
 # ================================================================
 
-TZ="UTC" date  "+%a %b %d %Y %H:%M:%S %Z"  # 24-hour clock
+TZ="America/Los_Angeles" date  "+%a %b %d %Y %H:%M:%S %Z"  # 24-hour clock
