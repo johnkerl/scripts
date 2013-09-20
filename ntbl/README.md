@@ -39,5 +39,16 @@ Converters include `c2h`, `c2v`, `h2c`, `h2v`, `v2c`, `v2h`, `c2kv`, `kv2c`,
 `kv2h`, `kv2v`.  Depending on the data (e.g. data containing whitespace or
 commas) they are not always invertible transformations.
 
+Data transformers, on the other hand, don't just reshape; they make the data
+different by adding or removing rows/colums, or aggregating (e.g. mean, count,
+min, max). These scripts begin with `cs-` in deference to the `recs` tool suite
+(http://search.cpan.org/~bernard/App-RecordStream-3.7.3/doc/RecordStreamStory.pod).
+
+One might ask, why not just use recs?
+* You can and should
+* recs is Perl and JSON, with other formats layered on
+* I prefer Ruby and CSV/CSKV
+* These cs-tools are smaller, simpler, and just what I want.
+
 John Kerl
 2013-02-03
