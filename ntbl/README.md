@@ -45,9 +45,8 @@ min, max). These scripts begin with `cs-` in deference to the `recs` tool suite
 (http://search.cpan.org/~bernard/App-RecordStream-3.7.3/doc/RecordStreamStory.pod).
 
 One might ask, why not just use recs?
-* You can and should
-* recs is Perl and JSON, with other formats layered on
-* I prefer Ruby and CSV/CSKV
+* You can and should, and so should I.
+* Recs is Perl and JSON, with other formats layered on; I prefer Ruby and CSV/CSKV.
 * These cs-tools are smaller, simpler, and just what I want.
 
 John Kerl
