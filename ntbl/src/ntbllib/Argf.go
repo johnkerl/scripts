@@ -63,8 +63,8 @@ func (self *Argf) ReadLine() (line string, err error) {
 
 	for {
 		// xxx delegate to stdin-reader or filenames reader
-		// xxx make a next-handle method ...
-		// xxx make a next-filename method?
+		// xxx make a next-filename method
+		// xxx make a filename-to-handle method
 		if self.current_handle == nil {
 			// acquire next file name
 			self.current_file_name_index++
@@ -72,9 +72,9 @@ func (self *Argf) ReadLine() (line string, err error) {
 				self.exhausted = true
 				return "", io.EOF
 			}
+			current_file_name := self.file_names[self.current_file_name_index]
 
 			// acquire handle and reader from file name
-			current_file_name := self.file_names[self.current_file_name_index]
 			if current_file_name == "-" {
 				self.current_handle = os.Stdin
 			} else {
