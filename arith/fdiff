@@ -232,13 +232,13 @@ while ($line = <>) {
 }
 
 if ($paste == $left) {
-	print "$line1$term";
+	print "$line1$term _";
 }
 elsif ($paste == $right) {
 	if ($hex_output) {
 		print "\t";
 	}
-	print "\t$line1$term";
+	print "_\t$line1$term";
 }
 
 # ----------------------------------------------------------------
