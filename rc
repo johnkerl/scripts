@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# ================================================================
+# This is a minimal script meant to set up access to the scripts in this
+# directory tree.  It should be invoked via
+#
+#   eval $(/path/to/this/file)
+#
+# in order to have effect on the calling shell's PATH variable.
+#
+# John Kerl 2013-10-04
+# ================================================================
+
+ourdir=$(dirname $0)
+# Absolutize
+if [ "$ourdir" = "." ]; then
+    ourdir=$(pwd)
+elif [ "${ourdir:0:1}" != "/" ]; then
+    ourdir="$(pwd)/$ourdir";
+fi
+
+echo "export PATH=$ourdir/abbrevs:\$PATH;"
+echo "export PATH=$ourdir/arith:\$PATH;"
+echo "export PATH=$ourdir/fundam:\$PATH;"
+echo "export PATH=$ourdir/ntbl:\$PATH;"
+echo ". $ourdir/minrc/aliases;"
+echo ". $ourdir/minrc/promptrc"
