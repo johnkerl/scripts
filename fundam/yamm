@@ -63,6 +63,9 @@
 #           make -f prog1.mk clean
 #           make -f prog2.mk clean
 #           make -f prog3.mk clean
+#
+# See also ./doc/yamm_ex1/
+# See also ./doc/yamm_ex2/
 # ================================================================
 
 # ================================================================
