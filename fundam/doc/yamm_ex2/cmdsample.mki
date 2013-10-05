@@ -1,0 +1,26 @@
+:include_dir=.
+:define=UNIX
+:define=HOSTED
+:define=NO_BOOL
+:define=term_printf=printf
+:define=ut_memset=memset
+:define=ut_memcpy=memcpy
+:define=ut_strlen=strlen
+:define=ut_strcpy=strcpy
+:define=ut_strcat=strcat
+:define=ut_strcmp=strcmp
+:define=ut_sprintf=sprintf
+:linker=gcc
+:builder=.c=gcc -Wall -Werror -g
+:object_dir=objs
+:make_file_name=Makefile
+
+
+cmdsample.c
+cmdfactor.c
+cmdgcd.c
+factor.c
+gcd.c
+
+hcmd.c
+tokenize.c
