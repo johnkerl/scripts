@@ -1,3 +1,0 @@
-#!/bin/sh
-
-rm -f *.aux *.dvi *.idx *.ind *.log *.out *.toc *.ps *.nav *.pfg *.snm *.vrb *.lof *.lot *.bbl *.blg *.spl *.ilg

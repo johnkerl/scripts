@@ -1,7 +1,0 @@
-#!/usr/bin/perl
-
-while (<>) {
-	chomp $_;
-	print $_ . "\n";
-	print "\n";
-}

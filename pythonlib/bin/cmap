@@ -1,3 +1,0 @@
-#!/bin/sh
-
-python cmap.py | xgr -lines -xb -4 4 -yb -4 4
