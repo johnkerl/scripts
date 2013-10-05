@@ -19,6 +19,7 @@ elif [ "${ourdir:0:1}" != "/" ]; then
     ourdir="$(pwd)/$ourdir";
 fi
 
+echo "export PATH=$ourdir:\$PATH;"
 echo "export PATH=$ourdir/abbrevs:\$PATH;"
 echo "export PATH=$ourdir/arith:\$PATH;"
 echo "export PATH=$ourdir/fundam:\$PATH;"
