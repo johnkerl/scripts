@@ -18,9 +18,6 @@ Subdirectories:
 
 * `one-offs` -- as the name implies
 
-* `pgr` -- A plotter wrapped around `matplotlib`.  I used this for all the
-  presentation graphics in my doctoral dissertation.
-
 See also
 * http://github.com/johnkerl/scripts-math
 * http://github.com/johnkerl/scripts-misc
