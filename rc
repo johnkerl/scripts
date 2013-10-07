@@ -61,8 +61,6 @@ fi
 echo "export PATH=$ourdir/abbrevs:\$PATH;"  # Keystroke-savers: like aliases, but they work from within vim subshells.
 echo "export PATH=$ourdir/arith:\$PATH;"    # Column-sum etc.
 echo "export PATH=$ourdir/fundam:\$PATH;"   # Essentials
-echo "export PATH=$ourdir/ntbl:\$PATH;"     # CSV/CSKV table manipulators.
-echo "export PATH=$ourdir/ntbl/bin:\$PATH;" # Golang accelerators (if built) for some ntbl tools: same names; ahead in path.
 echo "export PATH=$ourdir/aux:\$PATH;"      # Per-project executables can be dropped in here.
 
 echo "alias vim='vim -u $ourdir/vimrc';"    # Editor setup
