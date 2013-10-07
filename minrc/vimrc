@@ -35,7 +35,8 @@ syntax on " Enable language-specific syntax highlighting.
 " ================================================================
 " KEYMAPS
 
-map , \ " Leader for two-key sequences
+"Leader for two-key sequences
+map , \
 
 map \i :set ic
 map \I :set noic
