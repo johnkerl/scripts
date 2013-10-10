@@ -63,7 +63,7 @@ echo "export PATH=$ourdir/arith:\$PATH;"    # Column-sum etc.
 echo "export PATH=$ourdir/fundam:\$PATH;"   # Essentials
 echo "export PATH=$ourdir/aux:\$PATH;"      # Per-project executables can be dropped in here.
 
-echo "alias vim='vim -u $ourdir/vimrc';"    # Editor setup
+echo "alias vim='vim -u $ourdir/minrc/vimrc';" # Editor setup
 echo ". $ourdir/minrc/aliases;"             # Aliases
 echo ". $ourdir/minrc/promptrc;"            # PS1
 echo ". $ourdir/aux/rc"                     # Per-project aliases/variables can be dropped in here.
