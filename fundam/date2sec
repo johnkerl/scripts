@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # ================================================================
-# Formats seconds since the epoch to RFC8601 date string.
+# Converts RFC8601 date string to seconds since the epoch.
 # John Kerl, 2013
 # ================================================================
 
@@ -11,7 +11,7 @@ require 'time'
 
 # ----------------------------------------------------------------
 def usage()
-	$stderr.puts "Usage: #{@@us} {one or more integers/floats counting seconds since the epoch}"
+	$stderr.puts "Usage: #{@@us} {one or more RFC8601 date strings, e.g. 2013-06-03T17:02:34Z}"
 	exit 1
 end
 
@@ -22,12 +22,9 @@ def main()
 	for arg in ARGV
 		seconds = 0
 		begin
-			seconds = Float(arg)
-			t = Time.at(seconds).gmtime
-			s = t.strftime("%Y-%m-%dT%H:%M:%SZ")
-			puts s
+			puts Time.iso8601(arg).to_i
 		rescue ArgumentError => e
-			$stderr.puts "#{@@us} can't parse \"#{arg}\" as float."
+			$stderr.puts "#{@@us} can't parse \"#{arg}\" as RFC8601."
 			ok = false
 		end
 	end
