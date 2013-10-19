@@ -1,0 +1,19 @@
+#! /bin/sh
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Unsets user-execute permissions for specified files.
+# ================================================================
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $0 {one or more files ... }" 1>&2
+fi
+
+for arg
+do
+	if [ ! -e $arg ]; then
+		touch $arg
+	fi
+	chmod u-x $arg
+done

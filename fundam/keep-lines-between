@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Prints lines between begin-pattern and end-pattern, e.g. "BEGIN" and "END" in
+# some log file somewhere.
+# ================================================================
+
+die "Usage: $0 {begin-pattern} {end-pattern} [input]\n" unless @ARGV >= 2;
+$begin_pattern = shift @ARGV;
+$end_pattern   = shift @ARGV;
+
+$in = 0;
+while ($line = <>) {
+	if ($line =~ m/$begin_pattern/) {
+		$in = 1;
+	} elsif ($line =~ m/$end_pattern/) {
+		$in = 0;
+	} elsif ($in) {
+		print "$line";
+	}
+}

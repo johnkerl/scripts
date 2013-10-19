@@ -1,0 +1,8 @@
+# This is a sample make-input file to illustrate the use of the yamm
+# makefile generator.
+#
+# John Kerl
+# 2003/10/20
+
+file1.c
+file2.c

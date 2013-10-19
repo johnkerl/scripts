@@ -1,0 +1,118 @@
+#! /usr/bin/perl
+
+# ================================================================
+# This script does a breadth-first find for filenames matching a
+# given pattern, starting at one or more given directories.
+# For example:
+#
+#   bffind . '*.c'
+#
+# A depth-first find with the same results would be given by:
+#
+#   find . -name '*.c' -print
+#
+# The breadth-first feature is particularly useful when a
+# directory tree contains files of interest at a shallow
+# depth, but also has some deep directories.  An extreme
+# example is:
+#
+#   bffind / '*fstab'
+#
+# which finds the file /etc/vfstab much more quickly than
+#
+#   find / -name '*fstab'
+#
+# Written in Bourne shell:
+# John Kerl
+# 6/29/1998
+#
+# Re-written in Perl:
+# John Kerl
+# 2/25/2003
+# ================================================================
+
+# --------------------------------------------------------------------
+sub usage
+{
+	die "Usage: $0 {directory} {one or more name patterns}\n";
+}
+
+# --------------------------------------------------------------------
+sub search_dir
+{
+	my ($dir, @regexes) = @_;
+
+	if (!opendir(READ_DIR_HANDLE, $dir)) {
+		# Might fail for permissions problems; ignore if so.
+		# print "Couldn't open $dir: $!\n";
+		return;
+	}
+
+	my @ents = grep { $_ ne '.' and $_ ne '..' }
+		readdir READ_DIR_HANDLE;
+	closedir READ_DIR_HANDLE;
+
+	for my $ent (@ents) {
+		for my $regex (@regexes) {
+			if ($ent =~ m/$regex/) {
+				my $path = $dir . "/" . $ent;
+				#print "Match: {$path} <==> {$regex}\n";
+				print "$path\n";
+			}
+		}
+	}
+}
+
+# ====================================================================
+usage if (@ARGV < 2);
+
+@dir_list = ($ARGV[0]);
+shift @ARGV;
+@patterns = @ARGV;
+$depth = 1;
+
+# Turn wildcard syntax into regular-expression syntax.
+# E.g. "*" becomes ".*", "?" becomes ".", "." becomes "\."
+
+@regexes = ();
+for my $pattern (@patterns) {
+	my $regex = $pattern;
+	$regex =~ s/\?/@/g;
+	$regex =~ s/\./\\./g;
+	$regex =~ s/@/./g;
+	$regex =~ s/\*/.*/g;
+	$regex = "^" . $regex . "\$";
+	#$regex = lc $regex; # lc for case insensitivity.
+	# xxx do this only on Window$
+	push @regexes, $regex;
+}
+
+print "  -- Searching 1 directory deep ... \n";
+
+search_dir($dir_list[0], @regexes);
+
+while (@dir_list > 0) {
+	@new_dir_list = ();
+	for my $dir (@dir_list) {
+		if (opendir(MY_DIR_HANDLE, $dir)) {
+			# Might fail for permissions problems; ignore if so.
+			my @subdirs = grep { $_ ne '.' and $_ ne '..' }
+				readdir MY_DIR_HANDLE;
+			closedir MY_DIR_HANDLE;
+			for my $subdir (@subdirs) {
+				my $path = $dir . "/" . $subdir;
+				if ( -d $path) {
+					push @new_dir_list, $path;
+				}
+			}
+		}
+	}
+	@dir_list = @new_dir_list;
+
+	$depth++;
+	my $count = @dir_list;
+	print "  -- Searching $depth directories deep (dirs: $count)... \n";
+	for my $dir (@dir_list) {
+		search_dir($dir, @regexes);
+	}
+}

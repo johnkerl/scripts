@@ -1,0 +1,27 @@
+#!/usr/bin/ruby
+
+# ==============================================================================
+# John Kerl
+# http://johnkerl.org
+# 2012-11-02
+# Counterpart to Unix sleep, but in terms of milliseconds rather than seconds.
+# ==============================================================================
+
+$us = File.basename $0
+
+# ----------------------------------------------------------------
+def usage
+	$stderr.puts "Usage: #{$us} {non-negative milliseconds to sleep}"
+	exit 1
+end
+
+# ----------------------------------------------------------------
+usage unless ARGV.length == 1
+begin
+	millis = Integer(ARGV[0])
+rescue ArgumentError
+	usage
+end
+usage if millis < 0
+
+sleep(millis / 1000.0)

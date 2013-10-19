@@ -1,0 +1,172 @@
+#!/usr/bin/ruby
+$VERBOSE=nil
+
+# ==============================================================================
+# John Kerl
+# Written in Perl sometime in the 1990s ... ported to Ruby 2012-06-12.
+# Usage: chop [-200] filename
+# Or:    chop [-200] filename1 filename2
+# Or:    somecmd | chop [-200]
+#
+# Prints input lines but only up to a certain width.  This is a cousin of the
+# Unix "fold" command.  It's particularly useful for slogging through large,
+# long-lined log files and such, where you might want items at the start of
+# line to jump out at you.  See also my "dspc" (double-spacer) filter which I
+# also use to make log-slogging easier on the eyes.
+# ==============================================================================
+
+require 'getoptlong'
+
+@@us = File.basename $0
+
+# ------------------------------------------------------------------------------
+# Ruby stty size ... found on the web.
+TIOCGWINSZ = 0x5413
+def get_terminal_width
+	buf = [0,0,0,0].pack("SSSS")
+	rows, cols = 25, 80 # Default
+	handle = File.open("/dev/tty", "r")
+	if handle.ioctl(TIOCGWINSZ, buf) >= 0 then
+		# the other two are rows pixels & col pixels
+		rows, cols= buf.unpack("SSSS")[0..1]
+	end
+	handle.close
+	return cols
+end
+
+# ----------------------------------------------------------------
+# From my "retab" script.
+def expand_tabs(old_line, tab_width)
+	output_char_count = 0
+	new_line = ""
+
+	old_line.split("").each do |c|
+
+		if c == "\t"
+			new_line += " "
+			output_char_count += 1
+			while (output_char_count % tab_width) != 0
+				new_line += " "
+				output_char_count += 1
+			end
+		else
+			new_line += c
+			output_char_count += 1
+		end
+	end
+	new_line
+end
+
+# ----------------------------------------------------------------
+def usage()
+	$stderr.puts "Usage: #{@@us} [options] [-w window size] [-t tab width] {zero or more file names ...}"
+	$stderr.puts "Options:"
+	$stderr.puts "* -w {window size}    Defaults to the tty's number of columns."
+	$stderr.puts "                      You can also use -40, -200, etc."
+	$stderr.puts "* -t {tab width}      Defaults to 8."
+	$stderr.puts "If filenames are omitted, input is taken from stdin."
+	exit 1
+end
+
+# ================================================================
+def main()
+	# Default chop width is terminal width.
+	# The -1 bit is because the "watch" command doesn't behave well with
+	# perfect chop.
+	chop_width         = get_terminal_width - 1
+	use_terminal_width = true
+	tab_width          = 8
+
+	accumulator = 0
+
+	# OK so I want to allow "chop -200" in addition to "chop -w 200".  I
+	# can do that without getopt, using ARGV.shift (as I did in a previous
+	# version of this script).  Or I can let getopt take all the digits.
+	# The downside to the latter is that chop -2 -0 -0 is the same as chop
+	# -200.  [But who would type *that*?  ;)]
+	opts = GetoptLong.new(
+	    [ '-w', GetoptLong::REQUIRED_ARGUMENT ],
+	    [ '-t', GetoptLong::REQUIRED_ARGUMENT ],
+	    [ '-0', GetoptLong::NO_ARGUMENT ],
+	    [ '-1', GetoptLong::NO_ARGUMENT ],
+	    [ '-2', GetoptLong::NO_ARGUMENT ],
+	    [ '-3', GetoptLong::NO_ARGUMENT ],
+	    [ '-4', GetoptLong::NO_ARGUMENT ],
+	    [ '-5', GetoptLong::NO_ARGUMENT ],
+	    [ '-6', GetoptLong::NO_ARGUMENT ],
+	    [ '-7', GetoptLong::NO_ARGUMENT ],
+	    [ '-8', GetoptLong::NO_ARGUMENT ],
+	    [ '-9', GetoptLong::NO_ARGUMENT ],
+	    [ '-h', '--help', GetoptLong::NO_ARGUMENT ]
+	)
+
+	begin
+	    opts.each do |opt, arg|
+		case opt
+			# arg.to_i won't raise ArgumentError for invalid format:
+			when '-w'; chop_width = Integer(arg); use_terminal_width = false
+			when '-t'; tab_width  = Integer(arg)
+			when '-0'; accumulator = accumulator * 10 + 0
+			when '-1'; accumulator = accumulator * 10 + 1
+			when '-2'; accumulator = accumulator * 10 + 2
+			when '-3'; accumulator = accumulator * 10 + 3
+			when '-4'; accumulator = accumulator * 10 + 4
+			when '-5'; accumulator = accumulator * 10 + 5
+			when '-6'; accumulator = accumulator * 10 + 6
+			when '-7'; accumulator = accumulator * 10 + 7
+			when '-8'; accumulator = accumulator * 10 + 8
+			when '-9'; accumulator = accumulator * 10 + 9
+			when '-h'; usage
+			when '--help'; usage
+		end
+	    end
+	rescue GetoptLong::Error
+	    usage
+	end
+
+	if accumulator != 0
+		chop_width = accumulator
+		use_terminal_width = false
+	end
+
+	# If they want width 80, they get width 80.  Otherwise we use terminal
+	# width, and we should recompute that when the window is resized.
+	recompute_terminal_width = false
+	Signal.trap("SIGWINCH") { recompute_terminal_width = true }
+
+	# Control-C handler while we're at it:
+	Signal.trap("SIGINT") { puts ; exit 1 }
+
+	# "ARGF.each do |line|" is like Perl's line=<>: if there are arguments on
+	# the command line then they're processed in turn; else, stdin is read.
+	ARGF.each do |line|
+
+		# In particular, for tail -f {something} | chop, we might get resized
+		# while still running:
+		if (recompute_terminal_width == true) && (use_terminal_width == true)
+			chop_width = get_terminal_width - 1
+			recompute_terminal_width == false
+		end
+
+		line.chomp!
+
+		# Below I will count characters one per position.  This is wrong for
+		# UTF-8 (no big problem for me) but also for tabs (a bigger problem for
+		# me).  So at very least, I can expand tabs.
+		line = expand_tabs(line, tab_width)
+
+		len = line.length
+		line = line[0..(chop_width-1)] if len >= chop_width
+
+		begin
+		    puts line
+		rescue Errno::EPIPE
+		    # E.g. we're piped to head.  Don't complain.
+		    exit 0
+		end
+	end
+end
+
+# ----------------------------------------------------------------
+# Top-down programming style, please.
+main

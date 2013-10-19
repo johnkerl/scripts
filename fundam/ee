@@ -1,0 +1,8 @@
+#!/bin/sh
+ 
+# ================================================================
+# For when I have $somedir/command and I type "$somedir/comm<tab>" and bash
+# doesn't auto-complete, whereas it does when I type "ee $somedir/comm<tab>".
+# ================================================================
+ 
+exec "$@"

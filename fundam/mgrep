@@ -1,0 +1,19 @@
+#! /bin/sh
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Simple grep, operating on paragraphs rather than lines.
+# 1994 or so.
+# ================================================================
+
+me=`basename $0`
+if [ $# -ge 1 ]; then
+  pattern=$1; shift
+	files=$@
+else
+  echo "$me:  Usage -- $me pat, where pat is a regexp." 1>&2
+  exit 1
+fi
+
+awk 'BEGIN{FS="\n";RS="";ORS="\n\n"} /'"$pattern"'/ {print}' $files

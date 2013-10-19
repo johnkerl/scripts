@@ -1,0 +1,42 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# Formats seconds since the epoch to RFC8601 date string.
+# John Kerl, 2013
+# ================================================================
+
+require 'time'
+
+@@us = File.basename $0
+
+# ----------------------------------------------------------------
+def usage()
+	$stderr.puts "Usage: #{@@us} {one or more integers/floats counting seconds since the epoch}"
+	exit 1
+end
+
+# ----------------------------------------------------------------
+def main()
+	usage unless ARGV.length > 0
+	ok = true
+	for arg in ARGV
+		seconds = 0
+		begin
+			seconds = Float(arg)
+			t = Time.at(seconds).gmtime
+			s = t.strftime("%Y-%m-%dT%H:%M:%SZ")
+			puts s
+		rescue ArgumentError => e
+			$stderr.puts "#{@@us} can't parse \"#{arg}\" as float."
+			ok = false
+		end
+	end
+	if ok
+		exit 0
+	else
+		exit 1
+	end
+end
+
+# ----------------------------------------------------------------
+main()

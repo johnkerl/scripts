@@ -1,0 +1,9 @@
+#! /bin/sh
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Detach and run a program, with no bg/fg strings attached.
+# ================================================================
+
+$* &

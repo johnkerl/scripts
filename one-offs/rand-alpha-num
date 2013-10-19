@@ -1,0 +1,42 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2012-02-22
+# Prints {count} words of {length} characters each, with characters selected
+# uniformly randomly from uppercase A-Z, lowercase a-z, and 0-9.
+# See also xyxyx in this same directory for slightly more pronounceable output.
+# ================================================================
+
+import sys
+import random
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage: %s [length [count]]" % (sys.argv[0])
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+choices = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+length  =  8
+count   = 1
+
+argc = len(sys.argv)
+if argc == 1:
+	pass
+elif sys.argv[1] == '-h':
+	usage()
+elif sys.argv[1] == '--help':
+	usage()
+elif argc == 2:
+	length = int(sys.argv[1])
+elif argc == 3:
+	length = int(sys.argv[1])
+	count  = int(sys.argv[2])
+
+for i in xrange(0, count):
+	word = ""
+	for j in xrange(0, length):
+		 word += random.choice(choices)
+	print word

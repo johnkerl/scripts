@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Useful for pretty-printing %PATH% on NT.
+# E.g. if $PATH is C:\this;C:\that
+# nocolon PATH prints
+#	C:\this
+#	C:\that
+# ================================================================
+
+die "Usage: $0 {environment variable name}\n"
+	unless (@ARGV == 1);
+$value = $ENV{$ARGV[0]};
+if (!$value) {
+	# Allow them to put $VAR on the command line, as well as VAR.
+	# That is, see if the shell already expanded it.
+	if ($ARGV[0] =~ m/;/) {
+		$value = $ARGV[0];
+		# OK
+	}
+	else {
+		print "Variable \"$ARGV[0]\" not set in environment.\n";
+		exit;
+	}
+}
+
+
+my @fields = split /;/, $value;
+for my $field (@fields) {
+	print "\t$field\n";
+}

@@ -1,0 +1,25 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# 2012-09-12
+#
+# Prints a clot of characters, like this but bigger:
+#
+#   @**o**.@.****oo*o**@.oo.@*@.@*oo.@@..*
+#   @@..o*.@@@@o@oo@o@*@o@@o.o*o*.o.ooo@..
+#   .**@o*oo@*o.@o@*...@*o@@.*.o..*@.o.**o
+#   ..*o@@o@*o@oo.oo.@****@.*o@.@o*o.o@...
+#   @.o..@*o.o*.o@@*@o*..@.@**.@ooo..oo*.*
+#
+# to help me put a visual separator between something old in
+# my terminal window and something new.
+# ================================================================
+
+import random
+
+for i in xrange(0, 30): # Height
+	s = ""
+	for j in xrange(0, 78): # Width
+		s += random.choice(".*o@")
+	print s

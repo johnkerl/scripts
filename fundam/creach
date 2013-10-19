@@ -1,0 +1,41 @@
+#!/usr/bin/perl
+use line_term_lib;
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Prints a carriage return after each ith line.  E.g.
+#
+# $ jot 1 10 | creach 2
+# 1
+# 2
+# 
+# 3
+# 4
+# 
+# 5
+# 6
+# 
+# 7
+# 8
+# 
+# 9
+# 10
+#
+# E.g. if you have one file per month and you're doing ls -l,
+# you can pipe that to creach 12 to group them by years.
+# ================================================================
+
+die "Usage: $0 {n} [input]\n" unless @ARGV;
+$n = shift @ARGV;
+
+$i = 0;
+while ($line = <>) {
+	($line, $term) = split_line_ending($line);
+	$i++;
+	print "$line$term";
+	if ($i == $n) {
+		print "$term";
+		$i = 0;
+	}
+}

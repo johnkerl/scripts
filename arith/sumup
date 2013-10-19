@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+use line_term_lib;
+
+# ================================================================
+# Prints the sum of numbers in an input stream, one number per line.
+# E.g. with input
+#   1
+#   2
+#   3
+#   4
+#   5
+# output is
+#   15
+# Sample use:  to find the total line count of Java files in or below the
+# current directory:
+#
+#   find . -type f -name '*.java' -exec wc -l {} \; | awk '{print $1}' | sumup
+# ================================================================
+
+$sum = 0.0;
+while ($line = <>) {
+	($line, $term) = split_line_ending($line);
+
+	# Strip leading whitespace from line.
+	$line =~ s/^\s+//;
+
+	# Get only the first token on the line.
+	($f) = split /\s+/, $line;
+
+	# Skip blank lines.
+	next if ($f =~ m/^[ \t]*$/);
+
+	# Accumulate sum.
+	$sum += $f;
+}
+print "$sum$term";

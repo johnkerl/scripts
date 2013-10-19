@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# A jot replacement from my NT days.
+# ================================================================
+
+$start  = 0;
+$reps   = 10;
+$stride = 1;
+
+$nargs = scalar @ARGV;
+usage() if $nargs < 1;
+$start  = shift @ARGV;
+$reps   = shift @ARGV if @ARGV;
+$stride = shift @ARGV if @ARGV;
+usage() if @ARGV;
+
+$value = $start;
+for ($i = 0; $i < $reps; $i++) {
+	print "$value\n";
+	$value += $stride;
+}
+
+sub usage
+{
+	die "Usage: $0 start [reps [stride]].\n";
+}

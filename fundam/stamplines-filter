@@ -1,0 +1,22 @@
+#!/usr/bin/ruby
+
+# ==============================================================================
+# John Kerl
+# http://johnkerl.org
+# 2012-11-02
+# Prefixes each line of output with a timestamp.  Useful for elementary
+# stdio-based profiling.  See also the stamplines script which nominally
+# invokes this; compare my timelines-filter script.  This is due to an idea by
+# Amy Chuo -- thanks Amy!  :)
+# ==============================================================================
+
+require 'date'
+while true
+	begin
+		line = $stdin.readline
+	rescue EOFError
+		break
+	end
+	t = Time::now.strftime("%Y%m%d-%H:%M:%S.%N")
+	printf("[%s] %s", t.to_s, line)
+end

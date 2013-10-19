@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Cats out each file, with separator and filename.
+# E.g. namecat *.txt
+# ================================================================
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $(basename $0) {one or more file names ...}" 1>&2
+	exit 1
+fi
+
+for arg; do
+	#echo $arg ----------------------------------------------------------------
+	echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ $arg
+	cat $arg
+	echo ""
+done

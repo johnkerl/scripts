@@ -1,0 +1,68 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Splits a number of seconds up into days, hours, minutes, and seconds.
+# ================================================================
+
+# Test scenario:
+# max=100000
+# if [ $# -eq 1 ]; then
+#   max=$1
+# fi
+# jot 1 $max > a
+# dhms $(cat a) > b
+# dhms $(cat b) > c
+# diff a c
+
+us = File.basename $0
+
+if ARGV.length < 1
+	$stderr.puts "Usage: #{us} {seconds}"
+	$stderr.puts "Or:    #{us} {mm:ss, hh:mm:ss, or dd:hh:mm:ss}"
+	exit 1
+end
+
+for arg in ARGV
+	if arg =~ /:/
+		fields = arg.split(':')
+		dd = 0
+		hh = 0
+		mm = 0
+		ss = 0
+		if fields.length == 2
+			mm = Integer(fields[0].sub(/^0/, ''))
+			ss = Integer(fields[1].sub(/^0/, ''))
+		elsif fields.length == 3
+			hh = Integer(fields[0].sub(/^0/, ''))
+			mm = Integer(fields[1].sub(/^0/, ''))
+			ss = Integer(fields[2].sub(/^0/, ''))
+		elsif fields.length == 4
+			dd = Integer(fields[0].sub(/^0/, ''))
+			hh = Integer(fields[1].sub(/^0/, ''))
+			mm = Integer(fields[2].sub(/^0/, ''))
+			ss = Integer(fields[3].sub(/^0/, ''))
+		else
+			puts "#{us}: can't parse \"#{arg}\" as mm:ss, hh:mm:ss, or dd:hh:mm:ss."
+			next
+		end
+		seconds = ss + 60 * (mm + 60 * (hh + 24 * dd))
+		puts seconds
+	else
+		arg = Integer(arg)
+
+		ss  = arg % 60
+		arg = arg / 60
+
+		mm  = arg % 60
+		arg = arg / 60
+
+		hh  = arg % 24
+		arg = arg / 24
+
+		dd  = arg
+
+		printf("%02u:%02u:%02u:%02u\n", dd, hh, mm, ss)
+	end
+end

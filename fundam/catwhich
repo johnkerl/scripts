@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Cats out a file in the $PATH.
+# ================================================================
+
+if [ $# -lt 1 ]; then
+    echo "Usage: $(basename $0) {one or more names to be whiched}"
+fi
+cmd="cat"
+for arg; do
+    cmd="$cmd $(which $arg)"
+done
+
+exec $cmd

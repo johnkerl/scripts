@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# ================================================================
+# I use this script for long-running commands which produce a lot of output,
+# which I may leave running in a terminal window and lose track of while I'm
+# doing other things (anywhere from working on something else, to getting
+# coffee, to being gone for the weekend).
+#
+# Given a command, it does:
+# * Sets the window title (using xterm escape sequences)
+# * Runs the command (here is where most of the time is spent)
+# * Echoes out what the command was and what its exit status was
+# * Itself exits with that same status.
+# See also trun.
+#
+# John Kerl // http://github.com/johnkerl // 2013-03-29
+# ================================================================
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $(basename $0) {command to execute}" 1>&2
+	exit 1
+fi
+
+cmd="$@"
+
+title $cmd
+$cmd
+status=$?
+
+echo ""
+echo "================================================================"
+echo "That was:"
+echo ""
+echo $cmd
+echo ""
+echo "status = ${status}"
+exit $status

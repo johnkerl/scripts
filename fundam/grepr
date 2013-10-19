@@ -1,0 +1,113 @@
+#! /usr/bin/perl -Wall
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Recursive grep, written back in the 90s.
+# Also note (Linux):
+# grep -nr -e pattern --include='*.[c|h]' directoryname
+# ================================================================
+
+# ----------------------------------------------------------------
+sub usage
+{
+	print "Usage: $0 [-s | grep options] {search pattern} [filename patterns ...]\n";
+	print "  Recursively greps for the specified search pattern in files\n";
+	print "  whose names match specified patterns.  Single quotes are required\n";
+	print "  around any patterns with '*' or '?' in them.\n";
+	print "  If the filename patterns are omitted, all files are searched.\n";
+	print "Options:\n";
+	print "  -h: show this message.\n";
+	print "  -s: a shorthand for the filename pattern *.[chsS] or [Mm]akefile.\n";
+	print "  -j: a shorthand for the filename pattern *.java.\n";
+	print "  -X: dry run only.\n";
+	print "  -E: show errors.\n";
+	print "  Any other options are passed to grep.\n";
+	print "  Example:  $0 my_function '*.c' '*.h'\n";
+	print "  Example:  $0 -s my_function \n";
+	print "  Example:  $0 -i -s my_function \n";
+	print "  Example:  $0 some_string \n";
+	exit(1);
+}
+
+# ================================================================
+@findopts = ();
+@grepopts = ();
+$pattern  = "";
+$dryrun   = 0; 
+$show_errors  = 0; 
+
+# I don't use getopt() since I don't want to fail on any args -- all but a few
+# args I pass to grep, and I want grep to fail them if it doesn't recognize
+# them, on whatever the current platform is.
+while (@ARGV > 0) {
+	unless ($ARGV[0] =~ m/^-/) {
+		last;
+	}
+	if ($ARGV[0] =~ m/^--$/) {
+		shift @ARGV;
+		last;
+	}
+	if ($ARGV[0] =~ m/^-s$/) {
+		shift @ARGV;
+		push @findopts, "\\( -name '*.[chsS]' -o -name '*.cpp' -o -name '*.cc' -o -name '[Mm]akefile' -o -name '*.mki'";
+	}
+	elsif ($ARGV[0] =~ m/^-Ch$/) {
+		shift @ARGV;
+		push @findopts, "\\( -name '*.[Cch]' -o -name '*.cpp' -o -name '*.cc' -o -name '[Mm]akefile' -o -name '*.mk'";
+	}
+	elsif ($ARGV[0] =~ m/^-j$/) {
+		shift @ARGV;
+		push @findopts, "\\( -name '*.java' ";
+	}
+	elsif ($ARGV[0] =~ m/^-X$/) {
+		shift @ARGV;
+		$dryrun = 1;
+	}
+	elsif ($ARGV[0] =~ m/^-E$/) {
+		shift @ARGV;
+		$show_errors = 1;
+	}
+	else {
+		push @grepopts, shift @ARGV;
+	}
+}
+
+# There must be at least one search pattern.
+if (@ARGV == 0) {
+	print "$0:  Requires at least one non-option argument.\n";
+	usage();
+}
+$pattern = shift @ARGV;
+
+# Remaining arguments are filespecs.
+while (@ARGV > 0) {
+	if (@findopts) {
+		push @findopts, "-o";
+	}
+	else {
+		push @findopts, "\\(";
+	}
+	push @findopts, "-name";
+	$arg = shift @ARGV;
+	push @findopts, "'$arg'";
+}
+
+if (@findopts) {
+	push @findopts, "\\)";
+}
+
+$cmd = "find . -type f -follow @findopts -exec egrep @grepopts '$pattern' {} /dev/null \\;";
+if (!$show_errors) {
+	$cmd = $cmd . " 2> /dev/null";
+}
+if ($dryrun) {
+	print "findopts: <<@findopts>>\n";
+	print "grepopts: <<@grepopts>>\n";
+	print "pattern:  <<$pattern>>\n";
+	print "command:\n";
+	print "$cmd\n";
+}
+else {
+	system("$cmd");
+}

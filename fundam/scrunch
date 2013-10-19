@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+use line_term_lib;
+
+# ----------------------------------------------------------------
+# John Kerl
+# john.kerl@avnet.com
+# kerl.john.r@gmail.com
+# 2000/12/18
+#
+# Replaces multiple blank lines with single blank lines.  Most useful
+# when viewing ".i" files:  C source files which have been run through
+# the preprocessor (e.g. with gcc -E).
+# ----------------------------------------------------------------
+
+my $prev_blank = 0;
+my $curr_blank = 0;
+while ($line = <>) {
+	($line, $term) = split_line_ending($line);
+
+	if ($line =~ m/^\s*$/) {
+		$curr_blank = 1;
+	}
+	else {
+		$curr_blank = 0;
+	}
+
+	if ($curr_blank) {
+		if (!$prev_blank) {
+			print $line;
+			print "$term";
+		}
+	}
+	else {
+		print $line;
+		print "$term";
+	}
+	$prev_blank = $curr_blank;
+}

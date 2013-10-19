@@ -1,0 +1,9 @@
+================================================================
+These are abbrevations for frequently used commands in my ../fundam directory.
+They could be aliases, except that I use these primarily from within vim (e.g.
+"!} liit"), wherein subshells get the path but not aliases.
+
+================================================================
+John Kerl
+kerl.john.r@gmail.com
+2013-06-12

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# A filter to strip trailing whitespace.
+# ================================================================
+
+#sed -r 's/\s+$//'
+# Darwin compatibility:
+sed 's/[ \t][ \t]*$//'

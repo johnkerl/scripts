@@ -1,0 +1,116 @@
+" ================================================================
+" John Kerl's vimrc, 2003-2013 and onward ... .
+" See vim online help for more information.
+" This is a minimal version for drop-in contexts.
+" See also https://github.com/johnkerl/dotfiles
+
+" ================================================================
+" SETTINGS
+
+behave xterm
+set nobackup
+set nohlsearch
+set noincsearch
+set noshowmode
+set cpoptions=aABcdeFs
+set exrc
+set modeline
+set modelines=5
+set encoding=utf-8
+set autoindent
+set nocindent " Nice feature; doesn't match my preferences.
+set noignorecase
+set nonovice
+set nowrapscan
+set ts=8
+set background=dark
+set formatoptions=ql
+set vb t_vb= "No beeping
+let c_space_errors=1 " Flag trailing whitespace in red.
+let java_space_errors=1
+let ruby_space_errors=1
+let scala_space_errors=1
+syntax on " Enable language-specific syntax highlighting.
+
+" ================================================================
+" KEYMAPS
+
+"Leader for two-key sequences
+map , \
+
+map \i :set ic
+map \I :set noic
+map \a :set ai
+map \A :set noai
+
+map \n :se nu
+map \N :se nonu
+map \l :se list
+map \L :se nolist
+
+map \2 :se ts=2
+map \3 :se ts=3
+map \4 :se ts=4
+map \8 :se ts=8
+
+map e 
+
+map ; :
+" Show current line number
+map - :.=
+" Show last line number
+map _ :$=
+" Insert a space & keep the cursor position still
+map  i 
+" Indent the current line by a tab
+map  I	
+" Unindent the current line by its leading character (e.g. a tab)
+map  0x
+
+" Next file
+map  :n
+" Reflow the current paragraph
+map  gqip}}{j
+" Reflow the current line and the one below.  Nice with auto-repeat.
+map  gqj
+" Replace current character with space and move right.  Nice with auto-repeat.
+map  r l
+" Move to next file, with save.
+map  :w:n
+
+" ================================================================
+" Language-specific separators.  Uppercase is equal signs; lowercase is dashes.
+" ,S and ,s for shell:
+" # ================================================================
+" # ----------------------------------------------------------------
+"
+" ,P and ,p for C++-style comments:
+" // ================================================================
+" // ----------------------------------------------------------------
+"
+" ,J and ,j for just the separator:
+" ================================================================
+" ----------------------------------------------------------------
+"
+" etc.
+
+map \c 0i(*A*)
+map \m O(* 64A-A*)
+map \M O(* 64A=A*)
+" C++-style
+map \p O// 64A-
+map \P O// 64A=
+" - - - instead of -----
+map \q O// 32A -
+map \Q O// 32A =
+map \= O// 32A -
+" Shell-style (Python, Ruby, ...)
+map \s O# 64A-
+map \S O# 64A=
+" LaTeX-style
+map \t O%% 64A-
+map \T O%% 64A=
+map \f Oi 64A-
+map \F Oi 64A=
+map \j O64A-
+map \J O64A=

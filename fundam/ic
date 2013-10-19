@@ -1,0 +1,22 @@
+#! /usr/bin/perl
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Add tight C++-style comments
+# E.g.
+# public int func(int x)
+# {
+#     return x*2;
+# }
+# goes to
+# //public int func(int x)
+# //{
+#     //return x*2;
+# //}
+# ================================================================
+
+while ($line = <>) {
+	$line =~ s/^(\s*)(.*)/\1\/\/\2/;
+	print $line;
+}

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# ================================================================
+# Given a command, this script:
+# * Sets the window title (using xterm escape sequences)
+# * Runs the command
+# See also ttrun.
+# John Kerl // http://github.com/johnkerl // 2013-03-29
+# ================================================================
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $(basename $0) {command to execute}" 1>&2
+	exit 1
+fi
+
+cmd="$@"
+
+title $cmd
+exec $cmd

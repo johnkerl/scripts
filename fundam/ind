@@ -1,0 +1,217 @@
+#! /usr/bin/perl
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# An all-purpose multilanguage indenter/unindenter.
+# E.g. !}ind -1s in vim.
+# ================================================================
+
+$add = 1;
+$pat = "\t";
+
+while (@ARGV >= 1) {
+
+	if    ($ARGV[0] eq "-u") {
+		$add = 0;
+	}
+
+	elsif ($ARGV[0] eq "-dash") {
+		$pat = "- ";
+	}
+
+	elsif ($ARGV[0] eq "-b") {
+		$pat = "*";
+	}
+	elsif ($ARGV[0] eq "-1b") {
+		$pat = "* ";
+	}
+
+	elsif ($ARGV[0] eq "-t") {
+		$pat = "\t";
+	}
+
+	elsif ($ARGV[0] eq "-tt") {
+		$pat = "\t\t";
+	}
+
+	elsif ($ARGV[0] eq "-ttt") {
+		$pat = "\t\t\t";
+	}
+
+	elsif ($ARGV[0] eq "-tttt") {
+		$pat = "\t\t\t\t";
+	}
+
+	elsif ($ARGV[0] eq "-g") {
+		$pat = "> ";
+	}
+
+	elsif ($ARGV[0] eq "-L") {
+		$pat = "--";
+	}
+	elsif ($ARGV[0] eq "-1L") {
+		$pat = "-- ";
+	}
+
+	elsif ($ARGV[0] eq "-l") {
+		$pat = ";";
+	}
+	elsif ($ARGV[0] eq "-ll") {
+		$pat = ";;";
+	}
+	elsif ($ARGV[0] eq "-lll") {
+		$pat = ";;;";
+	}
+
+	elsif ($ARGV[0] eq "-gp") {
+		$pat = "\\\\ ";
+	}
+
+	elsif ($ARGV[0] eq "-1") {
+		$pat = " ";
+	}
+
+	elsif ($ARGV[0] eq "-2") {
+		$pat = "  ";
+	}
+
+	elsif ($ARGV[0] eq "-3") {
+		$pat = "   ";
+	}
+
+	elsif ($ARGV[0] eq "-4") {
+		$pat = "    ";
+	}
+
+	elsif ($ARGV[0] eq "-5") {
+		$pat = "     ";
+	}
+
+	elsif ($ARGV[0] eq "-6") {
+		$pat = "      ";
+	}
+
+	elsif ($ARGV[0] eq "-7") {
+		$pat = "       ";
+	}
+
+	elsif ($ARGV[0] eq "-8") {
+		$pat = "        ";
+	}
+
+	elsif ($ARGV[0] eq "-a") {
+		$pat = ";; ";
+	}
+
+	elsif ($ARGV[0] eq "-P") {
+		$pat = "\\+";
+	}
+
+	elsif ($ARGV[0] eq "-p") {
+		$pat = "//";
+	}
+
+	elsif ($ARGV[0] eq "-1p") {
+		$pat = "// ";
+	}
+
+	elsif ($ARGV[0] eq "-tp") {
+		$pat = "\t// ";
+	}
+
+	elsif ($ARGV[0] eq "-ttp") {
+		$pat = "\t\t// ";
+	}
+
+	elsif ($ARGV[0] eq "-tttp") {
+		$pat = "\t\t\t// ";
+	}
+
+	elsif ($ARGV[0] eq "-ttttp") {
+		$pat = "\t\t\t\t// ";
+	}
+
+	elsif ($ARGV[0] eq "-at") {
+		$pat = "//@@";
+	}
+
+	elsif ($ARGV[0] eq "-s") {
+		$pat = "\#";
+	}
+	elsif ($ARGV[0] eq "-ss") {
+		$pat = "\#\#";
+	}
+	elsif ($ARGV[0] eq "-1s") {
+		$pat = "\# ";
+	}
+	elsif ($ARGV[0] eq "-2s") {
+		$pat = "\#  ";
+	}
+
+	elsif ($ARGV[0] eq "-ts") {
+		$pat = "\t\# ";
+	}
+
+	elsif ($ARGV[0] eq "-tts") {
+		$pat = "\t\t\# ";
+	}
+
+	elsif ($ARGV[0] eq "-ttts") {
+		$pat = "\t\t\t\# ";
+	}
+
+	elsif ($ARGV[0] eq "-tttts") {
+		$pat = "\t\t\t\t\# ";
+	}
+
+	elsif ($ARGV[0] eq "-T") {
+		$pat = "%";
+	}
+	elsif ($ARGV[0] eq "-1T") {
+		$pat = "% ";
+	}
+	elsif ($ARGV[0] eq "-m") {
+		$pat = "%";
+	}
+	elsif ($ARGV[0] eq "-mv") {
+		$pat = "mv ";
+	}
+	elsif ($ARGV[0] eq "-cp") {
+		$pat = "cp ";
+	}
+	elsif ($ARGV[0] eq "-rm") {
+		$pat = "rm ";
+	}
+	elsif ($ARGV[0] eq "-echo") {
+		$pat = "echo ";
+	}
+
+	elsif ($ARGV[0] eq "-q") {
+		$pat = "? ";
+	}
+
+	elsif ($ARGV[0] eq "-h") {
+		die "Usage: $0 [-u][-t][-g][-4][-s]\n"
+	}
+
+	elsif ($ARGV[0] =~ m/^-/) {
+		$pat = $ARGV[0];
+	}
+
+	else {
+		last;
+	}
+
+	shift @ARGV;
+}
+
+while ($line = <>) {
+	if ($add) {
+		$line =~ s/^/$pat/;
+	}
+	else {
+		$line =~ s/^$pat//;
+	}
+	print $line;
+}

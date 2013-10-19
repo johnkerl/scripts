@@ -1,0 +1,13 @@
+#! /bin/sh
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# A keystroke-saver.
+# ================================================================
+
+if [ $# -ne 2 ]; then
+	echo "Usage: $0 {basedir} {name}" 1>&2
+	exit 1
+fi
+find $1 -follow -name $2

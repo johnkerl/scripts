@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+# ==============================================================================
+# Sort the input by the number of slashes in the lines (i.e. by directory depth).
+# John Kerl 2011-10-03
+# ==============================================================================
+
+@lines = sort lensort <>;
+for my $line (@lines) {
+	print $line;
+}
+
+# ----------------------------------------------------------------
+sub lensort
+{
+	my $nsa = 0;
+	my $nsb = 0;
+	$nsa++ while $a =~ /\//g;
+	$nsb++ while $b =~ /\//g;
+
+	if ($nsa == $nsb) {
+		return $a cmp $b;
+	}
+	else {
+		return $nsa - $nsb;
+	}
+}

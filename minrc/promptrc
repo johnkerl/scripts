@@ -1,0 +1,2 @@
+# Minimal prompt
+export PS1="$USER@$(hostname)$ "

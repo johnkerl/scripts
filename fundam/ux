@@ -1,0 +1,20 @@
+#! /bin/sh
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Touches a file and makes it executable.  First thing I type
+# when creating a new script (followed by vim).  See also ax.
+# ================================================================
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $0 {one or more files ... }" 1>&2
+fi
+
+for arg
+do
+	if [ ! -e $arg ]; then
+		touch $arg
+	fi
+	chmod u+x $arg
+done

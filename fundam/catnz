@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Like cat -n, but starts with line number 0 instead of 1.
+# ================================================================
+
+$i = 0;
+while ($line=<>) {
+	chomp $line;
+	print "$i\t$line\n";
+	$i++;
+}

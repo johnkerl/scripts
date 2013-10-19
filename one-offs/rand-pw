@@ -1,0 +1,79 @@
+#!/usr/bin/python -Wall
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2012-02-22
+# Prints {count} words of {length} characters each, with characters selected
+# uniformly randomly from uppercase A-Z, lowercase a-z, 0-9, and some symbols
+# -- then, filtered to have at least one character from each of those four
+# sets.
+# ================================================================
+
+import sys, random, re
+
+# ================================================================
+choices = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$&!."
+
+lower_regex = ".*[a-z].*"
+upper_regex = ".*[A-Z].*"
+numer_regex = ".*[0-9].*"
+specl_regex = ".*[#$!.].*"
+
+# ----------------------------------------------------------------
+def usage():
+    print >> sys.stderr, "Usage: %s [length [count]]" % (sys.argv[0])
+    sys.exit(1)
+
+# ----------------------------------------------------------------
+def get_word_unfiltered(length):
+    word = ""
+    for j in xrange(0, length):
+         word += random.choice(choices)
+    return word
+
+def accept(word):
+    if not re.match(lower_regex, word):
+        return False
+    if not re.match(upper_regex, word):
+        return False
+    if not re.match(numer_regex, word):
+        return False
+    if not re.match(specl_regex, word):
+        return False
+
+    return True
+
+def get_word_filtered(length):
+    num_tries = 0
+    max_tries = 100
+    while num_tries < max_tries:
+        num_tries += 1
+        word = get_word_unfiltered(length)
+        if accept(word):
+            return word
+    print >> sys.stderr, "%s: Failed to produce an acceptable word of length %d after %d tries." % \
+        (sys.argv[0], length, max_tries)
+    sys.exit(1)
+
+# ----------------------------------------------------------------
+length  = 12
+count   = 1
+
+argc = len(sys.argv)
+if argc == 1:
+    pass
+elif sys.argv[1] == '-h':
+    usage()
+elif sys.argv[1] == '--help':
+    usage()
+elif argc == 2:
+    length = int(sys.argv[1])
+elif argc == 3:
+    length = int(sys.argv[1])
+    count  = int(sys.argv[2])
+
+for i in xrange(0, count):
+    #word = get_word_unfiltered(length)
+    word = get_word_filtered(length)
+    print word

@@ -1,0 +1,45 @@
+#!/usr/bin/ruby
+$stdout.sync = true
+
+# ==============================================================================
+# John Kerl
+# http://johnkerl.org
+# 2013-08-10
+#
+# Given input of the form
+#   a:1
+#   a:2
+#   b:3
+#   c:4
+#   c:5
+# produces output of the form
+#   a:1
+#   a:2
+#
+#   b:3
+#
+#   c:4
+#   c:5
+#
+# This is useful for splitting multi-file-grep output into paragraphs per
+# matching filename.
+# ==============================================================================
+
+prevname = nil
+currname = nil
+while true
+	begin
+		line = $stdin.readline
+	rescue EOFError
+		break
+	end
+	line.chomp!
+	if line =~ /:/
+		currname = line.split(/:/)[0]
+	else
+		currname = line
+	end
+	puts if prevname != nil && currname != prevname
+	puts line
+	prevname = currname
+end

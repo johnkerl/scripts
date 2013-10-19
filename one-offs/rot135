@@ -1,0 +1,10 @@
+#!/usr/bin/perl
+
+# ================================================================
+# A standard rot13, augmented by also rotating digits 0-9 cyclically by 5.
+# ================================================================
+
+while ($line = <>) {
+	$line =~ tr/a-mn-zA-MN-Z0-45-9/n-za-mN-ZA-M5-90-4/;
+	print $line;
+}

@@ -1,0 +1,24 @@
+#!/usr/bin/ruby
+$stdout.sync = true
+
+# ==============================================================================
+# John Kerl
+# http://johnkerl.org
+# 2012-11-02
+# Prefixes each line of output with the floating-point number of seconds since
+# the previous line.  Useful for elementary stdio-based profiling.  See also
+# the timelines script which nominally invokes this.
+# ==============================================================================
+
+require 'date'
+t1 = Time::now.to_f
+while true
+	begin
+		line = $stdin.readline
+	rescue EOFError
+		break
+	end
+	t2 = Time::now.to_f
+	printf("%11.6f %s", t2-t1, line)
+	t1 = t2
+end

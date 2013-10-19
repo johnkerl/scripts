@@ -1,0 +1,56 @@
+#! /usr/bin/perl
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Center-aligns text.  Adapted from _Unix Power Tools_ or The
+# Camel (I forget which), sometime in the mid 1990s.
+# ================================================================
+
+$usage="Usage goes here.";
+
+if ( "$0" eq "left" || $0 =~ /.*\/left$/ ) {
+  $fmt_char="<";
+}
+elsif ( "$0" eq "center" || $0 =~ /.*\/center$/ ) {
+  $fmt_char="|";
+}
+elsif ( "$0" eq "right" || $0 =~ /.*\/right$/ ) {
+  $fmt_char=">";
+}
+else {
+  die $usage;
+}
+
+$field_width=72;
+
+if ( $#ARGV eq 0 ){
+  if ($ARGV[0] =~ /^-(\d+)$/) {
+    $field_width=$1,
+    shift;
+  }
+}
+
+$myformat="@" . ( $fmt_char x $field_width );
+
+$prog=<<EOF;
+while (<STDIN>) {
+	chop;
+	if (length($_) > $field_width) {
+		print $_;
+		print "\n";
+	}
+	else {
+		\$_ =~ s/^[   ]*(.*)[   ]*\$/\\1/;
+		write;
+	}
+}
+
+format STDOUT =
+$myformat
+\$_
+.
+EOF
+
+eval $prog;
+die $@ if $@;

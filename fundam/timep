@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# ================================================================
+# Essentially time -p.
+# The issue is that bash built-in "time" does one thing, nicely, when run
+# interactively, but "time" in the path as /usr/bin/time, in scripted contexts.
+# does something ugly.  This script does the same thing both places.
+# John Kerl
+# kerl.john.r@gmail.com
+# 2012-12-24
+# ================================================================
+
+exec /usr/bin/time --format='real    %es\nsys     %Us\nuser    %Ss' "$@"
+

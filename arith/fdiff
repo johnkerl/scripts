@@ -1,0 +1,266 @@
+#!/usr/bin/perl -w
+
+# ----------------------------------------------------------------
+# John Kerl
+# john dot r dot kerl at lmco dot com
+# 2000/05/23
+
+# This script computes first differences of a sequence.
+
+# Sample input:
+
+# 08048254 ? _init
+# 080482b0 T _start
+# 080482d4 t call_gmon_start
+# 08048300 t __do_global_dtors_aux
+# 08048340 t frame_dummy
+# 0804836c T calc_pnk
+# 08048436 T main
+# 08048530 t __do_global_ctors_aux
+# 08048554 ? _fini
+# 08048570 R _fp_hw
+# 08048574 R _IO_stdin_used
+# 080495a0 D __data_start
+# 080495a0 W data_start
+# 080495a4 d __dso_handle
+# 080495a8 d p.0
+
+# Sample output, after running through fdiff -x -r:
+
+# 0x0000005c    08048254 ? _init
+# 0x00000024    080482b0 T _start
+# 0x0000002c    080482d4 t call_gmon_start
+# 0x00000040    08048300 t __do_global_dtors_aux
+# 0x0000002c    08048340 t frame_dummy
+# 0x000000ca    0804836c T calc_pnk
+# 0x000000fa    08048436 T main
+# 0x00000024    08048530 t __do_global_ctors_aux
+# 0x0000001c    08048554 ? _fini
+# 0x00000004    08048570 R _fp_hw
+# 0x0000102c    08048574 R _IO_stdin_used
+# 0x00000000    080495a0 D __data_start
+# 0x00000004    080495a0 W data_start
+# 0x00000004    080495a4 d __dso_handle
+#               080495a8 d p.0
+
+# ----------------------------------------------------------------
+use line_term_lib;
+
+$left    =  1;
+$neither =  0;
+$right   = -1;
+
+# Defaults
+$absdiff      = 0;
+$hex_input    = 0;
+$hex_output   = 0;
+$divide       = 0;
+$negate       = 0;
+$paste        = $neither;
+$havefmtwidth = 0;
+$fmt          = "none";
+
+# Parse options
+while (@ARGV) {
+	my $arg = $ARGV[0];
+	last unless $arg =~ /^-/;
+
+	if ($ARGV[0] eq "--help") {
+		usage();
+	}
+
+	elsif ($ARGV[0] eq "-x") {
+		$hex_input = 1;
+		$hex_output = 1;
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-xi") {
+		$hex_input = 1;
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-xo") {
+		$hex_output = 1;
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-div") {
+		$divide = 1;
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-n") {
+		$negate = 1;
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-abs") {
+		$absdiff = 1;
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-l") {
+		$paste = $left;
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-r") {
+		$paste = $right;
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-0") {
+		$havefmtwidth = 1;
+		$fmt = "%.0f";
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-1") {
+		$havefmtwidth = 1;
+		$fmt = "%.1f";
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-2") {
+		$havefmtwidth = 1;
+		$fmt = "%.2f";
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-3") {
+		$havefmtwidth = 1;
+		$fmt = "%.3f";
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-4") {
+		$havefmtwidth = 1;
+		$fmt = "%.4f";
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-5") {
+		$havefmtwidth = 1;
+		$fmt = "%.5f";
+		shift @ARGV;
+	}
+
+	elsif ($ARGV[0] eq "-6") {
+		$havefmtwidth = 1;
+		$fmt = "%.6f";
+		shift @ARGV;
+	}
+
+	else {
+		usage();
+	}
+}
+
+# Process input
+$i = 0;
+$f1 = 0;
+$line1 = "";
+while ($line = <>) {
+	($line, $term) = split_line_ending($line);
+
+	# Strip leading whitespace from line.
+	$line =~ s/^\s+//;
+	$line2 = $line;
+
+	# Get only the first word on the line.
+	(@fields) = split /\s+/, $line;
+
+	# Skip blank lines.
+	next if (@fields == 0);
+	$f2 = $fields[0];
+
+	if ($hex_input) {
+ 		# Strip leading 0x, if any.
+ 		$f2 =~ s/^0x//;
+ 		$f2 =~ s/^0X//;
+	 	$f2 = hex $f2;
+	}
+
+	# Calculate and print first differences, if at least two words have
+	# been read.
+	if ($i > 0) {
+		my $diff;
+		if ($divide) {
+			# xxx hack
+			last if ($f2 == 0.0);
+			$diff = $f1 / $f2;
+		}
+		elsif ($negate) {
+			$diff = $f1 - $f2;
+		}
+		else {
+			$diff = $f2 - $f1;
+		}
+
+		if ($absdiff) {
+			if ($diff < 0) {
+				$diff = -$diff;
+			}
+		}
+
+		if ($paste == $left) {
+			print "$line1\t";
+		}
+		
+		if ($hex_output) {
+			printf "0x%08x", $diff;
+		}
+		elsif ($havefmtwidth) {
+			printf $fmt, $diff;
+		}
+		else {
+			print $diff;
+		}
+
+		if ($paste == $right) {
+			print "\t$line1";
+		}
+
+		print "$term";
+	}
+
+	# Prepare for next pass.
+	$line1 = $line2;
+	$f1 = $f2;
+	$i++;
+}
+
+if ($paste == $left) {
+	print "$line1$term _";
+}
+elsif ($paste == $right) {
+	if ($hex_output) {
+		print "\t";
+	}
+	print "_\t$line1$term";
+}
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die
+	"Usage: $0 [-x] [-l] [-n] [-t] {files ...}\n" .
+	"  -x:  Use hexadecimal I/O (default is decimal).\n" .
+	"  -n:  Compute negated differences.\n" .
+	"  -l:  Paste input to the left  of first differences.\n" .
+	"  -r:  Paste input to the right of first differences.\n";
+	"  Input is taken from standard input if no file names are given.\n";
+}
+
+# Test input:
+# 00000008 A _ssro_size
+# 00000060 A _ssrw_size
+# 00000100 A _STACK_SIZE
+# 00000400 A _TEXT_START_ADDR
+# 00000400 A _ftext
+# 00000400 T _start
+# 0000046c T exit
+# 00000474 T my_get_line
+# 00000474 t __gnu_compiled_c
+# 00000474 t gcc2_compiled.

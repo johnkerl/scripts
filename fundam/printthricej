@@ -1,0 +1,14 @@
+#! /usr/bin/perl -w
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Prints each line three times, space-delimited.  Occasionally useful
+# as a text-editing technique.
+# ================================================================
+
+use line_term_lib;
+while ($line = <>) {
+	($line, $term) = split_line_ending($line);
+	print "$line $line $line$term";
+}

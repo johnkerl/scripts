@@ -1,0 +1,84 @@
+#! /usr/bin/perl
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2002/12/01
+#
+# Does a global search and replace for a pattern in specified files.
+# Useful for heavy-duty reworking of source code.
+#
+# Example:
+#   krepl grody_function_name better_function_name */*.[ch]
+# ----------------------------------------------------------------
+
+$word_match = 0;
+if (@ARGV) {
+	if ($ARGV[0] eq "-w") {
+		$word_match = 1;
+		shift @ARGV;
+	}
+}
+
+if (@ARGV < 3) {
+	die "Usage: $0 [-w] {old pattern} {new pattern} {file names ... }\n";
+}
+
+$oldpat = $ARGV[0];
+$newpat = $ARGV[1];
+
+shift @ARGV;
+shift @ARGV;
+
+$nfiles = @ARGV;
+
+foreach $filename (@ARGV) {
+	next if -d $filename;
+
+	$tempname = $filename . ".repl";
+
+	if (!open(FILEHANDLE, $filename)) {
+		print "Couldn't open file \"$filename\"; skipping.\n";
+		next;
+	}
+
+	$mode = (stat($filename))[2] & 07777;
+
+	if (!open(TEMPHANDLE, ">$tempname")) {
+		print "Couldn't open file \"$tempname\"; skipping.\n";
+		close FILEHANDLE;
+		next;
+	}
+
+	$changed_anything = 0;
+	while ($line = <FILEHANDLE>) {
+	    $changed_anything = 1 if ($line =~ m/$oldpat/);
+		if ($word_match) {
+			$line =~ s/\b$oldpat\b/$newpat/g;
+		}
+		else {
+			$line =~ s/$oldpat/$newpat/g;
+		}
+		print TEMPHANDLE $line;
+	}
+
+	close FILEHANDLE;
+	close TEMPHANDLE;
+
+	if ($changed_anything) {
+		chmod $mode, $tempname;
+		if (!rename($tempname, $filename)) {
+			warn "Cannot rename $tempname to $filename: $!\n";
+		}
+		print "o";
+	}
+	else {
+		# I do this so the timestamp won't change unless there was a change to
+		# the file.
+		if (!unlink($tempname)) {
+			warn "Cannot unlink $tempname: $!\n";
+		}
+		print ".";
+	}
+}
+print "\n";

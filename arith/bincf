@@ -1,0 +1,138 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# John Kerl
+# kerl.john.r@gmail.com
+# 2012-07-04
+#
+# It's well known that
+#   sum from k=0 to n of (n choose k)
+# is 2^n.  (To see this, expand (1+1)^n using the binomial formula.)
+# Likewise,
+#   sum from k=0 to n of (-1)^k (n choose k)
+# is 0 (using (1-1)^n and the binomial formula).
+#
+# More generally, we can compute
+#   F(n) = sum from k=0 to n of (n choose k) f(n, k).
+# This little program computes values of that output function F for
+# various input functions f.
+# ================================================================
+
+# ----------------------------------------------------------------
+# Tabulate F(n) for various f and n.
+def main
+	nmax = 10
+	nmax = ARGV[0].to_i if ARGV.length == 1
+
+	puts "n v1 vk vnk vko vknk vkfact vk1fact vk2fact vk3fact"
+	(1..nmax).each do |n|
+		v1      = sumbincf(n, method(:f1))
+		vk      = sumbincf(n, method(:fk))
+		vnk     = sumbincf(n, method(:fnk))
+		vko     = sumbincf(n, method(:fko))
+		vknk    = sumbincf(n, method(:fknk))
+		vkfact  = sumbincf(n, method(:fkfact))
+		vk1fact = sumbincf(n, method(:fk1fact))
+		vk2fact = sumbincf(n, method(:fk2fact))
+		vk3fact = sumbincf(n, method(:fk3fact))
+		puts "#{n} #{v1} #{vk} #{vnk} #{vko} #{vknk} #{vkfact} #{vk1fact} #{vk2fact} #{vk3fact}"
+	end
+end
+
+# ----------------------------------------------------------------
+# Compute F(n) = sum from k=0 to n of f(n, k), given n and f.
+def sumbincf(n, f, verbose=false)
+	sum = 0
+	(0..n).each do |k|
+		b = binc(n, k)
+		v = f.call(n, k)
+		puts "-- n=#{n} k=#{k} b=#{b} v=#{v}" if verbose
+		sum += b * v
+	end
+	puts if verbose
+	sum
+end
+
+# ----------------------------------------------------------------
+# Binomial-coefficient function.
+def binc(n, k)
+	return 0 if k > n
+	return 0 if k < 0
+	# Use symmetry of (n choose k) to reduce the number of arithmetic
+	# operations
+	k = n - k if k > n/2
+
+	rv = 1;
+	j = 0
+	while j <= k-1
+		rv *= n - j;
+		rv /= j + 1;
+		j += 1
+	end
+	return rv
+end
+
+# ----------------------------------------------------------------
+# Factorial function
+def fact(n)
+	return 0 if n < 0
+	prod = 1
+	while n > 0
+		prod *= n
+		n -= 1
+	end
+	prod
+end
+
+# ----------------------------------------------------------------
+# Various input functions f.
+
+def f1(n, k)
+	1
+end
+
+def fk(n, k)
+	k
+end
+
+def fko(n, k)
+	if k == 0
+		1
+	else
+		# n = 5:
+		# k = 0: 1           | n!/5!
+		# k = 1: 5           | n!/4!
+		# k = 2: 5*4         | n!/3!
+		# k = 3: 5*4*3       | n!/2!
+		# k = 4: 5*4*3*2     | n!/1!
+		# k = 5: 5*4*3*2*1   | n!/0!
+		fact(n)/fact(n-k)
+	end
+end
+
+def fnk(n, k)
+	n-k
+end
+
+def fknk(n, k)
+	k*(n-k)
+end
+
+def fkfact(n, k)
+	fact(k)
+end
+
+def fk1fact(n, k)
+	fact(k+1)
+end
+
+def fk2fact(n, k)
+	fact(k+2)
+end
+
+def fk3fact(n, k)
+	fact(k+3)
+end
+
+# ================================================================
+main()

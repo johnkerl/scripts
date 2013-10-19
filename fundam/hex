@@ -1,0 +1,151 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# John Kerl
+# 2013-06-10
+# Ported from C (1998): https://github.com/johnkerl/ctools/tree/master/hex
+# ----------------------------------------------------------------
+# This is a simple hex-dumper. Sample output:
+# $ hex hex | head
+# 0000000: 23 21 2f 75  73 72 2f 62  69 6e 2f 72  75 62 79 0a |#!/usr/bin/ruby.|
+# 0000010: 0a 23 20 3d  3d 3d 3d 3d  3d 3d 3d 3d  3d 3d 3d 3d |.# =============|
+# 0000020: 3d 3d 3d 3d  3d 3d 3d 3d  3d 3d 3d 3d  3d 3d 3d 3d |================|
+# 0000030: 3d 3d 3d 3d  3d 3d 3d 3d  3d 3d 3d 3d  3d 3d 3d 3d |================|
+# 0000040: 3d 3d 3d 3d  3d 3d 3d 3d  3d 3d 3d 3d  3d 3d 3d 3d |================|
+# 0000050: 3d 3d 3d 0a  23 20 4a 6f  68 6e 20 4b  65 72 6c 0a |===.# John Kerl.|
+# 0000060: 23 20 32 30  31 33 2d 30  36 2d 31 30  0a 23 20 50 |# 2013-06-10.# P|
+# 0000070: 6f 72 74 65  64 20 66 72  6f 6d 20 43  20 28 31 39 |orted from C (19|
+# 0000080: 39 38 29 3a  20 68 74 74  70 73 3a 2f  2f 67 69 74 |98): https://git|
+# 0000090: 68 75 62 2e  63 6f 6d 2f  6a 6f 68 6e  6b 65 72 6c |hub.com/johnkerl|
+# ================================================================
+
+$stdout.sync = true
+$stderr.sync = true
+
+$us = File.basename $0
+
+# ----------------------------------------------------------------
+def usage()
+	$stderr.puts "Usage: #{$us} [options] {filenames ...}"
+	$stderr.puts "Options:"
+	$stderr.puts "-r  Print only hex dump, without offsets and ASCII dump."
+	$stderr.puts "-h  Print this message."
+	$stderr.puts "If filename is omitted, or is \"-\", stdin is read."
+	exit 1
+end
+
+# ----------------------------------------------------------------
+def hex_dump_stream(stream, do_raw)
+	$bytes_per_clump = 4
+	$clumps_per_line = 4
+	$buffer_size    = $bytes_per_clump * $clumps_per_line
+
+	offset = 0
+
+	while true
+		buffer = stream.read($buffer_size)
+		break if buffer.nil?
+
+		num_bytes_read = buffer.length
+
+		begin # Begin exception-handler for EPIPE on printfs
+
+			# Print offset "pre" part
+			unless do_raw
+				printf("%08x: ", offset)
+			end
+
+			# Print hex payload
+			for i in 0..($buffer_size-1)
+				if i < num_bytes_read
+					printf("%02x ", buffer[i])
+				else
+					printf("   ")
+				end
+				if (i % $bytes_per_clump) == ($bytes_per_clump - 1)
+					if (i > 0) && (i < $buffer_size-1)
+						printf(" ")
+					end
+				end
+			end
+
+			# Print ASCII-dump "post" part
+			unless do_raw
+				printf("|")
+				for i in 0..(num_bytes_read-1)
+					if buffer[i] >= 0x20 &&  buffer[i] <= 0x7e
+						printf("%c", buffer[i])
+					else
+						printf(".")
+					end
+				end
+				for i in num_bytes_read..($buffer_size-1)
+					printf(" ")
+				end
+				printf("|")
+			end
+
+			# Print line end
+			puts ""
+
+		# E.g. we're piped to head with exception thrown on printf.
+		# Exit gracefully.
+		rescue Errno::EPIPE
+			break
+		end
+
+		offset += num_bytes_read
+	end
+end
+
+# ----------------------------------------------------------------
+def hex_dump_file_name(file_name, do_raw)
+	stream = $stdin
+	if file_name != '-'
+		begin
+			stream = File.open(file_name, "rb")
+		rescue Exception => e
+			puts "#{$us}: #{e.to_s}"
+			return false
+		end
+	end
+
+	hex_dump_stream(stream, do_raw)
+
+	if file_name != '-'
+		stream.close
+	end
+	return true
+end
+
+# ----------------------------------------------------------------
+do_raw = false
+if ARGV.length >= 1
+	if ARGV[0] == '-r'
+		do_raw = true
+		ARGV.shift
+	elsif ARGV[0] == '-h' || ARGV[0] == '--help'
+		usage
+	elsif ARGV[0] == '-'
+		;
+	elsif ARGV[0][0..0] == '-' # ARGV[0][0] is an integer. :/
+		usage
+	end
+end
+args = ARGV
+args = ["-"] if ARGV.length == 0
+
+ok = true
+args.each do |arg|
+	if args.length > 1
+		puts ""
+		puts "#{arg}:"
+		puts ""
+	end
+	ok &= hex_dump_file_name(arg, do_raw)
+end
+if ok
+	exit 0
+else
+	exit 1
+end

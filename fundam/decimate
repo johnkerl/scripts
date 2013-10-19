@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Prints only 1 of every n input lines.
+# ================================================================
+
+die "Usage: $0 {n} [input]\n" unless @ARGV;
+$n = shift @ARGV;
+
+$i = 0;
+while ($line = <>) {
+	chomp $line;
+	if (($i % $n) == 0) {
+		print "$line\n";
+	}
+	$i++;
+}

@@ -1,0 +1,48 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# John Kerl
+# 2012-05-20
+# Makes sequential numbered backups of given files.  E.g.  first "nbu foo"
+# makes foo.000; next "nbu foo" makes foo.001; etc.
+# ================================================================
+
+require 'fileutils'
+
+@@us     = File.basename($0)
+@@ourdir = File.dirname($0)
+
+@@width = 3
+@@max_extension = (10**@@width) - 1
+@@fmt = "%%0%dd" % (@@width) # No "%0*d" in Ruby?
+
+# ----------------------------------------------------------------
+def make_numbered_backup(file_name)
+    i = 0
+	while i <= @@max_extension
+		extension = @@fmt % i
+		file_name_with_extension = "#{file_name}.#{extension}"
+		unless test(?e, file_name_with_extension)
+			FileUtils.cp(file_name, file_name_with_extension)
+			puts file_name_with_extension
+			return true
+		end
+		i += 1
+	end
+	$stderr.puts "#{@@us}:  extensions full up to " + \
+		"#{file_name}.#{@@max_extension}"
+	return false
+end
+
+# ----------------------------------------------------------------
+if ARGV.length < 1
+	$stderr.puts "Usage: #{@@us} {file names to back up}"
+	exit 1
+end
+
+ok = true
+for file_name in ARGV
+	ok &= make_numbered_backup(file_name)
+end
+
+exit (ok == true) ? 0 : 1

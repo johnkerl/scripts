@@ -1,0 +1,37 @@
+#!/usr/bin/python -Wall
+
+import sys, os, time
+
+us = os.path.basename(sys.argv[0])
+
+# ----------------------------------------------------------------
+def usage():
+	print >> sys.stderr, "Usage: %s {one or more shift seconds ...}" % us
+	sys.exit(1)
+
+# ----------------------------------------------------------------
+def main():
+	now_epoch = int(time.time())
+
+	ok = True
+	if len(sys.argv) < 2:
+		usage()
+	for arg in sys.argv[1:]:
+		shift_seconds = 0
+		try:
+			shift_seconds = int(arg)
+		except:
+			print >> sys.stderr, "%s: can't parse \"%s\" as integer." % (us, arg)
+			ok = False
+			continue
+
+		t = time.gmtime(now_epoch + shift_seconds)
+		s = time.strftime("%Y-%m-%dT%H:%M:%S", t)
+		print s
+	if ok:
+		sys.exit(0)
+	else:
+		sys.exit(1)
+
+# ----------------------------------------------------------------
+main()

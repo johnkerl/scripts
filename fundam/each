@@ -1,0 +1,40 @@
+#!/usr/bin/ruby
+
+# ==============================================================================
+# John Kerl 2012-05-20
+#
+# Runs a command every some number of seconds.  Use quotes to include pipes,
+# semicolons, etc.
+#
+# Does not account for the command's execution time: see "peach" for that.
+#
+# Examples:
+# each 20 df -h .
+# echo  1 'ls -lrt | tail; echo ""'
+# ==============================================================================
+
+@@us = File.basename($0)
+
+if ARGV.length < 2
+	$stderr.puts "Usage: #{@@us} {seconds delay} {command to execute}"
+	exit(1)
+end
+delay = ARGV.shift.to_i
+cmd = ARGV.join(' ')
+
+loop do
+	system(cmd)
+	status = $?
+	if status.signaled? and status.termsig == 2
+		# E.g. control-C.  Note that maybe a child process of system()
+		# got the control-C, so we might not get it here.
+		exit 1
+	end
+
+	begin
+		sleep(delay)
+	rescue Interrupt => e # E.g. control-C during the sleep
+		exit 0
+	end
+
+end

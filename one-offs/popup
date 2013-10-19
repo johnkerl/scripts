@@ -1,0 +1,11 @@
+#! /usr/bin/wish -f
+
+# ================================================================
+# Puts up a popup with the specified text, which is passed through
+# the environment variable POPUP_TEXT.
+# ================================================================
+
+# label .my_label -text "Build done" -anchor w -relief groove
+label .my_label -text $env(POPUP_TEXT) -anchor w -relief groove
+button .quit   -relief raised -text "OK" -command {exit}
+pack .my_label .quit

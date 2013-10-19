@@ -1,0 +1,39 @@
+#! /bin/bash
+
+set -o noglob
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Recursive file remover, e.g. "rmr \*.bak".
+# ================================================================
+
+verbose_opt="-v"
+if [ "$1" = "-q" ]; then
+	verbose_opt=""
+fi
+
+if [ $# -lt 1 ]; then
+	"Usage: $0 {patterns in single quotes...}" 1>&2
+	echo \
+	"  Recursively removes files with names matching one or more specified patterns" \
+		1>&2
+	echo "  Example:  $0 '*.c' '*.h'" 1>&2
+	echo "  Example:  $0 '*.[ch]'" 1>&2
+	exit
+fi
+
+findopts=
+for arg
+do
+	if [ -z "$findopts" ]; then
+		findopts="( -name $arg"
+	else
+		findopts="$findopts -o -name $arg"
+	fi
+done
+
+if [ "$findopts" != "" ]; then
+	findopts="$findopts )"
+fi
+find . -type f -follow $findopts -exec rm -f $verbose_opt {} \;

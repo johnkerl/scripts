@@ -1,0 +1,327 @@
+#!/bin/bash
+
+# ================================================================
+# This venerable workhorse of a script, dating originally to 2003 or so,
+# handles moving files to/from some other host: e.g. the remote host is a
+# grad-school file server, an ISP account, different non-NFS'ed hosts at work,
+# or what have you; the local host is a laptop, desktop, etc. It assumes the
+# following:
+#
+# * Passwordless ssh is already configured. This script is merely a
+#   keystroke-saver wrapping scp, ssh rm, and rsync.
+#
+# * The value of $HOME will differ of course between hosts but the same
+#   home-relative paths are used. That is, either all of my home directory, or
+#   parts of it, are being mirrored on the other host. A given file may be
+#   newer locally or remotely, so I allow pushing as well as pulling.  Also
+#   note that this tool restricts itself to files within local/remote homes. To
+#   move other files (e.g. in /tmp), I just use scp, ssh rm, and rsync.
+#
+# There are three kinds of verbs:
+#
+# * Relative file from/to/delete: E.g. copy $HOME/tmp/myfile.txt from
+#   local $HOME to remote $HOME, or vice versa, or remove the remote one. This
+#   uses scp, scp, and ssh rm, respectively.
+#
+# * Rsync of files or directories to/from remote.
+#
+# * pullpwd/pushpwd are keystroke-savers for rsyncs of $(pwd), with rsync's
+#   --delete flag. Which means, make the local and remote directories look
+#   alike, adding/deleting files as necessary. As a miskeying-avoidance
+#   measure, the pullpwd and pushpwd commands refuse to move all of $HOME.
+#
+# The -r argument, e.g. mylogin@some-server.net, is required but tedious. The
+# way I actually use this this script is in separately set-up aliases, with -r
+# included.  E.g. alias synctothere="synctool -r kerl@there synctoremote".
+#
+# ----------------------------------------------------------------
+# John Kerl
+# 2003-ish
+# Refactored 2013-08-15
+# ================================================================
+
+us=$(basename $0)
+ourdir=$(dirname $0)
+
+user_at_host=unset
+
+ relfromremote_usage="relfromremote {one or more remote \$HOME-relative filenames}"
+   reltoremote_usage="reltoremote {one or more local \$HOME-relative filenames}"
+  reldelremote_usage="reldelremote {one or more remote \$HOME-relative filenames}"
+syncfromremote_usage="syncfromremote {one or more files/dirs relative to \$HOME}"
+  synctoremote_usage="synctoremote {one or more files/dirs relative to \$HOME}"
+       pullpwd_usage="pullpwd with no arguments"
+       pushpwd_usage="pushpwd with no arguments"
+
+# ================================================================
+usage() {
+	cat 1>&2 << _EOF
+Usage: $us [options} {verb} {verb arguments}
+Verbs and arguments:
+  $relfromremote_usage
+  $reltoremote_usage
+  $reldelremote_usage
+  $syncfromremote_usage
+  $synctoremote_usage
+  $pullpwd_usage
+  $pushpwd_usage
+Options:
+-r who@what.host   (Required.)
+-v                 Verbose mode (optional).
+-h                 Print this message (optional).
+_EOF
+
+	exit 1
+}
+
+# ================================================================
+main() {
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Parse the command line.
+	local do_setx=false
+	while getopts r:vh? f; do
+		case $f in
+		r)      user_at_host="$OPTARG"; continue;;
+		v)      do_setx=true; continue;;
+		h)      usage;        continue;;
+		\?)     echo; usage;;
+		esac
+	done
+	shift $(($OPTIND-1))
+	if [ "$user_at_host" = "unset" ]; then
+		echo "$0: Must specify remote user@host with -r" 1>&2
+		usage
+	fi
+
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Allow "synctool verb -v" as well as "synctool -v verb" since
+	# the former works well with aliases such as
+	# alias synctothere="synctool -r me@there synctoremote".
+
+	if [ $# -lt 1 ]; then
+		usage
+	fi
+	local verb="$1"
+	shift
+
+	if [ "$1" = "-v" ]; then
+		do_setx=true
+		shift
+	fi
+
+	if [ "$do_setx" = true ]; then
+		set -x
+	fi
+
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Execute the verb.
+	if   [ "$verb" = "relfromremote" ]; then
+		func_relfromremote "$@"
+	elif [ "$verb" = "reltoremote" ]; then
+		func_reltoremote "$@"
+	elif [ "$verb" = "reldelremote" ]; then
+		func_reldelremote "$@"
+	elif [ "$verb" = "syncfromremote" ]; then
+		func_syncfromremote "$@"
+	elif [ "$verb" = "synctoremote" ]; then
+		func_synctoremote "$@"
+	elif [ "$verb" = "pullpwd" ]; then
+		func_pullpwd "$@"
+	elif [ "$verb" = "pushpwd" ]; then
+		func_pushpwd "$@"
+	elif [ "$verb" = "-h" ]; then
+		usage
+	elif [ "$verb" = "--help" ]; then
+		usage
+	else
+		echo "Unrecognized verb \"$verb\"." 1>&2
+		usage
+	fi
+}
+
+# ----------------------------------------------------------------
+func_relfromremote() {
+	if [ $# -eq 0 ]; then
+		echo "Usage: $relfromremote_usage" 1>&2
+		exit 1
+	fi
+	if [ $# -ge 1 -a "$1" = "-h" ]; then
+		echo "Usage: $relfromremote_usage" 1>&2
+		exit 1
+	fi
+
+	for file; do
+		local_path=$(pwd)/$file
+		remote_scp_path=$(func_get_remote_scp_path $local_path)
+		scp $remote_scp_path $file
+		echo ""
+	done
+}
+
+# ----------------------------------------------------------------
+func_reltoremote() {
+	if [ $# -eq 0 ]; then
+		echo "Usage: $reltoremote_usage" 1>&2
+		exit 1
+	fi
+	if [ $# -ge 1 -a "$1" = "-h" ]; then
+		echo "Usage: $reltoremote_usage" 1>&2
+		exit 1
+	fi
+
+	for file; do
+		local_path=$(pwd)/$file
+		remote_scp_path=$(func_get_remote_scp_path $local_path)
+		scp $file $remote_scp_path
+		echo ""
+	done
+}
+
+# ----------------------------------------------------------------
+func_reldelremote() {
+	if [ $# -eq 0 ]; then
+		echo "Usage: $reldelremote_usage" 1>&2
+		exit 1
+	fi
+	if [ $# -ge 1 -a "$1" = "-h" ]; then
+		echo "Usage: $reldelremote_usage" 1>&2
+		exit 1
+	fi
+
+	for rel_file; do
+		local_abs_path=$(pwd)/$rel_file
+		rel_path=$(func_get_relative_path $local_abs_path)
+
+		ssh $user_at_host rm $rel_path
+		echo ""
+	done
+}
+
+# ----------------------------------------------------------------
+func_pullpwd() {
+	if [ $# -ne 0 ]; then
+		echo "Usage: $pullpwd_usage" 1>&2
+		exit 1
+	fi
+	if [ $(pwd) = $HOME ]; then
+		echo "Sorry, I'm unwilling to push all of $HOME" 1>&2
+		exit 1
+	fi
+	func_syncfromremote --delete $(func_get_relative_path $(pwd))
+}
+
+# ----------------------------------------------------------------
+func_pushpwd() {
+	if [ $# -ne 0 ]; then
+		echo "Usage: $pushpwd_usage" 1>&2
+		exit 1
+	fi
+	func_synctoremote --delete $(func_get_relative_path $(pwd))
+}
+
+# ----------------------------------------------------------------
+func_syncfromremote() {
+	if [ $# -eq 0 ]; then
+		echo "Usage: $syncfromremote_usage" 1>&2
+		exit 1
+	fi
+	if [ $# -ge 1 -a "$1" = "-h" ]; then
+		echo "Usage: $syncfromremote_usage" 1>&2
+		exit 1
+	fi
+
+	# rsync options:
+	# -r: recurse
+	# -t: preserve times
+	# -l: copy symlinks as symlinks
+	# -z: compress for xfer
+	# -v: verbose
+	# -n: dry run
+	# --dry-run: dry run
+	# --delete: for directory sync, remove files in dest dir which are not in src dir.
+	
+	options="-tlzv"
+	items=""
+	for arg; do
+		rc=$(expr $arg : '--.*')
+		if [ $rc -gt 0 ]; then
+			options="$options $arg"
+		else
+			items="$items $arg"
+		fi
+	done
+	
+	for item in $items; do
+		if [ -d ~/$item ]; then
+			rsync -r $options $user_at_host:$item/ ~/$item
+		else
+			rsync    $options $user_at_host:$item  ~/$item
+		fi
+	done
+}
+
+# ----------------------------------------------------------------
+func_synctoremote() {
+	if [ $# -eq 0 ]; then
+		echo "Usage: $synctoremote_usage" 1>&2
+		exit 1
+	fi
+	if [ $# -ge 1 -a "$1" = "-h" ]; then
+		echo "Usage: $synctoremote_usage" 1>&2
+		exit 1
+	fi
+
+	# rsync options:
+	# -r: recurse
+	# -t: preserve times
+	# -l: copy symlinks as symlinks
+	# -z: compress for xfer
+	# -v: verbose
+	# -n: dry run
+	# --dry-run: dry run
+	# --delete: for directory sync, remove files in dest dir which are not in src dir.
+	
+	options="-tlzv"
+	items=""
+	for arg; do
+		rc=$(expr x$arg : 'x-.*') # macos ...
+		if [ $rc -gt 0 ]; then
+			options="$options $arg"
+		else
+			items="$items $arg"
+		fi
+	done
+	
+	for item in $items; do
+		if [ -d ~/$item ]; then
+			rsync -r $options ~/$item/ $user_at_host:$item
+		else
+			rsync    $options ~/$item  $user_at_host:$item
+		fi
+	done
+}
+
+# ----------------------------------------------------------------
+func_get_relative_path () {
+	local abs_path="$1"
+	echo $abs_path | sed "s:$HOME/::"
+}
+
+# ----------------------------------------------------------------
+# This assumes that I have the file in question in the same relative path,
+# relative to $HOME, locally as well as on the math net.
+func_get_remote_scp_path() {
+	if [ $# -ne 1 ]; then
+		echo "Usage: $us {local absolute path}" 1>&2
+		exit 1
+	fi
+
+	local local_abs_path=$1
+	local rel_path=$(func_get_relative_path $local_abs_path)
+	local scp_path=$user_at_host:$rel_path
+	echo $scp_path
+}
+
+# ================================================================
+# Top-down programming style, please
+main "$@"

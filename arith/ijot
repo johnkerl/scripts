@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+
+# ================================================================
+# A Windows replacement for Linux jot.
+# E.g. ijot 1 10 prints 1 through 10 (one number per line);
+# ijot 1 10 2 prints odd numbers 1 through 19 inclusive.
+# ================================================================
+
+$start  = 0;
+$reps   = 10;
+$stride = 1;
+
+$nargs = scalar @ARGV;
+usage() if $nargs < 1;
+$start  = shift @ARGV;
+$reps   = shift @ARGV if @ARGV;
+$stride = shift @ARGV if @ARGV;
+usage() if @ARGV;
+
+$value = $start;
+for ($i = 0; $i < $reps; $i++) {
+	printf "%d\n", $value;
+	$value += $stride;
+}
+
+sub usage
+{
+	die "Usage: $0 start [reps [stride]].\n";
+}

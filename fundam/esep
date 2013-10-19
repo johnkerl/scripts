@@ -1,0 +1,79 @@
+#!/usr/bin/ruby
+$VERBOSE=nil
+
+# ==============================================================================
+# John Kerl | 2013-07-08
+# Prints a separator sized by the terminal width.
+# ==============================================================================
+
+require 'getoptlong'
+
+@@us = File.basename $0
+
+# ------------------------------------------------------------------------------
+# Ruby stty size ... found on the web.
+TIOCGWINSZ = 0x5413
+def get_terminal_width
+	buf = [0,0,0,0].pack("SSSS")
+	rows, cols = 25, 80 # Default
+	handle = File.open("/dev/tty", "r")
+	if handle.ioctl(TIOCGWINSZ, buf) >= 0 then
+		# the other two are rows pixels & col pixels
+		rows, cols= buf.unpack("SSSS")[0..1]
+	end
+	handle.close
+	return cols
+end
+
+# ----------------------------------------------------------------
+def usage()
+	$stderr.puts "Usage: #{@@us} [-e|-m|-s]"
+	$stderr.puts "Prints a screen-width separator bar."
+	$stderr.puts "-e: fill with '=' (default)."
+	$stderr.puts "-m: fill with '-'."
+	$stderr.puts "-s: fill with '*'."
+	$stderr.puts "-f {character}: fill with that."
+	$stderr.puts "If filenames are omitted, input is taken from stdin."
+	exit 1
+end
+
+# ================================================================
+def main()
+	fill_char = '='
+	opts = GetoptLong.new(
+	    [ '-e', GetoptLong::NO_ARGUMENT ],
+	    [ '-m', GetoptLong::NO_ARGUMENT ],
+	    [ '-s', GetoptLong::NO_ARGUMENT ],
+	    [ '-f', GetoptLong::REQUIRED_ARGUMENT ],
+	    [ '-h', '--help', GetoptLong::NO_ARGUMENT ]
+	)
+
+	begin
+	    opts.each do |opt, arg|
+		case opt
+			when '-e'; fill_char = '='
+			when '-m'; fill_char = '-'
+			when '-s'; fill_char = '*'
+			when '-f'; fill_char = arg[0..0] # arg[0] is an int :/
+			when '-h'; usage
+			when '--help'; usage
+		end
+	    end
+	rescue GetoptLong::Error
+	    usage
+	end
+	non_option_arg_count = ARGV.length
+	if non_option_arg_count != 0
+		$stderr.puts "Extraneous argument(s): \"#{ARGV.join(' ')}\""
+		usage
+	end
+
+	# The -1 is because the "watch" command doesn't behave well with
+	# perfect chop.
+	chop_width = get_terminal_width - 1
+	puts fill_char * chop_width
+end
+
+# ----------------------------------------------------------------
+# Top-down programming style, please.
+main

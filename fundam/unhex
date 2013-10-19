@@ -1,0 +1,66 @@
+#!/usr/bin/ruby
+
+$us = File.basename $0
+
+# ================================================================
+# Copyright (c) 2004 John Kerl.
+# kerl.john.r@gmail.com
+# Example: Given ASCII input "68 65 6c 6c 6f", writes the five bytes "hello".
+#
+# Ported from C to Ruby 2013-06-10.
+#
+# This code and information is provided as is without warranty of
+# any kind, either expressed or implied, including but not limited to
+# the implied warranties of merchantability and/or fitness for a
+# particular purpose.
+#
+# No restrictions are placed on copy or reuse of this code, as long
+# as these paragraphs are included in the code.
+# ================================================================
+
+# ----------------------------------------------------------------
+def usage()
+	$stderr.puts "Usage: #{$us} [input file name]"
+	$stderr.puts "Use \"-\" to read from stdin.\n"
+	exit 1
+end
+
+# ----------------------------------------------------------------
+file_name = "-"
+if ARGV.length == 0
+	;
+elsif ARGV.length == 1
+	file_name = ARGV[0]
+else
+	usage
+end
+
+stream = $stdin
+unless file_name == "-"
+	begin
+		stream = File.open(file_name)
+	rescue Exception => e
+		puts "#{$us}: #{e.to_s}"
+		exit 1
+	end
+end
+
+
+while true
+	begin
+		line = stream.readline
+	rescue EOFError
+		break
+	end
+	line.chomp!
+	line.split.each do |word|
+		byte = word.hex
+		$stdout.putc(byte)
+	end
+end
+
+$stdout.puts # Needed when invoked from zsh
+
+unless file_name == "-"
+	stream.close
+end

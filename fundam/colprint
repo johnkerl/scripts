@@ -1,0 +1,162 @@
+#!/usr/bin/perl -w
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2004/07/01
+#
+# This script aligns tabular ASCII data nicely.
+# Sample input:
+#
+#   O 0,0 5,3 5,8 7,3 7,8 8,5 8,6 9,1 9,10 10,3 10,8
+#   0,0 O 9,10 9,1 8,6 8,5 7,8 7,3 5,8 5,3 10,8 10,3
+#   5,3 9,10 5,8 O 10,8 8,6 7,3 10,3 0,0 9,1 7,8 8,5
+#   5,8 9,1 O 5,3 8,5 10,3 10,8 7,8 9,10 0,0 8,6 7,3
+#   7,3 8,6 10,8 8,5 9,10 O 0,0 5,3 7,8 10,3 5,8 9,1
+#   7,8 8,5 8,6 10,3 O 9,1 5,8 0,0 10,8 7,3 9,10 5,3
+#   8,5 7,8 7,3 10,8 0,0 5,8 9,1 O 10,3 8,6 5,3 9,10
+#   8,6 7,3 10,3 7,8 5,3 0,0 O 9,10 8,5 10,8 9,1 5,8
+#   9,1 5,8 0,0 9,10 7,8 10,8 10,3 8,5 5,3 O 7,3 8,6
+#   9,10 5,3 9,1 0,0 10,3 7,3 8,6 10,8 O 5,8 8,5 7,8
+#   10,3 10,8 7,8 8,6 5,8 9,10 5,3 9,1 7,3 8,5 0,0 O
+#   10,8 10,3 8,5 7,3 9,1 5,3 9,10 5,8 8,6 7,8 O 0,0
+#
+# Corresponding output:
+#
+#   O     0,0  5,3  5,8  7,3  7,8  8,5  8,6  9,1 9,10 10,3 10,8
+#   0,0     O 9,10  9,1  8,6  8,5  7,8  7,3  5,8  5,3 10,8 10,3
+#   5,3  9,10  5,8    O 10,8  8,6  7,3 10,3  0,0  9,1  7,8  8,5
+#   5,8   9,1    O  5,3  8,5 10,3 10,8  7,8 9,10  0,0  8,6  7,3
+#   7,3   8,6 10,8  8,5 9,10    O  0,0  5,3  7,8 10,3  5,8  9,1
+#   7,8   8,5  8,6 10,3    O  9,1  5,8  0,0 10,8  7,3 9,10  5,3
+#   8,5   7,8  7,3 10,8  0,0  5,8  9,1    O 10,3  8,6  5,3 9,10
+#   8,6   7,3 10,3  7,8  5,3  0,0    O 9,10  8,5 10,8  9,1  5,8
+#   9,1   5,8  0,0 9,10  7,8 10,8 10,3  8,5  5,3    O  7,3  8,6
+#   9,10  5,3  9,1  0,0 10,3  7,3  8,6 10,8    O  5,8  8,5  7,8
+#   10,3 10,8  7,8  8,6  5,8 9,10  5,3  9,1  7,3  8,5  0,0    O
+#   10,8 10,3  8,5  7,3  9,1  5,3 9,10  5,8  8,6  7,8    O  0,0
+#
+# Options:
+# -l  for left  alignment
+# -r  for right alignment
+# -lr for left  alignment on first column, right for the rest.
+# -rl for right alignment on first column, left  for the rest.
+# ----------------------------------------------------------------
+
+# 2007-10-01
+$use_utf8 = 1; # default
+
+$maxcols    = 0;
+$speachk    = 0;
+$first_left = 1;
+$left       = 1;
+$nspace     = 1;
+
+while ((@ARGV >= 1) && ($ARGV[0] =~ m/^[-+]/)) {
+
+	if ($ARGV[0] =~ m/^-[0-9]+$/) {
+		$speachk = substr($ARGV[0], 1);
+	}
+
+	elsif ($ARGV[0] =~ m/^\+[0-9]+$/) {
+		$nspace = substr($ARGV[0], 1);
+	}
+
+	elsif ($ARGV[0] eq "-l") {
+		$first_left = 1;
+		$left = 1;
+	}
+	elsif ($ARGV[0] eq "-r") {
+		$first_left = 0;
+		$left = 0;
+	}
+	elsif ($ARGV[0] eq "-lr") {
+		$first_left = 1;
+		$left = 0;
+	}
+	elsif ($ARGV[0] eq "-rl") {
+		$first_left = 0;
+		$left = 1;
+	}
+	elsif ($ARGV[0] eq "-nu") {
+		$use_utf8 = 0;
+	}
+	else {
+		die "$0:  Unrecognized option \"$ARGV[0]\".\n";
+	}
+	shift @ARGV;
+}
+
+# 2007-10-01
+if ($use_utf8) {
+	use encoding utf8;
+	#binmode(STDIN,  ':utf8');
+	#binmode(STDOUT, ':utf8');
+}
+
+@lines=<>;
+
+for my $line (@lines) {
+	chomp $line;
+	$line =~ s/^\s+//;
+	my @fields = split /\s+/, $line;
+	$maxcols = @fields if (@fields > $maxcols);
+}
+
+for ($i = 0; $i < $maxcols; $i++) {
+	$widths[$i] = 0;
+}
+
+for my $line (@lines) {
+	chomp $line;
+	$line =~ s/^\s+//;
+	my @fields = split /\s+/, $line;
+	$i = 0;
+	for my $field (@fields) {
+		$len = length($field);
+		$widths[$i] = $len if $len > $widths[$i];
+		$i++;
+	}
+}
+
+for my $line (@lines) {
+	chomp $line;
+	$line =~ s/^\s+//;
+	my @fields = split /\s+/, $line;
+	$i = 0;
+	for my $field (@fields) {
+		if ($i > 0) {
+			if ($speachk) {
+				if (($i % $speachk) == 0) {
+					print " " x ($nspace+1);
+				}
+				else {
+					print " ";
+				}
+			}
+			else {
+				print " " x $nspace;
+			}
+		}
+		if ($i == 0) {
+			$this_left = $first_left;
+		}
+		else {
+			$this_left = $left;
+		}
+		if ($this_left) {
+			if ($i == (@fields - 1)) {
+				# Avoid trailing spaces
+				print $field;
+			}
+			else {
+				printf "%-*s", $widths[$i], $field;
+			}
+		}
+		else {
+			printf "%*s", $widths[$i], $field;
+		}
+		$i++;
+	}
+	print "\n";
+}

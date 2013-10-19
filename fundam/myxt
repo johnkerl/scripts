@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# A keystroke-saver for xterm with my favorite style.
+#xterm -sb -sl 999999 -geometry 80x55 -bg black -fg yellow &
+#xterm -sb -sl 999999 -geometry 80x55 -bg black -fg white &
+xterm -sb -sl 999999 -geometry 80x55 -bg '#071607' -fg '#f2f26c' &

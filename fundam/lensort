@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Sorts lines by length.
+# ================================================================
+
+@lines = sort lensort <>;
+for my $line (@lines) {
+	print $line;
+}
+
+# ----------------------------------------------------------------
+sub lensort
+{
+	my $la = length($a);
+	my $lb = length($b);
+	if ($la == $lb) {
+		return $a cmp $b;
+	}
+	else {
+		return $la - $lb;
+	}
+}

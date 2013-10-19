@@ -1,0 +1,12 @@
+#! /usr/bin/wish -f
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Puts up a popup with specified text.
+# ================================================================
+
+# label .my_label -text "Build done" -anchor w -relief groove
+label .my_label -text $env(POPUP_TEXT) -anchor w -relief groove
+button .quit   -relief raised -text "OK" -command {exit}
+pack .my_label .quit

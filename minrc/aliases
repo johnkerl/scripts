@@ -1,0 +1,17 @@
+# ================================================================
+# Very short set of essential aliases without which I feel lost.
+#
+# John Kerl 2013-10-04
+# ================================================================
+
+alias cls='clear'
+alias h='history 10'
+alias j='jobs -l'
+alias ll='ls -l'
+alias ls='ls -G --color=auto'
+alias lss='ls -Slr'
+alias lt='ls -lrt'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias v='vim'
+alias v-='vim -'
