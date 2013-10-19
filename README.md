@@ -5,6 +5,9 @@ the BSD two-clause license (see LICENSE.txt).
 
 Subdirectories:
 
+* `abbrevs` -- Essentially aliases, but available from contexts in which
+aliases are not evaluable.
+
 * `arith` -- Simple pipe-oriented tools for things like sums and GCDs.
 
 * `fundam` -- Filters I use each and every day in my work as a software
@@ -13,8 +16,6 @@ Subdirectories:
   primary use is for logsnarfing: who knows what will be in a particular set of
   log file, but powerful things can be done with a set of general-purpose
   text-manipulation tools (including `grep`/`sed`/etc.).
-
-* `ntbl` -- tools for manipulating CSV and CSKV files
 
 * `one-offs` -- as the name implies
 
