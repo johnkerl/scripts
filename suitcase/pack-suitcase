@@ -1,0 +1,55 @@
+#!/bin/bash -e
+
+# Packs my suitcase for sending via ./push-suitcase.
+
+verbose=false
+if [ "$verbose" = "true" ]; then
+   set -x
+fi
+
+# ----------------------------------------------------------------
+dst=/tmp/$USER # on this machine
+if [ $# -eq 1 -a "$1" = "--home" ]; then
+   dst=/home/$USER
+   shift
+fi
+
+# ----------------------------------------------------------------
+mkdir -p $dst
+
+# ----------------------------------------------------------------
+# My standard tools
+rm -rf $dst/scripts
+#git clone http://github.com/johnkerl/scripts
+cp -a $HOME/scripts $dst
+
+#cp $HOME/scripts/workarounds/* $dst/scripts/aux
+
+# Prune for quicker scp
+rm -rf $dst/scripts/.git
+
+# ----------------------------------------------------------------
+# Add in localisms
+
+echo 'export xyz=3' >> $dst/scripts/aux/rc
+echo 'alias foo="cd /path/to/foo; "' >> $dst/scripts/aux/rc
+
+echo 'alias hn=hostname' >> $dst/scripts/aux/rc
+echo "alias thn='title \$(hostname)'" >> $dst/scripts/aux/rc
+
+# PS1 for bash or zsh
+cat >> $dst/scripts/aux/rc <<_EOF
+if [ ! -z "\$BASH_VERSION" ]; then # bash
+   export PS1='\u[\W]$ '
+else # zsh
+   export PS1='%n@%m[j%js%?][%c]%# '
+fi
+_EOF
+
+# ----------------------------------------------------------------
+# Keystroke-savers
+
+opener=$dst/scripts/open-suitcase
+echo "# This file should be sourced, e.g. \". $opener\"" > $opener
+echo 'eval $('$dst'/scripts/rc)' >> $opener
+chmod +x $opener

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Packs and pushes my suitcase, and sends me off.
+
+ourdir=$(dirname $0)
+
+dest=""
+if [ $# -ge 1 -a "$1" = "--home" ]; then
+   dest="--home"
+   shift
+fi
+if [ $# -ne 1 ]; then
+   echo "Usage: $(basename $0) {hostname}" 1>&2
+   exit 1
+fi
+host="$1"
+
+$ourdir/pack-suitcase $dest
+$ourdir/push-suitcase $dest $host
+ssh $host

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Pushes my suitcase to a specified host.
+# Contents to be pushed are created by ./pack-suitcase.
+# Destination is /tmp, or /home/$USER if --home is provided.
+
+us=$(basename $0)
+
+src=/tmp/$USER
+dst=/tmp/$USER
+rsync_verbose=""
+#rsync_verbose="v"
+if [ $# -ge 1 -a "$1" = "--home" ]; then
+   dst=/home/$USER
+   shift
+fi
+
+if [ $# -lt 1 ]; then
+    echo "Usage: $us {one or more hosts}" 1>&2
+    exit 1
+fi
+
+
+for host; do
+   ## if verbose ... echo $host ================================================================
+   rsync -rtlz$rsync_verbose --delete $src/scripts $host:$dst/
+   echo ""
+done
