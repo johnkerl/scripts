@@ -1,0 +1,33 @@
+#!/usr/bin/ruby
+
+$us = File.basename $0
+
+# ----------------------------------------------------------------
+def usage
+  $stderr.puts "Usage: #{$us} {one or more integers ...}"
+  exit 1
+end
+
+# ----------------------------------------------------------------
+def factorize(n)
+  factors = []
+  n = -n if n < 0
+
+  factor = 2
+  while n > 1
+    while n % factor == 0
+      n = n / factor
+      factors << factor
+    end
+    factor += 1
+  end
+  factors
+end
+
+# ----------------------------------------------------------------
+usage if ARGV.length < 1
+ARGV.each do |arg|
+  n = Integer arg
+  factors = factorize(n)
+  puts "#{n}: #{factors.join(' ')}"
+end
