@@ -8,12 +8,12 @@
 # repeat 20 'my-random-number-generator | md5sum'
 # ==============================================================================
 
-@@us = File.basename $0
+$us = File.basename $0
 
 # ------------------------------------------------------------------------------
 def usage()
-	$stderr.puts " Usage: #{@@us} {count} {command ...}"
-	exit 1
+   $stderr.puts " Usage: #{$us} {count} {command ...}"
+   exit 1
 end
 
 # ------------------------------------------------------------------------------
@@ -27,12 +27,12 @@ usage unless count > 0;
 cmd = ARGV.join(' ')
 
 (1..count).each do |i|
-	rc = system(cmd)
-	status = $?
+   rc = system(cmd)
+   status = $?
 
-	if status.signaled? and status.termsig == 2
-		# E.g. control-C.  Note that maybe a child process of system()
-		# got the control-C, so we might not get it here.
-		exit 1
-	end
+   if status.signaled? and status.termsig == 2
+      # E.g. control-C.  Note that maybe a child process of system()
+      # got the control-C, so we might not get it here.
+      exit 1
+   end
 end

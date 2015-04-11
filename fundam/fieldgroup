@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 $stdout.sync = true
 
-@@us = File.basename $0
+$us = File.basename $0
 
 # ==============================================================================
 # John Kerl
@@ -15,15 +15,15 @@ $stdout.sync = true
 
 # ----------------------------------------------------------------
 def usage()
-	$stderr.puts "Usage: #{@@us} [options] {field spec} [one or more file names ...]"
-	$stderr.puts "Options:"
-	$stderr.puts "  -t   Input/output delimiter is a tab."
-	$stderr.puts "  -c   Input/output delimiter is a comma."
-	$stderr.puts "  -s   Input delimiter is whitespace; output delimiter is one space."
-	$stderr.puts "  -n   Input/output delimiter is empty (operate on charcters)."
-	$stderr.puts "Field spec is one or more comma-separated field names, e.g. 2,4.:"
-	$stderr.puts "Standard input is processed if no file names are supplied."
-	exit 1
+   $stderr.puts "Usage: #{$us} [options] {field spec} [one or more file names ...]"
+   $stderr.puts "Options:"
+   $stderr.puts "  -t   Input/output delimiter is a tab."
+   $stderr.puts "  -c   Input/output delimiter is a comma."
+   $stderr.puts "  -s   Input delimiter is whitespace; output delimiter is one space."
+   $stderr.puts "  -n   Input/output delimiter is empty (operate on charcters)."
+   $stderr.puts "Field spec is one or more comma-separated field names, e.g. 2,4.:"
+   $stderr.puts "Standard input is processed if no file names are supplied."
+   exit 1
 end
 
 # ----------------------------------------------------------------
@@ -32,30 +32,30 @@ delimpat = /,/
 delimout = ','
 
 while ARGV.length > 0 && ARGV[0] =~ /^-/
-	arg = ARGV[0]
-	if arg == '--help'
-		usage
-	elsif arg == '-h'
-		usage
+   arg = ARGV[0]
+   if arg == '--help'
+      usage
+   elsif arg == '-h'
+      usage
 
-	elsif arg == '-t'
-		delimpat = "\t"
-		delimout = "\t"
-	elsif arg == '-c'
-		delimpat = ","
-		delimout = ","
-	elsif arg == '-s'
-		delimpat = "\s+"
-		delimout = " "
-	elsif arg == '-n'
-		delimpat = ""
-		delimout = ""
+   elsif arg == '-t'
+      delimpat = /\t/
+      delimout = "\t"
+   elsif arg == '-c'
+      delimpat = /,/
+      delimout = ","
+   elsif arg == '-s'
+      delimpat = /\s+/
+      delimout = " "
+   elsif arg == '-n'
+      delimpat = //
+      delimout = ""
 
-	else
-		print "Unrecognized option \"#{arg}\"."
-		usage()
-	end
-	ARGV.shift
+   else
+      print "Unrecognized option \"#{arg}\"."
+      usage()
+   end
+   ARGV.shift
 end
 
 field_numbers = ARGV.shift.split(/,/).collect{|string| Integer(string)}
@@ -63,10 +63,10 @@ field_numbers = ARGV.shift.split(/,/).collect{|string| Integer(string)}
 sel_prev_fields = nil
 
 ARGF.each do |line|
-	line.chomp!
-	all_curr_fields = line.split(delimpat)
-	sel_curr_fields = field_numbers.collect{|i| all_curr_fields[i-1]}
-	puts if sel_curr_fields != sel_prev_fields
-	puts line
-	sel_prev_fields = sel_curr_fields
+   line.chomp!
+   all_curr_fields = line.split(delimpat)
+   sel_curr_fields = field_numbers.collect{|i| all_curr_fields[i-1]}
+   puts if sel_curr_fields != sel_prev_fields
+   puts line
+   sel_prev_fields = sel_curr_fields
 end
