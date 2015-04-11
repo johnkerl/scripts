@@ -29,7 +29,7 @@ ARGF.each do |line|
 		if lno == 1
 			fields = line.split(/\s+/)
 			lengths = fields.collect{|field| field.length}
-			puts fields.enum_with_index.collect{|field, i| "%*s" % [field.length, i+1]}.join(" ")
+			puts fields.each_with_index.collect{|field, i| "%*s" % [field.length, i+1]}.join(" ")
 		end
 		puts line.split(/\s+/).join(" ")
 	rescue Errno::EPIPE

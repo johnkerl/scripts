@@ -7,32 +7,32 @@
 
 require 'time'
 
-@@us = File.basename $0
+$us = File.basename $0
 
 # ----------------------------------------------------------------
 def usage()
-	$stderr.puts "Usage: #{@@us} {one or more RFC8601 date strings, e.g. 2013-06-03T17:02:34Z}"
-	exit 1
+   $stderr.puts "Usage: #{$us} {one or more RFC8601 date strings, e.g. 2013-06-03T17:02:34Z}"
+   exit 1
 end
 
 # ----------------------------------------------------------------
 def main()
-	usage unless ARGV.length > 0
-	ok = true
-	for arg in ARGV
-		seconds = 0
-		begin
-			puts Time.iso8601(arg).to_i
-		rescue ArgumentError => e
-			$stderr.puts "#{@@us} can't parse \"#{arg}\" as RFC8601."
-			ok = false
-		end
-	end
-	if ok
-		exit 0
-	else
-		exit 1
-	end
+   usage unless ARGV.length > 0
+   ok = true
+   for arg in ARGV
+      seconds = 0
+      begin
+         puts Time.parse(arg).to_i
+      rescue ArgumentError => e
+         $stderr.puts "#{$us} can't parse \"#{arg}\" as RFC8601."
+         ok = false
+      end
+   end
+   if ok
+      exit 0
+   else
+      exit 1
+   end
 end
 
 # ----------------------------------------------------------------

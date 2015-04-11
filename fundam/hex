@@ -26,126 +26,128 @@ $us = File.basename $0
 
 # ----------------------------------------------------------------
 def usage()
-	$stderr.puts "Usage: #{$us} [options] {filenames ...}"
-	$stderr.puts "Options:"
-	$stderr.puts "-r  Print only hex dump, without offsets and ASCII dump."
-	$stderr.puts "-h  Print this message."
-	$stderr.puts "If filename is omitted, or is \"-\", stdin is read."
-	exit 1
+   $stderr.puts "Usage: #{$us} [options] {filenames ...}"
+   $stderr.puts "Options:"
+   $stderr.puts "-r  Print only hex dump, without offsets and ASCII dump."
+   $stderr.puts "-h  Print this message."
+   $stderr.puts "If filename is omitted, or is \"-\", stdin is read."
+   exit 1
 end
 
 # ----------------------------------------------------------------
 def hex_dump_stream(stream, do_raw)
-	$bytes_per_clump = 4
-	$clumps_per_line = 4
-	$buffer_size    = $bytes_per_clump * $clumps_per_line
+   $bytes_per_clump = 4
+   $clumps_per_line = 4
+   $buffer_size    = $bytes_per_clump * $clumps_per_line
 
-	offset = 0
+   offset = 0
 
-	while true
-		buffer = stream.read($buffer_size)
-		break if buffer.nil?
+   while true
+      buffer = stream.read($buffer_size)
+      break if buffer.nil?
 
-		num_bytes_read = buffer.length
+      num_bytes_read = buffer.length
 
-		begin # Begin exception-handler for EPIPE on printfs
+      begin # Begin exception-handler for EPIPE on printfs
 
-			# Print offset "pre" part
-			unless do_raw
-				printf("%08x: ", offset)
-			end
+         # Print offset "pre" part
+         unless do_raw
+            printf("%08x: ", offset)
+         end
 
-			# Print hex payload
-			for i in 0..($buffer_size-1)
-				if i < num_bytes_read
-					printf("%02x ", buffer[i])
-				else
-					printf("   ")
-				end
-				if (i % $bytes_per_clump) == ($bytes_per_clump - 1)
-					if (i > 0) && (i < $buffer_size-1)
-						printf(" ")
-					end
-				end
-			end
+         # Print hex payload
+         for i in 0..($buffer_size-1)
+            if i < num_bytes_read
+               bint = buffer.bytes[i]
+               printf("%02x ", bint)
+            else
+               printf("   ")
+            end
+            if (i % $bytes_per_clump) == ($bytes_per_clump - 1)
+               if (i > 0) && (i < $buffer_size-1)
+                  printf(" ")
+               end
+            end
+         end
 
-			# Print ASCII-dump "post" part
-			unless do_raw
-				printf("|")
-				for i in 0..(num_bytes_read-1)
-					if buffer[i] >= 0x20 &&  buffer[i] <= 0x7e
-						printf("%c", buffer[i])
-					else
-						printf(".")
-					end
-				end
-				for i in num_bytes_read..($buffer_size-1)
-					printf(" ")
-				end
-				printf("|")
-			end
+         # Print ASCII-dump "post" part
+         unless do_raw
+            printf("|")
+            for i in 0..(num_bytes_read-1)
+               bint = buffer.bytes[i]
+               if bint >= 0x20 &&  bint <= 0x7e
+                  printf("%c", bint)
+               else
+                  printf(".")
+               end
+            end
+            for i in num_bytes_read..($buffer_size-1)
+               printf(" ")
+            end
+            printf("|")
+         end
 
-			# Print line end
-			puts ""
+         # Print line end
+         puts ""
 
-		# E.g. we're piped to head with exception thrown on printf.
-		# Exit gracefully.
-		rescue Errno::EPIPE
-			break
-		end
+      # E.g. we're piped to head with exception thrown on printf.
+      # Exit gracefully.
+      rescue Errno::EPIPE
+         break
+      end
 
-		offset += num_bytes_read
-	end
+      offset += num_bytes_read
+   end
 end
 
 # ----------------------------------------------------------------
 def hex_dump_file_name(file_name, do_raw)
-	stream = $stdin
-	if file_name != '-'
-		begin
-			stream = File.open(file_name, "rb")
-		rescue Exception => e
-			puts "#{$us}: #{e.to_s}"
-			return false
-		end
-	end
+   stream = $stdin
+   if file_name != '-'
+      begin
+         stream = File.open(file_name, "rb")
+      rescue Exception => e
+         puts "#{$us}: #{e.to_s}"
+         return false
+      end
+   end
 
-	hex_dump_stream(stream, do_raw)
+   hex_dump_stream(stream, do_raw)
 
-	if file_name != '-'
-		stream.close
-	end
-	return true
+   if file_name != '-'
+      stream.close
+   end
+   return true
 end
 
 # ----------------------------------------------------------------
 do_raw = false
 if ARGV.length >= 1
-	if ARGV[0] == '-r'
-		do_raw = true
-		ARGV.shift
-	elsif ARGV[0] == '-h' || ARGV[0] == '--help'
-		usage
-	elsif ARGV[0] == '-'
-		;
-	elsif ARGV[0][0..0] == '-' # ARGV[0][0] is an integer. :/
-		usage
-	end
+   if ARGV[0] == '-r'
+      do_raw = true
+      ARGV.shift
+   elsif ARGV[0] == '-h' || ARGV[0] == '--help'
+      usage
+   elsif ARGV[0] == '-'
+      ;
+   elsif ARGV[0][0..0] == '-' # ARGV[0][0] is an integer. :/
+      usage
+   end
 end
 args = ARGV
 args = ["-"] if ARGV.length == 0
 
 ok = true
 args.each do |arg|
-	if args.length > 1
-		puts ""
-		puts "#{arg}:"
-		puts ""
-	end
-	ok &= hex_dump_file_name(arg, do_raw)
+   if args.length > 1
+      puts ""
+      puts "#{arg}:"
+      puts ""
+   end
+   ok &= hex_dump_file_name(arg, do_raw)
 end
 if ok
-	exit 0
+   exit 0
 else
-	exit 1
+   exit 1
 end
