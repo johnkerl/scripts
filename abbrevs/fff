@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+   find . -follow -type f
+else
+   find "$@" -follow -type f
+fi
