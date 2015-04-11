@@ -20,47 +20,54 @@ $us = File.basename $0
 
 # ----------------------------------------------------------------
 def usage()
-	$stderr.puts "Usage: #{$us} [input file name]"
-	$stderr.puts "Use \"-\" to read from stdin.\n"
-	exit 1
+   $stderr.puts "Usage: #{$us} [input file name]"
+   $stderr.puts "Use \"-\" to read from stdin.\n"
+   exit 1
 end
 
 # ----------------------------------------------------------------
+put_cr = false
+if ARGV.length >= 1 && ARGV[0] == '--cr'
+   put_cr = true
+   ARGV.shift
+end
 file_name = "-"
 if ARGV.length == 0
-	;
+   ;
 elsif ARGV.length == 1
-	file_name = ARGV[0]
+   file_name = ARGV[0]
 else
-	usage
+   usage
 end
 
 stream = $stdin
 unless file_name == "-"
-	begin
-		stream = File.open(file_name)
-	rescue Exception => e
-		puts "#{$us}: #{e.to_s}"
-		exit 1
-	end
+   begin
+      stream = File.open(file_name)
+   rescue Exception => e
+      puts "#{$us}: #{e.to_s}"
+      exit 1
+   end
 end
 
 
 while true
-	begin
-		line = stream.readline
-	rescue EOFError
-		break
-	end
-	line.chomp!
-	line.split.each do |word|
-		byte = word.hex
-		$stdout.putc(byte)
-	end
+   begin
+      line = stream.readline
+   rescue EOFError
+      break
+   end
+   line.chomp!
+   line.split.each do |word|
+      byte = word.hex
+      $stdout.putc(byte)
+   end
 end
 
-$stdout.puts # Needed when invoked from zsh
+if put_cr
+   $stdout.puts # Needed when invoked from zsh
+end
 
 unless file_name == "-"
-	stream.close
+   stream.close
 end

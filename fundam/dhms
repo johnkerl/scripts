@@ -19,50 +19,50 @@
 us = File.basename $0
 
 if ARGV.length < 1
-	$stderr.puts "Usage: #{us} {seconds}"
-	$stderr.puts "Or:    #{us} {mm:ss, hh:mm:ss, or dd:hh:mm:ss}"
-	exit 1
+   $stderr.puts "Usage: #{us} {seconds}"
+   $stderr.puts "Or:    #{us} {mm:ss, hh:mm:ss, or dd:hh:mm:ss}"
+   exit 1
 end
 
 for arg in ARGV
-	if arg =~ /:/
-		fields = arg.split(':')
-		dd = 0
-		hh = 0
-		mm = 0
-		ss = 0
-		if fields.length == 2
-			mm = Integer(fields[0].sub(/^0/, ''))
-			ss = Integer(fields[1].sub(/^0/, ''))
-		elsif fields.length == 3
-			hh = Integer(fields[0].sub(/^0/, ''))
-			mm = Integer(fields[1].sub(/^0/, ''))
-			ss = Integer(fields[2].sub(/^0/, ''))
-		elsif fields.length == 4
-			dd = Integer(fields[0].sub(/^0/, ''))
-			hh = Integer(fields[1].sub(/^0/, ''))
-			mm = Integer(fields[2].sub(/^0/, ''))
-			ss = Integer(fields[3].sub(/^0/, ''))
-		else
-			puts "#{us}: can't parse \"#{arg}\" as mm:ss, hh:mm:ss, or dd:hh:mm:ss."
-			next
-		end
-		seconds = ss + 60 * (mm + 60 * (hh + 24 * dd))
-		puts seconds
-	else
-		arg = Integer(arg)
+   if arg =~ /:/
+      fields = arg.split(':')
+      dd = 0
+      hh = 0
+      mm = 0
+      ss = 0
+      if fields.length == 2
+         mm = Integer(fields[0].sub(/^0/, ''))
+         ss = Integer(fields[1].sub(/^0/, ''))
+      elsif fields.length == 3
+         hh = Integer(fields[0].sub(/^0/, ''))
+         mm = Integer(fields[1].sub(/^0/, ''))
+         ss = Integer(fields[2].sub(/^0/, ''))
+      elsif fields.length == 4
+         dd = Integer(fields[0].sub(/^0/, ''))
+         hh = Integer(fields[1].sub(/^0/, ''))
+         mm = Integer(fields[2].sub(/^0/, ''))
+         ss = Integer(fields[3].sub(/^0/, ''))
+      else
+         puts "#{us}: can't parse \"#{arg}\" as mm:ss, hh:mm:ss, or dd:hh:mm:ss."
+         next
+      end
+      seconds = ss + 60 * (mm + 60 * (hh + 24 * dd))
+      puts seconds
+   else
+      arg = Integer(arg)
 
-		ss  = arg % 60
-		arg = arg / 60
+      ss  = arg % 60
+      arg = arg / 60
 
-		mm  = arg % 60
-		arg = arg / 60
+      mm  = arg % 60
+      arg = arg / 60
 
-		hh  = arg % 24
-		arg = arg / 24
+      hh  = arg % 24
+      arg = arg / 24
 
-		dd  = arg
+      dd  = arg
 
-		printf("%02u:%02u:%02u:%02u\n", dd, hh, mm, ss)
-	end
+      printf("%02ud:%02uh:%02um:%02us\n", dd, hh, mm, ss)
+   end
 end
