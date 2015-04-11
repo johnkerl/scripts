@@ -1,0 +1,16 @@
+#!/usr/bin/ruby
+
+# Computes octahedral numbers
+$us     = File.basename $0
+$ourdir = File.dirname  $0
+
+if ARGV.length == 0 || ARGV.any?{|arg| arg == '-h' || arg == '--help'}
+   $stderr.puts "Usage: #{us} {one or more integers}"
+   exit 1
+end
+
+ARGV.each do |arg|
+   n = Integer(arg)
+   count = n*(2*n**2+1)/3
+   puts count
+end

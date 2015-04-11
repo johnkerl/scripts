@@ -1,0 +1,16 @@
+#!/usr/bin/ruby
+
+# Computes tetrahedral numbers
+$us     = File.basename $0
+$ourdir = File.dirname  $0
+
+if ARGV.length == 0 || ARGV.any?{|arg| arg == '-h' || arg == '--help'}
+   $stderr.puts "Usage: #{us} {one or more integers}"
+   exit 1
+end
+
+ARGV.each do |arg|
+   n = Integer(arg)
+   count = n*(n+1)*(n+2)/6
+   puts count
+end

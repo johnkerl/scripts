@@ -1,0 +1,32 @@
+#!/usr/bin/ruby
+
+ARGF.each do |line|
+   line = line.
+      gsub(/_a/, 'A').
+      gsub(/_b/, 'B').
+      gsub(/_c/, 'C').
+      gsub(/_d/, 'D').
+      gsub(/_e/, 'E').
+      gsub(/_f/, 'F').
+      gsub(/_g/, 'G').
+      gsub(/_h/, 'H').
+      gsub(/_i/, 'I').
+      gsub(/_j/, 'J').
+      gsub(/_k/, 'K').
+      gsub(/_l/, 'L').
+      gsub(/_m/, 'M').
+      gsub(/_n/, 'N').
+      gsub(/_o/, 'O').
+      gsub(/_p/, 'P').
+      gsub(/_q/, 'Q').
+      gsub(/_r/, 'R').
+      gsub(/_s/, 'S').
+      gsub(/_t/, 'T').
+      gsub(/_u/, 'U').
+      gsub(/_v/, 'V').
+      gsub(/_w/, 'W').
+      gsub(/_x/, 'X').
+      gsub(/_y/, 'Y').
+      gsub(/_z/, 'Z')
+   puts line
+end
