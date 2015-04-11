@@ -1,0 +1,37 @@
+#!/usr/bin/ruby
+$VERBOSE = nil
+
+# ==============================================================================
+# John Kerl 2012-05-20
+#
+# Like the system "time" command, but just print a single number of elapsed
+# seconds.  Use quotes to include pipes, semicolons, etc.
+#
+# Examples:
+# justtime pwd
+# justtime 'date; sleep 1; date'
+# ==============================================================================
+
+require 'time'
+
+$us = File.basename($0)
+
+if ARGV.length < 1
+   $stderr.puts "Usage: #{$us} {command to execute}"
+   exit(1)
+end
+cmd = ARGV.join(' ')
+
+
+t1 = Time.now
+system(cmd)
+status = $?
+t2 = Time.now
+if status.signaled? and status.termsig == 2
+   # E.g. control-C.  Note that maybe a child process of system()
+   # got the control-C, so we might not get it here.
+   exit 1
+end
+
+seconds = t2.to_f - t1.to_f
+$stderr.puts "TIME IN SECONDS %.3f -- %s" % [seconds, cmd]

@@ -1,0 +1,14 @@
+#!/usr/bin/ruby
+
+# Highlights specified text with xterm red color code. To do: make the color configurable.
+
+red="\e[31m"
+dfl="\e[0m"
+if ARGV.length < 1
+   $stderr.puts "Usage: #{File.basename $0} {string to search for} {zero or more file names}"
+   exit 1
+end
+pat=ARGV.shift
+ARGF.each do |line|
+   puts line.gsub(pat, "#{red}#{pat}#{dfl}")
+end

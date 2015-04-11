@@ -1,0 +1,9 @@
+#!/usr/bin/ruby
+
+# Paragraphwise sort
+
+ARGF.each("\n\n") do |paragraph|
+   puts paragraph.split(/\n/).sort.join("\n")
+   puts "\n"
+end
+

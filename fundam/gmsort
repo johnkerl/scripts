@@ -1,0 +1,76 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# Sorts output of du -hs:
+# * Maps 136K to 136*1024, etc.
+# * Sorts number lines numerically.
+# * Sorts non-number lines alphabetically.
+# * Puts non-number lines before number lines.
+# * Use -r as first argument to reverse the sort.
+#
+# Example input:
+#   820K    ../scripts/
+#   64G     ../log-files/
+#   16M     ../rc/
+#   hello
+#   4.0K    ../data/
+#   88K     ../abbrevs/
+#   8.0K    ../aux/
+#   72K     ../arith/
+#   there
+#
+# Corresponding output:
+#   hello
+#   there
+#   4.0K    ../data/
+#   8.0K    ../aux/
+#   72K     ../arith/
+#   88K     ../abbrevs/
+#   820K    ../scripts/
+#   16M     ../rc/
+#   64G     ../log-files/
+# ================================================================
+
+$Units_to_value = {'K' => 1024, 'M' => 1024**2, 'G' => 1024**3}
+
+# ----------------------------------------------------------------
+def line_to_count_and_units(line)
+   count = nil
+   rest  = nil
+   if line =~ /^(\d+)([KMG])\s*(.*)/
+      count = Integer($1) * $Units_to_value[$2]
+      rest = $3
+   elsif line =~ /^(\d+\.\d+)([KMG])\s*(.*)/
+      count = Float($1) * $Units_to_value[$2]
+      rest = $3
+   else
+      rest = line
+   end
+   [count, rest]
+end
+
+# ----------------------------------------------------------------
+sign = 1
+if ARGV.length >= 1 && ARGV[0] == '-r'
+   sign = -1
+   ARGV.shift
+end
+lines = ARGF.collect{|line| line.chomp}
+
+lines.sort! do |a, b|
+   acount, arest = line_to_count_and_units(a)
+   bcount, brest = line_to_count_and_units(b)
+   if acount.nil?
+      if bcount.nil?
+         sign * (arest <=> brest)
+      else
+         -sign
+      end
+   elsif bcount.nil?
+      sign
+   else
+      sign * (acount <=> bcount)
+   end
+end
+
+puts lines.join("\n")

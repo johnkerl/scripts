@@ -1,0 +1,6 @@
+#!/usr/bin/ruby
+# Simple base-64 decoder
+require 'base64'
+ARGV.each do |arg|
+   puts Base64.decode64 arg
+end

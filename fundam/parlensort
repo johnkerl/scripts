@@ -1,0 +1,12 @@
+#!/usr/bin/ruby
+
+# Ingests paragraphs, sorts them by length, prints them out
+
+paragraphs = []
+ARGF.each("\n\n") do |paragraph|
+   paragraphs << paragraph
+end
+
+#paragraphs.sort!{|a,b| a.length <=> b.length}
+paragraphs.sort!{|a,b| b.length <=> a.length}
+puts paragraphs.join("")

@@ -1,0 +1,71 @@
+#!/usr/bin/ruby
+
+# ================================================================
+# Just an ls, sorted by file age, with age show. Sample output:
+#
+#   2.04h       2h02m07s abbrevs
+#   0.18h         10m56s suitcase
+#   0.16h          9m31s LICENSE.txt
+#   0.03h          1m53s .git
+#   0.01h            22s fundam
+# ================================================================
+
+# ================================================================
+# get_dhms formats seconds as days,hours,minutes,seconds.
+# Examples:
+#     1 ->          1s
+#    59 ->         59s
+#    60 ->       1m00s
+#  3599 ->      59m59s
+#  3600 ->    1h00m00s
+# 86399 ->   23h59m59s
+# 86400 -> 1d00h00m00s
+
+def get_dhms(seconds)
+
+   seconds = Integer(seconds)
+   ss  = seconds % 60
+   seconds = seconds / 60
+
+   mm  = seconds % 60
+   seconds = seconds / 60
+
+   hh  = seconds % 24
+   seconds = seconds / 24
+
+   dd  = seconds
+
+   if (dd > 0)
+      return "%dd%02dh%02dm%02ds" % [dd, hh, mm, ss]
+   elsif (hh > 0)
+      return "%dh%02dm%02ds" % [hh, mm, ss]
+   elsif (mm > 0)
+      return "%dm%02ds" % [mm, ss]
+   else
+      return "%ds" % ss
+   end
+end
+
+# ================================================================
+names_to_agesecs = {}
+args = ARGV
+
+if ARGV.length == 0
+   args = Dir.entries('.') - ['.','..']
+end
+
+args.each do |filename|
+   mtime = File.new(filename).stat.mtime
+   now = Time.now
+   agesec = now - mtime
+   names_to_agesecs[filename] = agesec
+end
+
+names_to_agesecs.keys.sort{|a,b| names_to_agesecs[b] <=> names_to_agesecs[a]}.each do |filename|
+   mtime = File.new(filename).stat.mtime
+   now = Time.now
+   agesec = now - mtime
+   agehrs = agesec / 3600.0
+   dhms = get_dhms(agesec)
+   puts "#{'%7.2f' % agehrs}h #{dhms.rjust 14} #{filename}"
+end
