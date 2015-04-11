@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-use line_term_lib;
 
 # ================================================================
 # Prints the sum of numbers in an input stream, one number per line.
@@ -19,18 +18,18 @@ use line_term_lib;
 
 $sum = 0.0;
 while ($line = <>) {
-	($line, $term) = split_line_ending($line);
+   chomp $line;
 
-	# Strip leading whitespace from line.
-	$line =~ s/^\s+//;
+   # Strip leading whitespace from line.
+   $line =~ s/^\s+//;
 
-	# Get only the first token on the line.
-	($f) = split /\s+/, $line;
+   # Get only the first token on the line.
+   ($f) = split /\s+/, $line;
 
-	# Skip blank lines.
-	next if ($f =~ m/^[ \t]*$/);
+   # Skip blank lines.
+   next if ($f =~ m/^[ \t]*$/);
 
-	# Accumulate sum.
-	$sum += $f;
+   # Accumulate sum.
+   $sum += $f;
 }
-print "$sum$term";
+print "$sum\n";

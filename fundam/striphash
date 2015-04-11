@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-use line_term_lib;
 
 # ================================================================
 # This script strips out pound-sign comments.  Output is sent to standard
@@ -20,11 +19,11 @@ use line_term_lib;
 # ================================================================
 
 while ($line=<>) {
-	($line, $term) = split_line_ending($line);
-	$line =~ s/#.*//;
-	if ($line =~ m/^\s*$/) {
-	}
-	else {
-		print "$line$term";
-	}
+   chomp $line;
+   $line =~ s/#.*//;
+   if ($line =~ m/^\s*$/) {
+   }
+   else {
+      print "$line\n";
+   }
 }

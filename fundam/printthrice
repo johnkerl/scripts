@@ -7,10 +7,9 @@
 # as a text-editing technique.
 # ================================================================
 
-use line_term_lib;
 while ($line = <>) {
-	($line, $term) = split_line_ending($line);
-	print "$line$term";
-	print "$line$term";
-	print "$line$term";
+   chomp $line;
+   print "$line\n";
+   print "$line\n";
+   print "$line\n";
 }

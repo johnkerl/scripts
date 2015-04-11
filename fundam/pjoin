@@ -7,33 +7,30 @@
 # confluence wiki editing.
 # ================================================================
 
-use line_term_lib;
 $input = "";
 
 while ($line = <>) {
-	($line, $term) = split_line_ending($line);
+   chomp $line;
 
-	chomp $line;
-
-	if ($line =~ m/^>/) {
-		if ($input ne "") {
-			print "$input$term";
-		}
-		$input = "";
-		print "$line$term";
-	}
-	elsif ($line =~ m/^\s*$/) {
-		$input =~ s/\s$//;
-		print "$input$term";
-		print "$term";
-		$input = "";
-	}
-	else {
-		$input .= $line;
-		$input .= " ";
-	}
+   if ($line =~ m/^>/) {
+      if ($input ne "") {
+         print "$input\n";
+      }
+      $input = "";
+      print "$line\n";
+   }
+   elsif ($line =~ m/^\s*$/) {
+      $input =~ s/\s$//;
+      print "$input\n";
+      print "\n";
+      $input = "";
+   }
+   else {
+      $input .= $line;
+      $input .= " ";
+   }
 }
 
 if ($input ne "") {
-	print "$input$term";
+   print "$input\n";
 }

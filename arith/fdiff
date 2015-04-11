@@ -44,7 +44,6 @@
 #               080495a8 d p.0
 
 # ----------------------------------------------------------------
-use line_term_lib;
 
 $left    =  1;
 $neither =  0;
@@ -62,99 +61,99 @@ $fmt          = "none";
 
 # Parse options
 while (@ARGV) {
-	my $arg = $ARGV[0];
-	last unless $arg =~ /^-/;
+   my $arg = $ARGV[0];
+   last unless $arg =~ /^-/;
 
-	if ($ARGV[0] eq "--help") {
-		usage();
-	}
+   if ($ARGV[0] eq "--help") {
+      usage();
+   }
 
-	elsif ($ARGV[0] eq "-x") {
-		$hex_input = 1;
-		$hex_output = 1;
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-x") {
+      $hex_input = 1;
+      $hex_output = 1;
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-xi") {
-		$hex_input = 1;
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-xi") {
+      $hex_input = 1;
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-xo") {
-		$hex_output = 1;
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-xo") {
+      $hex_output = 1;
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-div") {
-		$divide = 1;
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-div") {
+      $divide = 1;
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-n") {
-		$negate = 1;
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-n") {
+      $negate = 1;
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-abs") {
-		$absdiff = 1;
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-abs") {
+      $absdiff = 1;
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-l") {
-		$paste = $left;
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-l") {
+      $paste = $left;
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-r") {
-		$paste = $right;
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-r") {
+      $paste = $right;
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-0") {
-		$havefmtwidth = 1;
-		$fmt = "%.0f";
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-0") {
+      $havefmtwidth = 1;
+      $fmt = "%.0f";
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-1") {
-		$havefmtwidth = 1;
-		$fmt = "%.1f";
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-1") {
+      $havefmtwidth = 1;
+      $fmt = "%.1f";
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-2") {
-		$havefmtwidth = 1;
-		$fmt = "%.2f";
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-2") {
+      $havefmtwidth = 1;
+      $fmt = "%.2f";
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-3") {
-		$havefmtwidth = 1;
-		$fmt = "%.3f";
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-3") {
+      $havefmtwidth = 1;
+      $fmt = "%.3f";
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-4") {
-		$havefmtwidth = 1;
-		$fmt = "%.4f";
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-4") {
+      $havefmtwidth = 1;
+      $fmt = "%.4f";
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-5") {
-		$havefmtwidth = 1;
-		$fmt = "%.5f";
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-5") {
+      $havefmtwidth = 1;
+      $fmt = "%.5f";
+      shift @ARGV;
+   }
 
-	elsif ($ARGV[0] eq "-6") {
-		$havefmtwidth = 1;
-		$fmt = "%.6f";
-		shift @ARGV;
-	}
+   elsif ($ARGV[0] eq "-6") {
+      $havefmtwidth = 1;
+      $fmt = "%.6f";
+      shift @ARGV;
+   }
 
-	else {
-		usage();
-	}
+   else {
+      usage();
+   }
 }
 
 # Process input
@@ -162,95 +161,95 @@ $i = 0;
 $f1 = 0;
 $line1 = "";
 while ($line = <>) {
-	($line, $term) = split_line_ending($line);
+   chomp $line;
 
-	# Strip leading whitespace from line.
-	$line =~ s/^\s+//;
-	$line2 = $line;
+   # Strip leading whitespace from line.
+   $line =~ s/^\s+//;
+   $line2 = $line;
 
-	# Get only the first word on the line.
-	(@fields) = split /\s+/, $line;
+   # Get only the first word on the line.
+   (@fields) = split /\s+/, $line;
 
-	# Skip blank lines.
-	next if (@fields == 0);
-	$f2 = $fields[0];
+   # Skip blank lines.
+   next if (@fields == 0);
+   $f2 = $fields[0];
 
-	if ($hex_input) {
- 		# Strip leading 0x, if any.
- 		$f2 =~ s/^0x//;
- 		$f2 =~ s/^0X//;
-	 	$f2 = hex $f2;
-	}
+   if ($hex_input) {
+      # Strip leading 0x, if any.
+      $f2 =~ s/^0x//;
+      $f2 =~ s/^0X//;
+      $f2 = hex $f2;
+   }
 
-	# Calculate and print first differences, if at least two words have
-	# been read.
-	if ($i > 0) {
-		my $diff;
-		if ($divide) {
-			# xxx hack
-			last if ($f2 == 0.0);
-			$diff = $f1 / $f2;
-		}
-		elsif ($negate) {
-			$diff = $f1 - $f2;
-		}
-		else {
-			$diff = $f2 - $f1;
-		}
+   # Calculate and print first differences, if at least two words have
+   # been read.
+   if ($i > 0) {
+      my $diff;
+      if ($divide) {
+         # xxx hack
+         last if ($f2 == 0.0);
+         $diff = $f1 / $f2;
+      }
+      elsif ($negate) {
+         $diff = $f1 - $f2;
+      }
+      else {
+         $diff = $f2 - $f1;
+      }
 
-		if ($absdiff) {
-			if ($diff < 0) {
-				$diff = -$diff;
-			}
-		}
+      if ($absdiff) {
+         if ($diff < 0) {
+            $diff = -$diff;
+         }
+      }
 
-		if ($paste == $left) {
-			print "$line1\t";
-		}
-		
-		if ($hex_output) {
-			printf "0x%08x", $diff;
-		}
-		elsif ($havefmtwidth) {
-			printf $fmt, $diff;
-		}
-		else {
-			print $diff;
-		}
+      if ($paste == $left) {
+         print "$line1\t";
+      }
+      
+      if ($hex_output) {
+         printf "0x%08x", $diff;
+      }
+      elsif ($havefmtwidth) {
+         printf $fmt, $diff;
+      }
+      else {
+         print $diff;
+      }
 
-		if ($paste == $right) {
-			print "\t$line1";
-		}
+      if ($paste == $right) {
+         print "\t$line1";
+      }
 
-		print "$term";
-	}
+      print "\n";
+   }
 
-	# Prepare for next pass.
-	$line1 = $line2;
-	$f1 = $f2;
-	$i++;
+   # Prepare for next pass.
+   $line1 = $line2;
+   $f1 = $f2;
+   $i++;
 }
 
 if ($paste == $left) {
-	print "$line1$term _";
+   print "$line1\n _";
 }
 elsif ($paste == $right) {
-	if ($hex_output) {
-		print "\t";
-	}
-	print "_\t$line1$term";
+   if ($hex_output) {
+      print "\t";
+   }
+   print "_\t$line1\n";
 }
 
 # ----------------------------------------------------------------
 sub usage
 {
-	die
-	"Usage: $0 [-x] [-l] [-n] [-t] {files ...}\n" .
-	"  -x:  Use hexadecimal I/O (default is decimal).\n" .
-	"  -n:  Compute negated differences.\n" .
-	"  -l:  Paste input to the left  of first differences.\n" .
-	"  -r:  Paste input to the right of first differences.\n";
-	"  Input is taken from standard input if no file names are given.\n";
+   die
+   "Usage: $0 [-x] [-l] [-n] [-t] {files ...}\n" .
+   "  -x:  Use hexadecimal I/O (default is decimal).\n" .
+   "  -n:  Compute negated differences.\n" .
+   "  -l:  Paste input to the left  of first differences.\n" .
+   "  -r:  Paste input to the right of first differences.\n";
+   "  Input is taken from standard input if no file names are given.\n";
 }
 
 # Test input:

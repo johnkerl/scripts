@@ -5,8 +5,7 @@
 # http://johnkerl.org
 # ================================================================
 
-use line_term_lib;
 while ($line = <>) {
-	($line, $term) = split_line_ending($line);
-	print "$line $line$term";
+   chomp $line;
+   print "$line $line\n";
 }

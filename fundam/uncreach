@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-use line_term_lib;
 
 # ================================================================
 # John Kerl
@@ -12,14 +11,14 @@ $n = shift @ARGV;
 
 $i = 0;
 while ($line = <>) {
-	($line, $term) = split_line_ending($line);
-	$i++;
-	print "$line";
-	if ($i == $n) {
-		print "$term";
-		$i = 0;
-	}
-	else {
-		print " ";
-	}
+   chomp $line;
+   $i++;
+   print "$line";
+   if ($i == $n) {
+      print "\n";
+      $i = 0;
+   }
+   else {
+      print " ";
+   }
 }

@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-use line_term_lib;
 
 # ----------------------------------------------------------------
 # John Kerl
@@ -15,24 +14,24 @@ use line_term_lib;
 my $prev_blank = 0;
 my $curr_blank = 0;
 while ($line = <>) {
-	($line, $term) = split_line_ending($line);
+   chomp $line;
 
-	if ($line =~ m/^\s*$/) {
-		$curr_blank = 1;
-	}
-	else {
-		$curr_blank = 0;
-	}
+   if ($line =~ m/^\s*$/) {
+      $curr_blank = 1;
+   }
+   else {
+      $curr_blank = 0;
+   }
 
-	if ($curr_blank) {
-		if (!$prev_blank) {
-			print $line;
-			print "$term";
-		}
-	}
-	else {
-		print $line;
-		print "$term";
-	}
-	$prev_blank = $curr_blank;
+   if ($curr_blank) {
+      if (!$prev_blank) {
+         print $line;
+         print "\n";
+      }
+   }
+   else {
+      print $line;
+      print "\n";
+   }
+   $prev_blank = $curr_blank;
 }

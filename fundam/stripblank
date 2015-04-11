@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-use line_term_lib;
 
 # ================================================================
 # John Kerl
@@ -7,10 +6,10 @@ use line_term_lib;
 # ================================================================
 
 while ($line = <>) {
-	($line, $term) = split_line_ending($line);
-	if ($line =~ m/^\s*$/) {
-	}
-	else {
-		print "$line$term";
-	}
+   chomp $line;
+   if ($line =~ m/^\s*$/) {
+   }
+   else {
+      print "$line\n";
+   }
 }

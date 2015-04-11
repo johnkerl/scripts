@@ -16,22 +16,21 @@
 #   15
 # ================================================================
 
-use line_term_lib;
 $recip_log_10 = 1.0 / log(10.0);
 $sum = 0.0;
 while ($line = <>) {
-	($line, $term) = split_line_ending($line);
+   chomp $line;
 
-	# Strip leading whitespace from line.
-	$line =~ s/^\s+//;
+   # Strip leading whitespace from line.
+   $line =~ s/^\s+//;
 
-	# Get only the first token on the line.
-	($f) = split /\s+/, $line;
+   # Get only the first token on the line.
+   ($f) = split /\s+/, $line;
 
-	# Skip blank lines.
-	next if ($f =~ m/^[ \t]*$/);
+   # Skip blank lines.
+   next if ($f =~ m/^[ \t]*$/);
 
-	# Accumulate sum.
-	$ell = log($f) * $recip_log_10;
-	print "$ell$term";
+   # Accumulate sum.
+   $ell = log($f) * $recip_log_10;
+   print "$ell\n";
 }
