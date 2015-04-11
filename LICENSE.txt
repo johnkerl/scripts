@@ -1,4 +1,4 @@
-Copyright (c) 2013, John Kerl
+Copyright (c) 2013,2015; John Kerl
 
 All rights reserved.
 
@@ -22,3 +22,7 @@ services; loss of use, data, or profits; or business interruption) however
 caused and on any theory of liability, whether in contract, strict liability,
 or tort (including negligence or otherwise) arising in any way out of the use
 of this software, even if advised of the possibility of such damage.
+
+I am providing code in this repository to you under an open-source license.
+Because this is my personal repository, the license you receive to my code is
+from me and not from my employer (Facebook).
