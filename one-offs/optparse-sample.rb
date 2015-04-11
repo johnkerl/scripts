@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # ================================================================
 # A Ruby option-parse cheat sheet.

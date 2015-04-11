@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 $stdout.sync = true
 
 $us = File.basename $0

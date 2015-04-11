@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 # Simple base-64 decoder
 require 'base64'
 ARGV.each do |arg|

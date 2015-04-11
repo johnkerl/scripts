@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # ================================================================
 # Doubly (and higher) recursive functions, i.e. second-order (and higher)

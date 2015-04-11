@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 # Similar to Java's System.out.println(System.currentUptimeMillis()).
 require 'time'
 puts Time::now.to_i

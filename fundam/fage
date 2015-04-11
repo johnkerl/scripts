@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # ================================================================
 # Just an ls, sorted by file age, with age show. Sample output:

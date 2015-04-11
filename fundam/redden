@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # Highlights specified text with xterm red color code. To do: make the color configurable.
 

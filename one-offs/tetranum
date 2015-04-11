@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # Computes tetrahedral numbers
 $us     = File.basename $0

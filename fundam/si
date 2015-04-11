@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # ==============================================================================
 # Strips out unused Java/Groovy-style import lines from stdin (if given no

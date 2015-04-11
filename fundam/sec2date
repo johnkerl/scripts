@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # ================================================================
 # Formats seconds since the epoch to RFC8601 date string.

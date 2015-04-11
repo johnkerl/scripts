@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # Computes octahedral numbers
 $us     = File.basename $0

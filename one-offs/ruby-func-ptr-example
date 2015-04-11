@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # ==============================================================================
 # Ruby function-pointer example/cheat-sheet.  The implementation is a simple

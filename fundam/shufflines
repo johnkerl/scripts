@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 begin
    ARGF.collect{|line| line}.shuffle.each{|line| puts line}
 rescue Errno::EPIPE

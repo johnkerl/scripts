@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 $VERBOSE=nil
 
 # ==============================================================================
@@ -12,7 +12,10 @@ $us = File.basename $0
 
 # ------------------------------------------------------------------------------
 # Ruby stty size ... found on the web.
-TIOCGWINSZ = 0x5413
+
+# For me at this point, either Darwin or Linux.
+TIOCGWINSZ = (RUBY_PLATFORM =~ /darwin/) ?  0x40087468 : 0x5413
+
 def get_terminal_width
    buf = [0,0,0,0].pack("SSSS")
    rows, cols = 25, 80 # Default

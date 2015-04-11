@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # ==============================================================================
 # Given a file name, reads the first #-commented line of the file, strips the #

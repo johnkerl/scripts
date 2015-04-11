@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # ================================================================
 # Plots binomial and normal probability distributions side-by-side.

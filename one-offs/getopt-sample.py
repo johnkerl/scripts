@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # ================================================================
 # A python-getopt cheat sheet.
