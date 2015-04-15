@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+require 'cgi'
+ARGF.each do |line|
+  puts CGI::unescapeHTML(line)
+end
