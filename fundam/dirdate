@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# ================================================================
+
+if [ "$#" -eq 1 ]; then
+    export TZ="$1"
+    if [ "$TZ" = "ny" ]; then export TZ="America/New_York"; fi
+    if [ "$TZ" = "NY" ]; then export TZ="America/New_York"; fi
+fi
+
+#date "+%Y-%m-%d"
+date "+%Y/%m/%d"

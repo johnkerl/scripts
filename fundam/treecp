@@ -1,0 +1,73 @@
+#!/usr/bin/env ruby
+
+# ================================================================
+# John Kerl 2015-04-16
+# ================================================================
+
+$us = File.basename $0
+require 'getoptlong'
+require 'fileutils'
+
+# ================================================================
+def usage
+  $stderr.puts <<EOF
+Usage: #{$us} [options] {one or more file names ...} {destination directory}
+Copies one or more files, relative to the current directory, to the destiation
+directory while inserting intermediate directory names.
+Example: #{$us} path/to/file/name path/to/otherfile /other/dir
+creates /other/dir/path/to/file/name and /other/dir/path/to/otherfile.
+Options:
+  -v: verbose
+  -n: dry run
+  -h or --help: print help and exit without doing anything else
+EOF
+  exit 1
+end
+
+# ================================================================
+def main
+
+  verbose  = false
+  dryrun   = false
+
+  opts = GetoptLong.new(
+    [ '-v',     GetoptLong::NO_ARGUMENT ],
+    [ '-n',     GetoptLong::NO_ARGUMENT ],
+    [ '-h',     GetoptLong::NO_ARGUMENT ],
+    [ '--help', GetoptLong::NO_ARGUMENT ]
+  )
+
+  begin
+      opts.each do |opt, arg|
+     case opt
+        when '-v'; verbose = true
+        when '-n'; dryrun  = true
+        when '-h'; usage
+        when '--help'; usage
+     end
+      end
+  rescue GetoptLong::Error
+      usage
+  end
+
+  usage if ARGV.length < 2
+  srcpaths = ARGV[0..-2]
+  dstdir   = ARGV[-1]
+
+  srcpaths.each do |srcpath|
+    dstpath = "#{dstdir}/#{srcpath}"
+    dstparent = File.dirname dstpath
+
+    if dryrun
+      puts "cp #{srcpath} #{dstpath}"
+    else
+      puts "cp #{srcpath} #{dstpath}" if verbose
+      FileUtils.mkdir_p(dstparent)
+      FileUtils.cp(srcpath, dstpath)
+    end
+  end
+end
+
+# ================================================================
+# Top-down programming style
+main
