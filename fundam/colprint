@@ -89,7 +89,7 @@ while ((@ARGV >= 1) && ($ARGV[0] =~ m/^[-+]/)) {
 
 # 2007-10-01
 if ($use_utf8) {
-	use encoding utf8;
+	use utf8;
 	#binmode(STDIN,  ':utf8');
 	#binmode(STDOUT, ':utf8');
 }
