@@ -19,6 +19,7 @@ sub usage
    print "Options:\n";
    print "  -h: show this message.\n";
    print "  -s: a shorthand for the filename pattern *.[chsS] or [Mm]akefile.\n";
+   print "  -C: a shorthand for the filename pattern *.[chsS] or [Mm]akefile.\n";
    print "  -g: a shorthand for the filename pattern *.go.\n";
    print "  -j: a shorthand for the filename pattern *.java.\n";
    print "  -X: dry run only.\n";
@@ -52,6 +53,10 @@ while (@ARGV > 0) {
    if ($ARGV[0] =~ m/^-s$/) {
       shift @ARGV;
       push @findopts, "\\( -name '*.[chsS]' -o -name '*.cpp' -o -name '*.cc' -o -name '[Mm]akefile' -o -name '*.mki'";
+   }
+   elsif ($ARGV[0] =~ m/^-C$/) {
+      shift @ARGV;
+      push @findopts, "\\( -name '*.[ch]'";
    }
    elsif ($ARGV[0] =~ m/^-Ch$/) {
       shift @ARGV;
