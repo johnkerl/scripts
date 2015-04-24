@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+# John Kerl 2015-04-23
+
+$us = File.basename $0
+
+unless ARGV.length >= 1
+  $stderr.puts <<EOF
+Usage: #{$us} {one or more URLs ...}
+Pretty-prints a parameterized URL. Example input and output:
+
+bash$ #{$us} 'https://some.site/path/to/handler?x=3&y=4&abc=5'
+https://some.site/path/to/handler
+  x   = 3
+  y   = 4
+  abc = 5
+EOF
+  exit 1
+end
+
+ARGV.each do |arg|
+  line = arg
+
+  # Split
+  fields = line.split('?', 2)
+  baseurl = fields[0]
+  pairs = fields[1].split('&')
+
+  # Find alignment width
+  maxkeylen = 1
+  pairs.each do |pair|
+    k, v = pair.split('=', 2)
+    maxkeylen = k.length if k.length > maxkeylen
+  end
+
+  # Output
+  puts baseurl
+  pairs.each do |pair|
+    k, v = pair.split('=', 2)
+    puts "  #{k.ljust(maxkeylen)} = #{v}"
+  end
+end
