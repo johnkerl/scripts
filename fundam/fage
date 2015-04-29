@@ -48,24 +48,45 @@ end
 
 # ================================================================
 names_to_agesecs = {}
+
+# If no arguments are supplied on the command line, process the current directory.
 args = ARGV
+args = ['.'] if ARGV.length == 0
 
-if ARGV.length == 0
-   args = Dir.entries('.') - ['.','..']
+# If an argument is a directory, list its files.
+items = []
+args.each do |arg|
+  if File.directory? arg
+    entries = Dir.entries(arg) - ['.','..']
+    items += entries.collect{|entry| arg + "/" + entry}
+    puts "XXX "+items.join(',')
+  else
+    items << arg
+  end
 end
 
-args.each do |filename|
-   mtime = File.new(filename).stat.mtime
-   now = Time.now
-   agesec = now - mtime
-   names_to_agesecs[filename] = agesec
+# For each item, find item age
+items.each do |item|
+   begin
+     mtime = File.new(item).stat.mtime
+     now = Time.now
+     agesec = now - mtime
+     names_to_agesecs[item] = agesec
+   rescue Errno::EACCES => e
+     $stderr.puts e
+   rescue Errno::ENOENT => e # e.g. dangling symlinks
+     $stderr.puts e
+   rescue Errno::EOPNOTSUPP => e # socket devices, maybe found in /
+     $stderr.puts e
+   end
 end
 
-names_to_agesecs.keys.sort{|a,b| names_to_agesecs[b] <=> names_to_agesecs[a]}.each do |filename|
-   mtime = File.new(filename).stat.mtime
-   now = Time.now
-   agesec = now - mtime
-   agehrs = agesec / 3600.0
-   dhms = get_dhms(agesec)
-   puts "#{'%7.2f' % agehrs}h #{dhms.rjust 14} #{filename}"
+# List filenames, or directory contents, from oldest to newest.
+names_to_agesecs.keys.sort{|a,b| names_to_agesecs[b] <=> names_to_agesecs[a]}.each do |item|
+  mtime = File.new(item).stat.mtime
+  now = Time.now
+  agesec = now - mtime
+  agehrs = agesec / 3600.0
+  dhms = get_dhms(agesec)
+  puts "#{'%7.2f' % agehrs}h #{dhms.rjust 14} #{item}"
 end
