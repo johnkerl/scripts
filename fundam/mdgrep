@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+$VERBOSE = nil
+
+# ================================================================
+# mdgrep: multi-directory grep.
+# John Kerl 2015-04-28
+# ================================================================
+
+$us = File.basename $0
+
+# ----------------------------------------------------------------
+def usage()
+  $stderr.puts <<EOF
+Usage: #{$us} [options] {pattern} {one or more directory names ...}
+Searches for pattern in files in each specified directory.
+Options:
+  -r:         Searches recursively in each specified directory.
+  -X:         Print the grep commands without executing
+  -h|--help:  Print this message.
+  -*          Any other -options are passed to grep.
+EOF
+  exit 1
+end
+
+# ----------------------------------------------------------------
+recurse  = false
+execute  = true
+grepopts = []
+nonopts  = []
+
+ARGV.each do |arg|
+  if arg == '-h' || arg == '--help'
+    usage
+  elsif arg == '-r'
+    recurse = true
+  elsif arg == '-X'
+    execute = false
+  elsif arg =~ /^-.*/
+    grepopts << arg
+  else
+    nonopts << arg
+  end
+end
+
+usage if nonopts.length < 2
+
+pattern = nonopts.shift
+dirs    = nonopts
+
+for dir in dirs
+  if recurse
+    cmd = "grep -r #{grepopts.join(' ')} '#{pattern}' #{dir}"
+  else
+    cmd = "grep    #{grepopts.join(' ')} '#{pattern}' #{dir}/*"
+  end
+  if execute
+    system cmd
+  else
+    puts cmd
+  end
+end
