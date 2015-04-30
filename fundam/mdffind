@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+$VERBOSE = nil
+
+# ================================================================
+# mdffind: multi-directory find.
+# John Kerl 2015-04-28
+# ================================================================
+
+$us = File.basename $0
+
+# ----------------------------------------------------------------
+def usage()
+  $stderr.puts <<EOF
+Usage: #{$us} [options] {one or more directory names ...}
+Does a find rooted at each directory.
+Options:
+  -X:         Print the find commands without executing
+  -h|--help:  Print this message.
+  -*          Any other -options are passed to find.
+EOF
+  exit 1
+end
+
+# ----------------------------------------------------------------
+execute  = true
+findopts = []
+dirs     = []
+
+# Don't use getopt/getoptlong since that requires enumeration of what options
+# are valid & which aren't. Here, we want *all* options, besides our short
+# list, to get passed through to find.
+ARGV.each do |arg|
+  if arg == '-h' || arg == '--help'
+    usage
+  elsif arg == '-X'
+    execute = false
+  elsif arg =~ /^-.*/
+    findopts << arg
+  else
+    dirs << arg
+  end
+end
+
+usage if dirs.length < 1
+
+for dir in dirs
+  cmd = "find #{dir} #{findopts.join(' ')} -type f -follow"
+  if execute
+    system cmd
+  else
+    puts cmd
+  end
+end
