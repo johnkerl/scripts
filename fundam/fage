@@ -59,7 +59,6 @@ args.each do |arg|
   if File.directory? arg
     entries = Dir.entries(arg) - ['.','..']
     items += entries.collect{|entry| arg + "/" + entry}
-    puts "XXX "+items.join(',')
   else
     items << arg
   end
