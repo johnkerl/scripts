@@ -8,4 +8,13 @@ else
     text="$@"
 fi
 
-echo -e "\e]0;${text}\007"
+if [ "$(uname)" = "Darwin" ]; then
+  starttitle=$'\033]0;'
+  endtitle=$'\007'
+else
+  starttitle="\[\e]2;"
+  endtitle="\a"
+fi
+
+# xxx cmt re mac ...
+echo -e $starttitle '[[' $text ']]' $endtitle
