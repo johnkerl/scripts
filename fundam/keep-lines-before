@@ -7,7 +7,7 @@
 # Useful for log-snarfing.
 # ================================================================
 
-die "Usage: $0 {begin-pattern} [input]\n" unless @ARGV >= 2;
+die "Usage: $0 {begin-pattern} [input]\n" unless @ARGV >= 1;
 $begin_pattern = shift @ARGV;
 
 $in = 1;
