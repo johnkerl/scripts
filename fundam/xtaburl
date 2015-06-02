@@ -1,11 +1,16 @@
 #!/usr/bin/env ruby
+
+# ================================================================
 # John Kerl 2015-04-23
+# ================================================================
 
 $us = File.basename $0
+require 'getoptlong'
 
-unless ARGV.length >= 1
+# ================================================================
+def usage()
   $stderr.puts <<EOF
-Usage: #{$us} {one or more URLs ...}
+Usage: #{$us} -u] {one or more URLs ...}
 Pretty-prints a parameterized URL. Example input and output:
 
 bash$ #{$us} 'https://some.site/path/to/handler?x=3&y=4&abc=5'
@@ -13,29 +18,105 @@ https://some.site/path/to/handler
   x   = 3
   y   = 4
   abc = 5
+
+If no URLs are provided, input is taken from standard input.
+With -u, attempts to do the reverse of this; input must be from stdin in
+  this case since the input data are inherently multiline.
+Use -h or --help to show this message again.
 EOF
   exit 1
 end
 
-ARGV.each do |arg|
-  line = arg
+# ================================================================
+def main()
+  forward = true
+  opts = GetoptLong.new(
+    [ '-u', GetoptLong::NO_ARGUMENT ],
+    [ '-h', '--help', GetoptLong::NO_ARGUMENT ]
+  )
 
+  begin
+    opts.each do |opt, arg|
+      case opt
+        when '-u';     forward = false
+        when '--undo'; forward = false
+        when '-h';     usage
+        when '--help'; usage
+      end
+    end
+  rescue GetoptLong::Error
+    usage
+  end
+
+  if !forward && ARGV.length != 0
+    usage
+  end
+
+  if forward
+    if ARGV.length == 0 # stdin
+      $stdin.readlines.each{|line| do_line_forward(line)}
+    else
+      ARGV.each{|arg| do_line_forward(arg) }
+    end
+  else
+    do_lines_reverse($stdin.readlines)
+  end
+end
+
+# ================================================================
+def do_line_forward(line)
   # Split
-  fields = line.split('?', 2)
+  fields  = line.split('?', 2)
   baseurl = fields[0]
-  pairs = fields[1].split('&')
+  pairs   = fields[1].split('&')
 
   # Find alignment width
   maxkeylen = 1
   pairs.each do |pair|
-    k, v = pair.split('=', 2)
-    maxkeylen = k.length if k.length > maxkeylen
+    unless pair.empty? # e.g. http://foo.bar?&x=1&y=2 -- leading ampersand
+      k, v = pair.split('=', 2)
+      maxkeylen = k.length if k.length > maxkeylen
+    end
   end
 
   # Output
   puts baseurl
   pairs.each do |pair|
-    k, v = pair.split('=', 2)
-    puts "  #{k.ljust(maxkeylen)} = #{v}"
+    unless pair.empty?
+      k, v = pair.split('=', 2)
+      puts "  #{k.ljust(maxkeylen)} = #{v}"
+    end
   end
 end
+
+# ================================================================
+def do_lines_reverse(lines)
+  output = ""
+  i = 0
+  lines.each do |line|
+    line.chomp!
+    if line =~ /^http/
+      i = 0
+      if output != ""
+        puts output
+        output = ""
+      end
+      output = line
+    else
+      line = line.strip.sub(/\s*=\s*/, '')
+      i += 1
+      if i == 1
+        output = output + "?" + line
+      else
+        output = output + "&" + line
+      end
+    end
+  end
+  if output != ""
+    puts output
+    output = ""
+  end
+end
+
+# ================================================================
+main()
