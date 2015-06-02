@@ -50,7 +50,9 @@ for arg in ARGV
       seconds = ss + 60 * (mm + 60 * (hh + 24 * dd))
       puts seconds
    else
-      arg = Integer(arg)
+      farg = Float(arg)
+      arg  = Integer(farg)
+      frac = farg - arg
 
       ss  = arg % 60
       arg = arg / 60
@@ -63,6 +65,11 @@ for arg in ARGV
 
       dd  = arg
 
-      printf("%02ud:%02uh:%02um:%02us\n", dd, hh, mm, ss)
+      if frac == 0
+        printf("%02ud:%02uh:%02um:%02us\n", dd, hh, mm, ss)
+      else
+        micros = Integer(frac*1000000)
+        printf("%02ud:%02uh:%02um:%02u.%06us\n", dd, hh, mm, ss, micros)
+      end
    end
 end
