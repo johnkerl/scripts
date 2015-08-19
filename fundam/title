@@ -12,7 +12,7 @@ if [ "$(uname)" = "Darwin" ]; then
   starttitle=$'\033]0;'
   endtitle=$'\007'
 else
-  starttitle="\[\e]2;"
+  starttitle="\e]2;"
   endtitle="\a"
 fi
 

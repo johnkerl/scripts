@@ -1,18 +1,19 @@
-#!/bin/sh
+#!/usr/bin/env ruby
 
 # ================================================================
 # John Kerl
 # http://johnkerl.org
 # UTC date
 # ================================================================
-us=$(basename $0)
 
-if [ $# -eq 0 ]; then
-   date -u "+%Y-%m-%dT%H:%M:%SZ"
-elif [ $# -eq 1 ]; then
-   date -d "$1 seconds ago" -u "+%Y-%m-%dT%H:%M:%SZ"
+fmt = '%Y-%m-%dT%H:%M:%S'
+t = Time.now.utc
+if ARGV.length == 0
+  puts t.strftime fmt
+elsif ARGV.length == 1
+  t = t + Float(ARGV[0])
+  puts t.strftime fmt
 else
-   echo "Usage: $us [seconds ago]" 1>&2
-   exit 1
-fi
-
+  $stderr.puts "b04k"
+  exit 1
+end

@@ -20,12 +20,12 @@ if ARGV.length < 2
    $stderr.puts "Usage: #{$us} {seconds delay} {command to execute}"
    exit(1)
 end
-delay = ARGV.shift.to_i
+delay = ARGV.shift.to_f
 cmd = ARGV.join(' ')
 
 loop do
 
-   t1 = Time::now.to_i
+   t1 = Time::now.to_f
    system(cmd)
    status = $?
    if status.signaled? and status.termsig == 2
@@ -33,7 +33,7 @@ loop do
       # got the control-C, so we might not get it here.
       exit 1
    end
-   t2 = Time::now.to_i
+   t2 = Time::now.to_f
    diff = t2 - t1
    sleep_seconds = delay - diff
    sleep_seconds = 0 if sleep_seconds < 0
