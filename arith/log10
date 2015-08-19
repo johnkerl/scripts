@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+$| = 1; # for tail -f contexts
 
 # ================================================================
 # Prints the cumulative (running) sum of numbers in an input stream, one number

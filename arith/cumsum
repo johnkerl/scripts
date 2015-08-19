@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+$| = 1; # for tail -f contexts
 
 # ================================================================
 # Prints the cumulative (running) sum of numbers in an input stream, one number
@@ -17,6 +18,11 @@
 # ================================================================
 
 $sum = 0.0;
+$paste_line_right = 0;
+if (scalar(@ARGV) > 0 && $ARGV[0] eq '-r') {
+  $paste_line_right = 1;
+  shift @ARGV;
+}
 while ($line = <>) {
    chomp $line;
 
@@ -31,5 +37,9 @@ while ($line = <>) {
 
    # Accumulate sum.
    $sum += $f;
-   print "$sum\n";
+   if ($paste_line_right) {
+     print "$sum\t$line\n";
+   } else {
+     print "$sum\n";
+   }
 }
