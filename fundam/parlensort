@@ -2,11 +2,21 @@
 
 # Ingests paragraphs, sorts them by length, prints them out
 
+longest_first = true
+if ARGV.length >= 1 && ARGV[0] == '-r'
+  longest_first = false
+  ARGV.shift
+end
+
 paragraphs = []
 ARGF.each("\n\n") do |paragraph|
    paragraphs << paragraph
 end
 
 #paragraphs.sort!{|a,b| a.length <=> b.length}
-paragraphs.sort!{|a,b| b.length <=> a.length}
-puts paragraphs.join("")
+if longest_first
+  paragraphs.sort!{|a,b| b.length <=> a.length}
+else
+  paragraphs.sort!{|a,b| a.length <=> b.length}
+end
+puts paragraphs.join("\n")
