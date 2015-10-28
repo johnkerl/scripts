@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+require 'time'
+require 'getoptlong'
+
+$us = File.basename $0
+# ----------------------------------------------------------------
+def usage
+  puts <<EOM
+Usage: #{$us} [options]
+Prints time in seconds since the epoch, optionally shifted by an offset.
+Options:
+  --millis: prints milliseconds since the epoch
+  --float:  prints seconds since the epoch to three decimal places
+               rather than as integer
+  --offset {offset}: Without --millis, shifts the time by this many seconds;
+            with --millis, shifts the time by this many milliseconds.
+The --float flag is ignored if --millis is specified.  The flags -m, -f, and -o
+are shorthands for --millis, --float, and --offset, respectively.
+Examples:
+#{$us}                       Prints epoch seconds for the present system time as integer
+#{$us} --float               Prints epoch seconds for the present system time, with three decimal places
+#{$us} -o -3600              Prints epoch seconds for one hour ago
+#{$us} --millis              Prints epoch millis for the present system time
+#{$us} --millis -o -3600000  Prints epoch millis for one hour ago
+EOM
+  exit 0
+end
+
+# ----------------------------------------------------------------
+do_millis      = false
+do_float       = false
+offset_seconds = 0.0
+
+opts = GetoptLong.new(
+  [ '-m', '--millis', GetoptLong::NO_ARGUMENT ],
+  [ '-f', '--float',  GetoptLong::NO_ARGUMENT ],
+  [ '-o', '--offset', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '-h', '--help',   GetoptLong::NO_ARGUMENT ]
+)
+
+begin
+  opts.each do |opt, arg|
+    case opt
+      when '-m';       do_millis = true
+      when '--millis'; do_millis = true
+      when '-f';       do_float  = true
+      when '--float';  do_float  = true
+      when '-o';       offset_seconds = Float(arg)
+      when '--offset'; offset_seconds = Float(arg)
+      when '-h';       usage
+      when '--help';   usage
+    end
+  end
+rescue GetoptLong::Error
+    usage
+end
+
+usage unless ARGV.length == 0
+
+offset_seconds *= 0.001 if do_millis
+
+f = Time::now.to_f + offset_seconds
+if do_millis
+  puts Integer(f * 1000)
+elsif do_float
+  puts "%.3f" % f
+else
+  puts Integer(f)
+end

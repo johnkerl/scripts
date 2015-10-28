@@ -1,8 +1,0 @@
-#!/usr/bin/env ruby
-# Similar to Java's System.out.println(System.currentUptimeMillis()).
-require 'time'
-t = Time::now
-# TODO: -m option
-# TODO: usage fcn
-t = t + Float(ARGV[0]) if ARGV.length == 1
-puts t.to_i

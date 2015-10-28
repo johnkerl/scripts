@@ -1,8 +1,0 @@
-#!/usr/bin/env ruby
-# Mimics Java's System.out.println(System.currentUptimeMillis()).
-require 'time'
-t = Time::now
-if ARGV.length == 1
-  t = t + 0.001 * Float(ARGV[0])
-end
-puts (t.to_f * 1000).round
