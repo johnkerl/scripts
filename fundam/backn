@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Turns backslash-n strings back into actual carriage returns. This is a common
+# paradigm for multiline stack traces embedded within log files.
+sed -e  $'s/\\\\n/\\\n/g' "$@"
