@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+import os, sys, getopt, random
+
+default_n  = 1
+default_lo = 0
+default_hi = 100
+
+# ----------------------------------------------------------------
+def usage():
+    print >> sys.stderr, "Usage: %s {-n n} {-l lower} {-u upper}" % os.path.basename(sys.argv[0])
+    print >> sys.stderr, "Generates uniformly distributed pseudorandom integers."
+    print >> sys.stderr, "n defaults to %d." % (default_n)
+    print >> sys.stderr, "Lower bound is inclusive and defaults to %d." % (default_lo)
+    print >> sys.stderr, "Upper bound is exclusive and defaults to %d." % (default_hi)
+
+# ----------------------------------------------------------------
+n  = default_n
+lo = default_lo
+hi = default_hi
+
+try:
+  optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:l:u:", ['help'])
+except getopt.GetoptError, err:
+  print str(err)
+  usage()
+  sys.exit(1)
+
+for opt, arg in optargs:
+  if opt == '-h' or opt == '--help':
+    usage()
+    sys.exit(0)
+  elif opt == '-n':
+    n = int(arg)
+  elif opt == '-l':
+    lo = int(arg)
+  elif opt == '-u':
+    hi = int(arg)
+  else:
+    print >> sys.stderr, "Unhandled option \"%s\"." % opt
+    sys.exit(1)
+
+non_option_arg_count = len(non_option_args)
+if non_option_arg_count != 0:
+  usage()
+  sys.exit(0)
+
+for n in xrange(0, n):
+    u = random.randint(lo, hi-1)
+    print u

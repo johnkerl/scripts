@@ -67,7 +67,7 @@ end
 # For each item, find item age
 items.each do |item|
    begin
-     puts "item=#{item}"
+     #puts "item=#{item}"
      mtime = File.new(item).stat.mtime
      now = Time.now
      agesec = now - mtime
