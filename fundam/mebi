@@ -20,7 +20,7 @@ def main()
 			n = Float(arg)
 			g = n / 2**20
 			if g.abs < 0.1
-			   puts g
+				puts g
 			else
 				puts "%.3f" % g
 			end

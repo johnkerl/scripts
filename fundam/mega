@@ -21,7 +21,7 @@ def main()
 			#puts (n/10**9).to_i
 			g = n / 10**6
 			if g.abs < 0.1
-			   puts g
+				puts g
 			else
 				puts "%.3f" % g
 			end

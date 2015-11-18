@@ -11,9 +11,9 @@ $stderr.sync = true
 ARGF.each do |line|
 	begin
 		puts
-	    puts line
+		puts line
 	rescue Errno::EPIPE
-	    # E.g. we're piped to head.  Don't complain.
-	    exit 0
+		# E.g. we're piped to head.  Don't complain.
+		exit 0
 	end
 end

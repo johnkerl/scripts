@@ -52,7 +52,7 @@ foreach $filename (@ARGV) {
 
 	$changed_anything = 0;
 	while ($line = <FILEHANDLE>) {
-	    $changed_anything = 1 if ($line =~ m/$oldpat/);
+		$changed_anything = 1 if ($line =~ m/$oldpat/);
 		if ($word_match) {
 			$line =~ s/\b$oldpat\b/$newpat/g;
 		}
