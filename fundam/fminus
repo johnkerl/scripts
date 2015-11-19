@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+$stdout.sync = true
+$stderr.sync = true
+require 'set'
+
+# Like comm -23 but accepts out-of-order input.
+
+# ----------------------------------------------------------------
+def usage
+  $stderr.puts <<EOF
+Usage: #{File.basename $0} {file1} {more files ...}
+Prints all lines of file1 except those which appear in any of
+the subsequent files.
+EOF
+end
+
+# ----------------------------------------------------------------
+usage unless ARGV.length >= 1
+left = ARGV.shift
+rights = ARGV
+
+right_lines = Set.new
+rights.each do |right|
+  File.foreach(right) do |right_line|
+    right_lines << right_line
+  end
+end
+
+File.foreach(left) do |left_line|
+  puts left_line unless right_lines.include?(left_line)
+end
