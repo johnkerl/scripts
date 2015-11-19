@@ -3,5 +3,8 @@
 from __future__ import division
 import os, sys, getopt, random
 
-for arg in sys.argv[1:]:
-	print eval(arg)
+if len(sys.argv) < 2:
+	print >> sys.stderr, "Usage: %s {expression}" % sys.argv[0]
+	sys.exit(1)
+string = str.join(' ', sys.argv[1:])
+print eval(string)
