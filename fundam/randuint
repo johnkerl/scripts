@@ -8,19 +8,23 @@ default_hi = 100
 
 # ----------------------------------------------------------------
 def usage():
-    print >> sys.stderr, "Usage: %s {-n n} {-l lower} {-u upper}" % os.path.basename(sys.argv[0])
+    print >> sys.stderr, "Usage: %s [-n n] [-l lower] [-u upper] [-8] [-x]" % os.path.basename(sys.argv[0])
     print >> sys.stderr, "Generates uniformly distributed pseudorandom integers."
     print >> sys.stderr, "n defaults to %d." % (default_n)
     print >> sys.stderr, "Lower bound is inclusive and defaults to %d." % (default_lo)
     print >> sys.stderr, "Upper bound is exclusive and defaults to %d." % (default_hi)
+    print >> sys.stderr, "The -8 option bypasses lower/upper and generates 32-bit integer."
+    print >> sys.stderr, "The -x option is for hex output (default decimal)."
 
 # ----------------------------------------------------------------
 n  = default_n
 lo = default_lo
 hi = default_hi
+print_hex = False
+use_randbits = False
 
 try:
-  optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:l:u:", ['help'])
+  optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:l:u:x8", ['help'])
 except getopt.GetoptError, err:
   print str(err)
   usage()
@@ -31,11 +35,15 @@ for opt, arg in optargs:
     usage()
     sys.exit(0)
   elif opt == '-n':
-    n = int(arg)
+    n = int(arg, 0)
   elif opt == '-l':
-    lo = int(arg)
+    lo = int(arg, 0)
   elif opt == '-u':
-    hi = int(arg)
+    hi = int(arg, 0)
+  elif opt == '-x':
+    print_hex = True
+  elif opt == '-8':
+    use_randbits = True
   else:
     print >> sys.stderr, "Unhandled option \"%s\"." % opt
     sys.exit(1)
@@ -46,5 +54,11 @@ if non_option_arg_count != 0:
   sys.exit(0)
 
 for n in xrange(0, n):
-    u = random.randint(lo, hi-1)
-    print u
+    if use_randbits:
+        u = random.getrandbits(32)
+    else:
+        u = random.randint(lo, hi-1)
+    if print_hex:
+        print "%08x" % u
+    else:
+        print u
