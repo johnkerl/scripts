@@ -2,6 +2,7 @@
 
 from __future__ import division
 import os, sys, getopt, random
+from math import *
 
 if len(sys.argv) < 2:
 	print >> sys.stderr, "Usage: %s {expression}" % sys.argv[0]
