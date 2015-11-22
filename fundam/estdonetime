@@ -20,16 +20,17 @@
 # If the seconds since the epoch are omitted, the current time is used.
 # You can use this script to read data from a file (in which case timestamps
 # should be supplied) or in real time in a tail -f context, in which case you
-# can print the times or let this tool compute them for you.
+# can either print the times or let this tool compute them for you.
 #
 # ----------------------------------------------------------------
 # The output is the same as the input, with four additional columns added.
+# Output columns:
 #
 # 1. Current number (from the input)
 # 2. Final number (from the input)
 # 3. Seconds since the epoch corresponding to current number (from the input, if
 #    supplied, else computed by this script)
-# 4. Same as #3 formatted as human-readable ISO8601 timestamp
+# 4. Same as #3, formatted as human-readable ISO8601 timestamp
 # 5. ISO8601 of estimated completion timestamp
 # 6. Same as #5 but expressed as number of seconds relative to #3
 # 7. Same as #5 but expressed as number of hours relative to #3
@@ -45,8 +46,8 @@
 # * More specifically, there is no rejection of outliers, and no weighting of
 #   more recent input data over less recent input data. Thus, if the program
 #   providing input to this script is ^Z'ed and resumed, the prediction will be
-#   janked, and if conditions change (e.g. system load suddenly worsens, or
-#   improves) and the program providing input to this script produces numbers
+#   janked. Likewise, if conditions change (e.g. system load suddenly worsens,
+#   or improves) and the program providing input to this script produces numbers
 #   which start taking a different slope, the prediction will be based on
 #   a mix of the old and new slopes; the old slope won't be aged out.
 #
