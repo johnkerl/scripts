@@ -22,7 +22,6 @@
 # 86400 -> 1d00h00m00s
 
 def get_dhms(seconds)
-
    seconds = Integer(seconds)
    ss  = seconds % 60
    seconds = seconds / 60

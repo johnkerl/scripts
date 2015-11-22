@@ -18,7 +18,7 @@
 #   remaining to be done.
 #
 # If the seconds since the epoch are omitted, the current time is used.
-# You can use this script to read data from a file (in whic h case timestamps
+# You can use this script to read data from a file (in which case timestamps
 # should be supplied) or in real time in a tail -f context, in which case you
 # can print the times or let this tool compute them for you.
 #
