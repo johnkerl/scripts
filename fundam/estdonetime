@@ -1,0 +1,255 @@
+#!/usr/bin/env ruby
+
+# ================================================================
+# Estimates time to completion for an arbitrary task.
+#
+# ----------------------------------------------------------------
+# The input you supply is whitespace-delimited lines, either of the form
+#   {current number} {final number}
+# or
+#   {current number} {final number} {seconds since the epoch}
+#
+# Nominally, {final number} will be the same on every line.  The current and
+# final numbers are whatever you want. Examples:
+# * Current number is a percentage from 0.0 to 100.0 and final number is 100.0
+# * Current number counts up from 1 to n and final number is n: counting
+#   thingies completed.
+# * Current number counts down to 0 and final number is 0: counting thingies
+#   remaining to be done.
+#
+# If the seconds since the epoch are omitted, the current time is used.
+# You can use this script to read data from a file (in whic h case timestamps
+# should be supplied) or in real time in a tail -f context, in which case you
+# can print the times or let this tool compute them for you.
+#
+# ----------------------------------------------------------------
+# The output is the same as the input, with four additional columns added.
+#
+# 1. Current number (from the input)
+# 2. Final number (from the input)
+# 3. Seconds since the epoch corresponding to current number (from the input, if
+#    supplied, else computed by this script)
+# 4. Same as #3 formatted as human-readable ISO8601 timestamp
+# 5. ISO8601 of estimated completion timestamp
+# 6. Same as #5 but expressed as number of seconds relative to #3
+# 7. Same as #5 but expressed as number of hours relative to #3
+#
+# The estimates will vary from one line to the next as the estimate presumably
+# improves.
+#
+# Disclaimers:
+#
+# * The prediction is done using a linear regression; it won't make sense
+#   if the input isn't linear.
+#
+# * More specifically, there is no rejection of outliers, and no weighting of
+#   more recent input data over less recent input data. Thus, if the program
+#   providing input to this script is ^Z'ed and resumed, the prediction will be
+#   janked, and if conditions change (e.g. system load suddenly worsens, or
+#   improves) and the program providing input to this script produces numbers
+#   which start taking a different slope, the prediction will be based on
+#   a mix of the old and new slopes; the old slope won't be aged out.
+#
+# ----------------------------------------------------------------
+# Examples:
+#
+# 1. Type "estdonetime" with no arguments. Then "1 10", then hit
+#    return, then "2 10" and hit return, etc. This program will
+#    try to predict when you'll get to "10 10".
+#
+#    $ estdonetime
+#    curval doneval time stamp etc sec2go hr2go
+#    1 10
+#    2 10
+#    2.0 10.0 1448158569.1460638 2015-11-22T02:16:09Z 2015-11-22T02:16:21Z 12.478422164916992 0.003466228379143609
+#    3 10
+#    3.0 10.0 1448158570.602141 2015-11-22T02:16:10Z 2015-11-22T02:16:21Z 10.577623844146729 0.0029382288455963137
+#    4 10
+#    4.0 10.0 1448158572.418041 2015-11-22T02:16:12Z 2015-11-22T02:16:21Z 9.509170055389404 0.002641436126497057
+#
+# 2. Data from a file
+#
+#    $ cat x
+#    10.2 100.0 1448158624
+#    27.4 100.0 1448158634
+#    44.8 100.0 1448158645
+#
+#    $ estdonetime x
+#    curval doneval time stamp etc sec2go hr2go
+#    10.2 100.0 1448158624.0
+#    27.4 100.0 1448158634.0 2015-11-22T02:17:14Z 2015-11-22T02:17:56Z 42.20930242538452 0.011724806229273478
+#    44.8 100.0 1448158645.0 2015-11-22T02:17:25Z 2015-11-22T02:17:58Z 33.385688066482544 0.009273802240689596
+#
+#    $ estdonetime x | left
+#    curval doneval time         stamp                etc                  sec2go             hr2go
+#    10.2   100.0   1448158624.0
+#    27.4   100.0   1448158634.0 2015-11-22T02:17:14Z 2015-11-22T02:17:56Z 42.20930242538452  0.011724806229273478
+#    44.8   100.0   1448158645.0 2015-11-22T02:17:25Z 2015-11-22T02:17:58Z 33.385688066482544 0.009273802240689596
+#
+#    The "left" pretty-printer is in the same source-code package as this script.
+# ----------------------------------------------------------------
+# John Kerl
+# 2015-11-21
+# ================================================================
+
+require 'time'
+
+# ================================================================
+def main()
+  first_time = nil
+  nlefts    = []
+  rel_times = []
+  puts "curval doneval time stamp etc sec2go hr2go"
+  ARGF.each do |line|
+    parsed = parse(line)
+    next if parsed.nil?
+
+    curval, doneval, time = parsed
+    first_time = time if first_time.nil?
+
+    nlefts << doneval - curval
+    # Shift the timestamps (~1.4 billion as of 2015) by the first timestamp.
+    # This avoids roundoff error in the linear regressor. The shift will be
+    # restored below.
+    rel_times  << time - first_time
+    stamp = Time.at(time).gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    # Don't regress without at least two data points
+    if nlefts.length < 2
+      puts "#{curval} #{doneval} #{time}"
+      next
+    end
+
+    m, b, sm, sb = linreg(rel_times, nlefts)
+
+    # "etc" = "estimated time of completion"
+    if m == 0.0
+        etc    = '(stalled)'
+        sec2go = '(stalled)'
+        hr2go  = '(stalled)'
+    else
+      etcsec = -b/m + first_time
+      begin
+        etc = Time.at(etcsec).gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
+      rescue
+        etc = '???'
+      end
+      sec2go = etcsec - time
+      hr2go = sec2go / 3600
+
+    end
+    puts "#{curval} #{doneval} #{time} #{stamp} #{etc} #{sec2go} #{hr2go}"
+  end
+end
+
+# ----------------------------------------------------------------
+def parse(line)
+  line.strip!
+  fields = line.split(/\s+/)
+  return nil if fields.length < 2
+
+  curval = nil
+  begin
+    curval = Float(fields[0])
+  rescue
+    return nil
+  end
+
+  doneval = nil
+  begin
+    doneval = Float(fields[1])
+  rescue
+    return nil
+  end
+
+  if fields.length >= 3
+    begin
+      curtime = Float(fields[2])
+    rescue
+      return nil
+    end
+  else
+    curtime = Time::now.to_f
+  end
+
+  return [curval, doneval, curtime]
+end
+
+# ----------------------------------------------------------------
+# Univariate linear regression
+# ----------------------------------------------------------------
+# There are N (xi, yi) pairs.
+#
+# E = sum (yi - m xi - b)^2
+#
+# DE/Dm = sum 2 (yi - m xi - b) (-xi) = 0
+# DE/Db = sum 2 (yi - m xi - b) (-1)  = 0
+#
+# sum (yi - m xi - b) (xi) = 0
+# sum (yi - m xi - b)      = 0
+#
+# sum (xi yi - m xi^2 - b xi) = 0
+# sum (yi - m xi - b)         = 0
+#
+# m sum(xi^2) + b sum(xi) = sum(xi yi)
+# m sum(xi)   + b N       = sum(yi)
+#
+# [ sum(xi^2)   sum(xi) ] [ m ] = [ sum(xi yi) ]
+# [ sum(xi)     N       ] [ b ] = [ sum(yi)    ]
+#
+# [ m ] = [ sum(xi^2) sum(xi) ]^-1  [ sum(xi yi) ]
+# [ b ]   [ sum(xi)   N       ]     [ sum(yi)    ]
+#
+#       = [ N         -sum(xi)  ]  [ sum(xi yi) ] * 1/D
+#         [ -sum(xi)   sum(xi^2)]  [ sum(yi)    ]
+#
+# where
+#
+#   D = N sum(xi^2) - sum(xi)^2.
+#
+# So
+#
+#      N sum(xi yi) - sum(xi) sum(yi)
+# m = --------------------------------
+#                   D
+#
+#      -sum(xi)sum(xi yi) + sum(xi^2) sum(yi)
+# b = ----------------------------------------
+#                   D
+
+def linreg(xs, ys)
+	sumxi   = 0.0
+	sumyi   = 0.0
+	sumxiyi = 0.0
+	sumxi2  = 0.0
+
+	n = xs.length
+  n.times do |i|
+		x = xs[i]
+		y = ys[i]
+		sumxi   += x
+		sumyi   += y
+		sumxiyi += x*y
+		sumxi2  += x*x
+  end
+
+	d =  n * sumxi2 - sumxi**2
+	m = (n * sumxiyi - sumxi * sumyi) / d
+	b = (-sumxi * sumxiyi + sumxi2 * sumyi) / d
+
+	# Young 1962, pp. 122-124.  Compute sample variance of linear
+	# approximations, then variances of m and b.
+	var_z = 0.0
+  n.times do |i|
+		var_z += (m * xs[i] + b - ys[i])**2
+  end
+	var_z /= n
+
+	var_m = (n * var_z) / d
+	var_b = (var_z * sumxi2) / d
+
+	return [m, b, Math.sqrt(var_m), Math.sqrt(var_b)]
+end
+
+# ================================================================
+main()
