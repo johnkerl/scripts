@@ -1,14 +1,43 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env python -u
 
 # Like uniq but accepts out-of-order input. Much faster than sort | uniq or sort -u.
 
-$stdout.sync = true
-$stderr.sync = true
-require 'set'
-lines_seen = Set.new
-ARGF.each do |line|
-   unless lines_seen.include? line
-      puts line
-      lines_seen << line
-   end
-end
+import sys
+lines_seen = set()
+if len(sys.argv) == 1:
+	while True:
+		line = sys.stdin.readline()
+		if line == '':
+			break
+		if not line in lines_seen:
+			sys.stdout.write(line)
+			lines_seen.add(line)
+else:
+	for filename in sys.argv[1:]:
+			mode = 'r'
+			try:
+				file_handle = open(filename, mode)
+			except:
+				print >> sys.stderr, \
+					"%s: couldn't open file \"%s\" for mode \"%s\"." \
+					% (sys.argv[0], filename, mode)
+				sys.exit(1)
+			while True:
+				line = file_handle.readline()
+				if line == '':
+					break
+				if not line in lines_seen:
+					sys.stdout.write(line)
+					lines_seen.add(line)
+			file_handle.close()
+
+
+# Ruby version (much slower -- 5x so for me):
+# require 'set'
+# lines_seen = Set.new
+# ARGF.each do |line|
+#    unless lines_seen.include? line
+#       puts line
+#       lines_seen << line
+#    end
+# end
