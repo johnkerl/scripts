@@ -1,4 +1,4 @@
-#!/usr/bin/env python -u
+#!/usr/bin/env python
 
 # Like uniq but accepts out-of-order input. Much faster than sort | uniq or sort -u.
 
@@ -11,6 +11,7 @@ if len(sys.argv) == 1:
 			break
 		if not line in lines_seen:
 			sys.stdout.write(line)
+			sys.stdout.flush()
 			lines_seen.add(line)
 else:
 	for filename in sys.argv[1:]:
@@ -28,6 +29,7 @@ else:
 					break
 				if not line in lines_seen:
 					sys.stdout.write(line)
+					sys.stdout.flush()
 					lines_seen.add(line)
 			file_handle.close()
 
