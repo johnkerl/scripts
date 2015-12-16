@@ -102,7 +102,7 @@ def main()
   first_time = nil
   nlefts    = []
   rel_times = []
-  puts "curval doneval time stamp etc sec2go hr2go"
+  puts "curval doneval time stamp etc sec2go hr2go uncertpct"
   ARGF.each do |line|
     parsed = parse(line)
     next if parsed.nil?
@@ -118,8 +118,8 @@ def main()
     stamp = Time.at(time).gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     # Don't regress without at least two data points
-    if nlefts.length < 2
-      puts "#{curval} #{doneval} #{time} #{stamp}"
+    if nlefts.length < 4
+      #puts "#{curval} #{doneval} #{time} #{stamp} _ _ _ _"
       next
     end
 
@@ -130,8 +130,24 @@ def main()
         etc    = '(stalled)'
         sec2go = '(stalled)'
         hr2go  = '(stalled)'
+        barpct = '(stalled)'
     else
       etcsec = -b/m + first_time
+
+      losec = -b/m
+      hisec = -b/m
+      for mm in [m-2*sm,m,m+2*sm]
+        for bb in [b-2*sb,b,b+2*sb]
+          ss = -bb/mm
+          losec = [losec, ss].min
+          hisec = [hisec, ss].max
+        end
+      end
+      losec += first_time
+      hisec += first_time
+      losec -= time
+      hisec -= time
+
       begin
         etc = Time.at(etcsec).gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
       rescue
@@ -140,8 +156,14 @@ def main()
       sec2go = etcsec - time
       hr2go = sec2go / 3600
 
+      losec = sec2go - losec
+      hisec = hisec - sec2go
+      bar = [losec,hisec].max
+      barpct = 100 * bar / sec2go
+
     end
-    puts "#{curval} #{doneval} #{time} #{stamp} #{etc} #{sec2go} #{hr2go}"
+    #puts "#{curval} #{doneval} #{time} #{stamp} #{etc} #{sec2go} #{hr2go} #{losec} #{hisec}"
+    puts "#{curval} #{doneval} #{time} #{stamp} #{etc} #{sec2go} #{hr2go} #{barpct}"
   end
 end
 
@@ -255,4 +277,7 @@ def linreg(xs, ys)
 end
 
 # ================================================================
-main()
+begin
+  main()
+rescue Errno::EPIPE
+end

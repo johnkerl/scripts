@@ -19,7 +19,7 @@ sub usage
    print "Options:\n";
    print "  -h: show this message.\n";
    print "  -s: a shorthand for the filename pattern *.[chsS] or [Mm]akefile.\n";
-   print "  -C: a shorthand for the filename pattern *.[chsS] or [Mm]akefile.\n";
+   print "  -C: a shorthand for the filename pattern *.[ch].\n";
    print "  -g: a shorthand for the filename pattern *.go.\n";
    print "  -j: a shorthand for the filename pattern *.java.\n";
    print "  -X: dry run only.\n";

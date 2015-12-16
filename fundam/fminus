@@ -1,31 +1,75 @@
-#!/usr/bin/env ruby
-$stdout.sync = true
-$stderr.sync = true
-require 'set'
+#!/usr/bin/env python
 
 # Like comm -23 but accepts out-of-order input.
 
+import sys
+
 # ----------------------------------------------------------------
-def usage
-  $stderr.puts <<EOF
-Usage: #{File.basename $0} {file1} {more files ...}
+def usage():
+	print >> sys.stderr, """Usage: %s {file1} {more files ...}
 Prints all lines of file1 except those which appear in any of
-the subsequent files.
-EOF
-end
+the subsequent files."""
 
 # ----------------------------------------------------------------
-usage unless ARGV.length >= 1
-left = ARGV.shift
-rights = ARGV
+def fold_in_contents(filename, lineset):
+	mode = 'r'
+	try:
+		file_handle = open(filename, mode)
+	except:
+		print >> sys.stderr, \
+			"%s: couldn't open file \"%s\" for mode \"%s\"." \
+			% (sys.argv[0], filename, mode)
+		sys.exit(1)
+	while True:
+		line = file_handle.readline()
+		if line == '':
+			break
+		if not line in lineset:
+			lineset.add(line)
+	file_handle.close()
 
-right_lines = Set.new
-rights.each do |right|
-  File.foreach(right) do |right_line|
-    right_lines << right_line
-  end
-end
+# ----------------------------------------------------------------
+if len(sys.argv) < 3:
+	usage()
 
-File.foreach(left) do |left_line|
-  puts left_line unless right_lines.include?(left_line)
-end
+left_filename = sys.argv[1]
+right_filenames = sys.argv[2:]
+
+right_lines = set()
+
+for right_filename in right_filenames:
+	fold_in_contents(right_filename, right_lines)
+
+mode = 'r'
+try:
+	left_file_handle = open(left_filename, mode)
+except:
+	print >> sys.stderr, \
+		"%s: couldn't open file \"%s\" for mode \"%s\"." \
+		% (sys.argv[0], left_filename, mode)
+	sys.exit(1)
+while True:
+	line = left_file_handle.readline()
+	if line == '':
+		break
+	if not line in right_lines:
+		sys.stdout.write(line)
+		sys.stdout.flush()
+left_file_handle.close()
+
+# ----------------------------------------------------------------
+# Ruby version (much slower -- 5x so for me):
+# usage unless ARGV.length >= 1
+# left_filename = ARGV.shift
+# right_filenames = ARGV
+#
+# right_lines = Set.new
+# right_filenames.each do |right|
+#   File.foreach(right) do |right_line|
+#     right_lines << right_line
+#   end
+# end
+#
+# File.foreach(left_filename) do |left_line|
+#   puts left_line unless right_lines.include?(left_line)
+# end
