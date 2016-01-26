@@ -47,6 +47,12 @@ end
 
 # ================================================================
 names_to_agesecs = {}
+show_hiddens = false
+
+if ARGV.length == 1 && ARGV[0] == '-a'
+  show_hiddens = true
+  ARGV.shift
+end
 
 # If no arguments are supplied on the command line, process the current directory.
 args = ARGV
@@ -57,6 +63,10 @@ items = []
 args.each do |arg|
   if File.directory? arg
     entries = Dir.entries(arg) - ['.','..']
+    unless show_hiddens
+      #entries = entries.select{|entry| !(entry !=~ /^\./)}
+      entries = entries.select{|entry| entry =~ /^[^\.]/}
+    end
     items += entries.collect{|entry| arg + "/" + entry}
   else
     items << arg
