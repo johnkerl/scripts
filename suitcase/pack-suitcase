@@ -23,7 +23,7 @@ rm -rf $dst/scripts
 #git clone http://github.com/johnkerl/scripts
 cp -a $HOME/scripts $dst
 
-#cp $HOME/scripts/workarounds/* $dst/scripts/aux
+cp $HOME/scripts/aux/* $dst/scripts/aux
 
 # Prune for quicker scp
 rm -rf $dst/scripts/.git
@@ -53,3 +53,4 @@ opener=$dst/scripts/open-suitcase
 echo "# This file should be sourced, e.g. \". $opener\"" > $opener
 echo 'eval $('$dst'/scripts/rc)' >> $opener
 chmod +x $opener
+echo $dst
