@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+$VERBOSE = nil
+# ================================================================
+# Allow editing files with jump-to-line-number given arguments of the form
+# either 'path/to/myfile.ext' or 'path/to/myfile.ext:123'.  Useful for
+# copy/paste from stack traces to the command line.
+#
+# John Kerll 2016-03-26
+# ================================================================
+
+ARGV.each do|arg|
+  file, line = arg.split(':', 2)
+  if line
+    cmd = "vim -i NONE -X +#{line} #{file}"
+  else
+    cmd = "vim -i NONE -X #{file}"
+  end
+  system cmd
+end
