@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# ================================================================
+# Shuffles words within lines while retaining line breaks.
+#
+# Example input:
+#
+#   Shuffles words within lines while retaining line breaks.
+#   Here is some sample output.
+#
+# Example output:
+#
+#   flshufSe osdrw inhitw sleni liwhe artinngei nlie ra.sbek
+#   eerH is eoms sapmle upto.tu
+#
+# John Kerl 2016-03-26
+# ================================================================
+
+begin
+  ARGF.each do |line|
+    puts line.strip.split(/\s+/).collect{ |word| word.split('').shuffle.join('') }.join(' ')
+  end
+rescue Errno::EPIPE
+  # E.g. we're piped to head.  Don't complain.
+  exit 0
+end
