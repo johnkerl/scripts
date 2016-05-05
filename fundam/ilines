@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Retains only specified line numbers (1-up) from the input.
+# ================================================================
+
+require 'set'
+
+$us = File.basename $0
+
+def usage()
+  $stderr.puts "Usage #{$us} {comma-separated line numbers} {zero or more file names}"
+  $stderr.puts "If zero file names are supplied, standard input is read."
+  exit 1
+end
+
+usage if ARGV.length < 1
+lnostr = ARGV.shift
+lnos = Set.new
+for e in lnostr.split(',')
+  lnos << Integer(e)
+end
+
+lno = 0
+ARGF.each do |line|
+  line.chomp!
+  lno += 1
+  puts line if lnos.include? lno
+end
