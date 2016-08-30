@@ -1,5 +1,7 @@
 // Build instructions:
-// gcc -std=c99 -O3 -I $mlc $mlc/lib/mlr_globals.c $mlc/lib/mlrutil.c $mlc/containers/hss.c uniqm.c -o uniqm
+/*
+  gcc -std=c99 -O3 -I $mlc $mlc/lib/mlr_globals.c $mlc/lib/mlrutil.c $mlc/containers/hss.c argf.c uniqm.c -o uniqm
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,39 +11,23 @@
 #include "lib/mlr_globals.h"
 #include "containers/hss.h"
 
+#include "argf.h"
+
 #define MYBUFSIZ 2048
-static char buf[MYBUFSIZ];
+static char line[MYBUFSIZ];
 
 int main(int argc, char** argv) {
 	mlr_global_init(argv[0], NULL);
-
+	argf_t* pargf = argf_alloc(argv[0], argv+1, argc-1);
 	hss_t* pset = hss_alloc();
 
-	if (argc == 1) {
-		while (fgets(buf, MYBUFSIZ, stdin)) {
-			if (!hss_has(pset, buf)) {
-				fputs(buf, stdout);
-				hss_add(pset, strdup(buf));
-			}
-		}
-	} else {
-		for (int argi = 1; argi < argc; argi++) {
-			char* filename = argv[argi];
-			FILE* fp = fopen(filename, "r");
-			if (fp == NULL) {
-				fprintf(stderr, "%s: Couldn't open \"%s\" for read.\n",
-					argv[0], filename);
-				exit(1);
-			}
-			while (fgets(buf, MYBUFSIZ, fp)) {
-				if (!hss_has(pset, buf)) {
-					fputs(buf, stdout);
-					hss_add(pset, strdup(buf));
-				}
-			}
-			fclose(fp);
+	while (argf_fgets(pargf, line, MYBUFSIZ) != NULL) {
+		if (!hss_has(pset, line)) {
+			fputs(line, stdout);
+			hss_add(pset, strdup(line));
 		}
 	}
 
+	argf_free(pargf);
 	return 0;
 }
