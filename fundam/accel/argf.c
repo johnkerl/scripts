@@ -8,9 +8,10 @@ gcc -Wall -D ARGF_TEST_MAIN argf.c -o argf_test
 #include <stdlib.h>
 #include "argf.h"
 
-static char* files_fgetter(argf_t* pargf, char * restrict str, int size);
-static char* stdin_fgetter(argf_t* pargf, char * restrict str, int size);
-static char* eof_fgetter(argf_t* pargf, char * restrict str, int size);
+static char* files_fgetter(argf_t* pargf, char * restrict str, int size, int* perr);
+static char* stdin_fgetter(argf_t* pargf, char * restrict str, int size, int* perr);
+static char* err_fgetter(argf_t* pargf, char * restrict str, int size, int* perr);
+static char* eof_fgetter(argf_t* pargf, char * restrict str, int size, int* perr);
 
 static void* malloc_or_die(size_t size);
 static char * strdup_or_die(const char *s1);
@@ -36,7 +37,7 @@ argf_t* argf_alloc(char* argv0, char** filenames, int num_filenames) {
 			perror("fopen");
 			fprintf(stderr, "%s: could not open \"%s\" for read.\n",
 				pargf->argv0, pargf->filenames[pargf->fidx]);
-			pargf->pfgetter = eof_fgetter;
+			pargf->pfgetter = err_fgetter;
 		} else {
 		pargf->pfgetter = files_fgetter;
 		}
@@ -55,12 +56,12 @@ void argf_free(argf_t* pargf) {
 
 // ----------------------------------------------------------------
 // Returns NULL on EOF or first file-open error
-char* argf_fgets(argf_t* pargf, char * restrict str, int size) {
-	return (pargf->pfgetter(pargf, str, size));
+char* argf_fgets(argf_t* pargf, char * restrict str, int size, int* perr) {
+	return (pargf->pfgetter(pargf, str, size, perr));
 }
 
 // ----------------------------------------------------------------
-static char* files_fgetter(argf_t* pargf, char * restrict str, int size) {
+static char* files_fgetter(argf_t* pargf, char * restrict str, int size, int* perr) {
 	char* ptr = fgets(str, size, pargf->fp);
 	if (ptr != NULL) {
 		return ptr;
@@ -73,6 +74,7 @@ static char* files_fgetter(argf_t* pargf, char * restrict str, int size) {
 	}
 	pargf->fp = fopen(pargf->filenames[pargf->fidx], "r");
 	if (pargf->fp == NULL) {
+		*perr = 1;
 		perror("fopen");
 		fprintf(stderr, "%s: could not open \"%s\" for read.\n",
 			pargf->argv0, pargf->filenames[pargf->fidx]);
@@ -80,17 +82,22 @@ static char* files_fgetter(argf_t* pargf, char * restrict str, int size) {
 		return NULL;
 	}
 
-	return files_fgetter(pargf, str, size);
+	return files_fgetter(pargf, str, size, perr);
 }
 
-static char* stdin_fgetter(argf_t* pargf, char * restrict str, int size) {
+static char* stdin_fgetter(argf_t* pargf, char * restrict str, int size, int* perr) {
 	char* ptr = fgets(str, size, pargf->fp);
 	if (ptr == NULL)
 		pargf->pfgetter = eof_fgetter;
 	return ptr;
 }
 
-static char* eof_fgetter(argf_t* pargf, char * restrict str, int size) {
+static char* err_fgetter(argf_t* pargf, char * restrict str, int size, int* perr) {
+	*perr = 1;
+	return NULL;
+}
+
+static char* eof_fgetter(argf_t* pargf, char * restrict str, int size, int* perr) {
 	return NULL;
 }
 
@@ -120,12 +127,16 @@ static char * strdup_or_die(const char *s1) {
 static char line[MYBUFSIZ];
 int main(int argc, char** argv) {
 	argf_t* pargf = argf_alloc(argv[0], argv+1, argc-1);
+	int error = 0;
 
-	while (argf_fgets(pargf, line, MYBUFSIZ) != NULL) {
+	while (argf_fgets(pargf, line, MYBUFSIZ, &error) != NULL) {
 		printf("%s", line);
 	}
-
 	argf_free(pargf);
+	if (error) {
+		return 1;
+	}
+
 	return 0;
 }
 #endif // ARGF_TEST_MAIN

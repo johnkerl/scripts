@@ -18,7 +18,10 @@
 // 00000070: 70 71 72 73  74 75 76 77  78 79 7a 7b  7c 7d 7e 7f |pqrstuvwxyz{|}~.|
 // ================================================================
 
-// Build instructions: gcc -O3 -Wall hex.c -o hex
+/*
+Build instructions:
+gcc -O3 -Wall hex.c -o hex
+*/
 
 #include <stdio.h>
 #include <string.h>

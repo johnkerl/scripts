@@ -8,7 +8,7 @@
 
 // ----------------------------------------------------------------
 struct _argf_t; // forward reference
-typedef char* argf_fgetter_t(struct _argf_t* pargf, char * restrict str, int size);
+typedef char* argf_fgetter_t(struct _argf_t* pargf, char * restrict str, int size, int* perr);
 
 typedef struct _argf_t {
 	char* argv0;
@@ -24,7 +24,7 @@ typedef struct _argf_t {
 argf_t* argf_alloc(char* argv0, char** filenames, int num_filenames);
 void argf_free(argf_t* pargf);
 
-// Returns NULL on EOF or first file-open error
-char* argf_fgets(argf_t* pargf, char * restrict str, int size);
+// Returns NULL on EOF or first file-open error; sets *perr to 1 in the latter case.
+char* argf_fgets(argf_t* pargf, char * restrict str, int size, int* perr);
 
 #endif // ARGF_H
