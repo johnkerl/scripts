@@ -52,7 +52,7 @@ while (@ARGV > 0) {
    }
    if ($ARGV[0] =~ m/^-s$/) {
       shift @ARGV;
-      push @findopts, "\\( -name '*.[chsS]' -o -name '*.cpp' -o -name '*.cc' -o -name '[Mm]akefile' -o -name '*.mki'";
+      push @findopts, "\\( -name '*.[chsS]' -o -name '*.cpp' -o -name '*.cc' -o -name '*.hpp' -o -name '[Mm]akefile' -o -name '*.mki'";
    }
    elsif ($ARGV[0] =~ m/^-C$/) {
       shift @ARGV;

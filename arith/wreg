@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+
+a = Float(ARGV.shift)
+z = 1.0 - a
+
+begin
+  sumwi     = nil
+  sumwixi   = nil
+  sumwixi2  = nil
+  sumwiyi   = nil
+  sumwixiyi = nil
+  n = 0
+  ARGF.each do |line|
+    x, y = line.strip.split
+    x, y = [Float(x), Float(y)]
+    n += 1
+    if n == 1
+      sumwi     = 1.0
+      sumwixi   = x
+      sumwixi2  = x*x
+      sumwiyi   = y
+      sumwixiyi = x*y
+    else
+      sumwi     = a       + z * sumwi
+      sumwixi   = a * x   + z * sumwixi
+      sumwixi2  = a * x*x + z * sumwixi2
+      sumwiyi   = a * y   + z * sumwiyi
+      sumwixiyi = a * x*y + z * sumwixiyi
+    end
+
+    d = sumwi*sumwixi2 - sumwixi**2
+    m = (sumwi * sumwixiyi - sumwixi*sumwiyi) / d
+    b = (sumwixi2 * sumwiyi - sumwixi*sumwixiyi) / d
+    if n >= 2
+      puts "n=#{n},x=#{x},y=#{y},m=#{m},b=#{b}"
+    end
+  end
+rescue Errno::EPIPE
+end

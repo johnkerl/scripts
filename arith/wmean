@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+a = Float(ARGV.shift)
+b = 1.0 - a
+
+sumwixi = nil
+sumwi   = nil
+n = 0
+ARGF.each do |line|
+  x = Float(line)
+  if sumwixi.nil?
+    sumwixi = x
+    sumwi   = 1.0
+  else
+    sumwixi = a * x + b * sumwixi
+    sumwi   = a + b*sumwi
+  end
+  xbar = sumwixi / sumwi
+  puts xbar
+end
