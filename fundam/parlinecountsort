@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# Ingests paragraphs, sorts them by character count, and prints them out
+# Ingests paragraphs, sorts them by line count, and prints them out
 
 longest_first = true
 if ARGV.length >= 1 && ARGV[0] == '-r'
@@ -10,13 +10,20 @@ end
 
 paragraphs = []
 ARGF.each("\n\n") do |paragraph|
-   paragraphs << paragraph
+   paragraphs << paragraph.split("\n")
 end
 
-#paragraphs.sort!{|a,b| a.length <=> b.length}
 if longest_first
   paragraphs.sort!{|a,b| b.length <=> a.length}
 else
   paragraphs.sort!{|a,b| a.length <=> b.length}
 end
-puts paragraphs.join("\n")
+
+at_first = true
+paragraphs.each do |paragraph|
+   puts unless at_first
+   at_first = false
+   paragraph.each do |line|
+      puts line
+   end
+end

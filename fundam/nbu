@@ -17,14 +17,20 @@ $max_extension = (10**$width) - 1
 $fmt = "%%0%dd" % ($width) # No "%0*d" in Ruby?
 
 # ----------------------------------------------------------------
-def make_numbered_backup(file_name, dest_dir)
-    i = 0
+def make_numbered_backup(file_path, dest_dir)
+   i = 0
    while i <= $max_extension
       extension = $fmt % i
-      file_name_with_extension = "#{dest_dir}/#{file_name}.#{extension}"
-      unless test(?e, file_name_with_extension)
-         FileUtils.cp(file_name, file_name_with_extension)
-         puts file_name_with_extension
+      if dest_dir.nil?
+        file_path_with_extension = "#{file_path}.#{extension}"
+      else
+        file_name = File.basename(file_path)
+        file_path_with_extension = "#{dest_dir}/#{file_name}.#{extension}"
+      end
+
+      unless test(?e, file_path_with_extension)
+         FileUtils.cp(file_path, file_path_with_extension)
+         puts file_path_with_extension
          return true
       end
       i += 1
@@ -35,7 +41,7 @@ def make_numbered_backup(file_name, dest_dir)
 end
 
 # ----------------------------------------------------------------
-dest_dir = "."
+dest_dir = nil
 if ARGV.length >= 2 && ARGV[0] == '-d'
   ARGV.shift
   dest_dir = ARGV.shift
@@ -46,8 +52,8 @@ if ARGV.length < 1
 end
 
 ok = true
-for file_name in ARGV
-   ok &= make_numbered_backup(file_name, dest_dir)
+for file_path in ARGV
+   ok &= make_numbered_backup(file_path, dest_dir)
 end
 
 exit (ok == true) ? 0 : 1
