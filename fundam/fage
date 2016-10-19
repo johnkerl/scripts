@@ -92,10 +92,12 @@ end
 
 # List filenames, or directory contents, from oldest to newest.
 names_to_agesecs.keys.sort{|a,b| names_to_agesecs[b] <=> names_to_agesecs[a]}.each do |item|
-  mtime = File.new(item).stat.mtime
+  stat = File.new(item).stat
+  mtime = stat.mtime
+  size = stat.size
   now = Time.now
   agesec = now - mtime
   agehrs = agesec / 3600.0
   dhms = get_dhms(agesec)
-  puts "#{'%7.2f' % agehrs}h #{dhms.rjust 14} #{item}"
+  puts "#{'%7.2f' % agehrs}h #{dhms.rjust 14} #{size.to_s.rjust 10} #{item}"
 end

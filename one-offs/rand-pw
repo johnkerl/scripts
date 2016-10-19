@@ -57,7 +57,7 @@ def get_word_filtered(length):
     sys.exit(1)
 
 # ----------------------------------------------------------------
-length  = 12
+length  = 16
 count   = 1
 
 argc = len(sys.argv)

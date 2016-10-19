@@ -19,7 +19,7 @@ def usage():
 
 # ----------------------------------------------------------------
 choices = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-length  =  8
+length  = 16
 count   = 1
 
 argc = len(sys.argv)
