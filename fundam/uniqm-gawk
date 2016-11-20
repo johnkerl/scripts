@@ -1,0 +1,3 @@
+#!/bin/bash
+# http://unix.stackexchange.com/questions/194780/remove-duplicate-lines-while-keeping-the-order-of-the-lines/324711
+gawk '!counts[$0]++' "$@"
