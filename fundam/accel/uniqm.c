@@ -1,15 +1,14 @@
 /*
 Build instructions:
-gcc -std=c99 -O3 -I $mlc $mlc/lib/mlr_globals.c $mlc/lib/mlrutil.c $mlc/containers/hss.c argf.c uniqm.c -o uniqm
+gcc -std=c99 -O3 -Ilib lib/util.c lib/hss.c argf.c uniqm.c -o uniqm
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "lib/mlrutil.h"
-#include "lib/mlr_globals.h"
-#include "containers/hss.h"
+#include "lib/util.h"
+#include "lib/hss.h"
 
 #include "argf.h"
 
@@ -17,7 +16,6 @@ gcc -std=c99 -O3 -I $mlc $mlc/lib/mlr_globals.c $mlc/lib/mlrutil.c $mlc/containe
 static char line[MYBUFSIZ];
 
 int main(int argc, char** argv) {
-	mlr_global_init(argv[0], NULL);
 	argf_t* pargf = argf_alloc(argv[0], argv+1, argc-1);
 	int error = 0;
 	hss_t* pset = hss_alloc();
