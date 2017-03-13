@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+file = ARGV[0]
+size1 = File.stat(file).size
+t1 = Time.now
+while true
+  size2 = File.stat(file).size
+  t2 = Time.now
+  size_delta = size2 - size1
+  time_delta = t2 - t1
+  rate = size_delta / time_delta
+  printf "bytes: %d  bytes_delta: %d  bytes/sec: %.3e                      \r", size2, size_delta, rate
+  size1 = size2
+  t1 = t2
+  sleep 1
+end
