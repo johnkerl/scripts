@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Locates instance of name in PATH (if anywhere). Multiples are printed
+# if multiples are found.
+# ================================================================
+
+die "Usage: $0 {command}\n"
+	unless (@ARGV == 1);
+$command = $ARGV[0];
+$path = $ENV{"PATH"};
+
+my @fields = split /:/, $path;
+for my $field (@fields) {
+  $field_command = "$field/$command";
+	print "$field_command\n" if -f $field_command;
+}
