@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# It turns out that in Linux there is now the "shuf" command.
 begin
    ARGF.collect{|line| line}.shuffle.each{|line| puts line}
 rescue Errno::EPIPE

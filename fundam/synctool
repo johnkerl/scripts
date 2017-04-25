@@ -79,11 +79,14 @@ main() {
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# Parse the command line.
 	local do_setx=false
-	while getopts r:vh? f; do
+	local ssh_four_six=""
+	while getopts r:46vh? f; do
 		case $f in
 		r)      user_at_host="$OPTARG"; continue;;
-		v)      do_setx=true; continue;;
-		h)      usage;        continue;;
+		4)      ssh_four_six=four; continue;;
+		6)      ssh_four_six=six;  continue;;
+		v)      do_setx=true;      continue;;
+		h)      usage;             continue;;
 		\?)     echo; usage;;
 		esac
 	done
@@ -116,19 +119,19 @@ main() {
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# Execute the verb.
 	if   [ "$verb" = "relfromremote" ]; then
-		func_relfromremote "$@"
+		func_relfromremote "$ssh_four_six" "$@"
 	elif [ "$verb" = "reltoremote" ]; then
-		func_reltoremote "$@"
+		func_reltoremote "$ssh_four_six" "$@"
 	elif [ "$verb" = "reldelremote" ]; then
-		func_reldelremote "$@"
+		func_reldelremote "$ssh_four_six" "$@"
 	elif [ "$verb" = "syncfromremote" ]; then
-		func_syncfromremote "$@"
+		func_syncfromremote "$ssh_four_six" "$@"
 	elif [ "$verb" = "synctoremote" ]; then
-		func_synctoremote "$@"
+		func_synctoremote "$ssh_four_six" "$@"
 	elif [ "$verb" = "pullpwd" ]; then
-		func_pullpwd "$@"
+		func_pullpwd "$ssh_four_six" "$@"
 	elif [ "$verb" = "pushpwd" ]; then
-		func_pushpwd "$@"
+		func_pushpwd "$ssh_four_six" "$@"
 	elif [ "$verb" = "-h" ]; then
 		usage
 	elif [ "$verb" = "--help" ]; then
@@ -141,6 +144,8 @@ main() {
 
 # ----------------------------------------------------------------
 func_relfromremote() {
+	local ssh_four_six=$1
+	shift
 	if [ $# -eq 0 ]; then
 		echo "Usage: $relfromremote_usage" 1>&2
 		exit 1
@@ -160,6 +165,8 @@ func_relfromremote() {
 
 # ----------------------------------------------------------------
 func_reltoremote() {
+	local ssh_four_six=$1
+	shift
 	if [ $# -eq 0 ]; then
 		echo "Usage: $reltoremote_usage" 1>&2
 		exit 1
@@ -179,6 +186,8 @@ func_reltoremote() {
 
 # ----------------------------------------------------------------
 func_reldelremote() {
+	local ssh_four_six=$1
+	shift
 	if [ $# -eq 0 ]; then
 		echo "Usage: $reldelremote_usage" 1>&2
 		exit 1
@@ -199,6 +208,8 @@ func_reldelremote() {
 
 # ----------------------------------------------------------------
 func_pullpwd() {
+	local ssh_four_six=$1
+	shift
 	if [ $# -ne 0 ]; then
 		echo "Usage: $pullpwd_usage" 1>&2
 		exit 1
@@ -207,20 +218,24 @@ func_pullpwd() {
 		echo "Sorry, I'm unwilling to push all of $HOME" 1>&2
 		exit 1
 	fi
-	func_syncfromremote --delete $(func_get_relative_path $(pwd))
+	func_syncfromremote "$ssh_four_six" --delete $(func_get_relative_path $(pwd))
 }
 
 # ----------------------------------------------------------------
 func_pushpwd() {
+	local ssh_four_six=$1
+	shift
 	if [ $# -ne 0 ]; then
 		echo "Usage: $pushpwd_usage" 1>&2
 		exit 1
 	fi
-	func_synctoremote --delete $(func_get_relative_path $(pwd))
+	func_synctoremote "$ssh_four_six" --delete $(func_get_relative_path $(pwd))
 }
 
 # ----------------------------------------------------------------
 func_syncfromremote() {
+	local ssh_four_six=$1
+	shift
 	if [ $# -eq 0 ]; then
 		echo "Usage: $syncfromremote_usage" 1>&2
 		exit 1
@@ -239,7 +254,7 @@ func_syncfromremote() {
 	# -n: dry run
 	# --dry-run: dry run
 	# --delete: for directory sync, remove files in dest dir which are not in src dir.
-	
+
 	options="-tlzv"
 	items=""
 	for arg; do
@@ -250,18 +265,22 @@ func_syncfromremote() {
 			items="$items $arg"
 		fi
 	done
-	
+
 	for item in $items; do
 		if [ -d ~/$item ]; then
-			rsync -r $options $user_at_host:$item/ ~/$item
+			rsync -r $options -e 'ssh -4' $user_at_host:$item/ ~/$item
+			#rsync -r $options             $user_at_host:$item/ ~/$item
 		else
-			rsync    $options $user_at_host:$item  ~/$item
+			rsync    $options -e 'ssh -4' $user_at_host:$item  ~/$item
+			#rsync    $options             $user_at_host:$item  ~/$item
 		fi
 	done
 }
 
 # ----------------------------------------------------------------
 func_synctoremote() {
+	local ssh_four_six=$1
+	shift
 	if [ $# -eq 0 ]; then
 		echo "Usage: $synctoremote_usage" 1>&2
 		exit 1
@@ -280,7 +299,7 @@ func_synctoremote() {
 	# -n: dry run
 	# --dry-run: dry run
 	# --delete: for directory sync, remove files in dest dir which are not in src dir.
-	
+
 	options="-tlzv"
 	items=""
 	for arg; do
@@ -291,12 +310,24 @@ func_synctoremote() {
 			items="$items $arg"
 		fi
 	done
-	
+
 	for item in $items; do
 		if [ -d ~/$item ]; then
-			rsync -r $options ~/$item/ $user_at_host:$item
+			if [ "$ssh_four_six" = "four" ]; then
+				rsync -r -e 'ssh -4' $options ~/$item/ $user_at_host:$item
+			elif [ "$ssh_four_six" = "six" ]; then
+				rsync -r -e 'ssh -6' $options ~/$item/ $user_at_host:$item
+			else
+				rsync -r             $options ~/$item/ $user_at_host:$item
+			fi
 		else
-			rsync    $options ~/$item  $user_at_host:$item
+			if [ "$ssh_four_six" = "four" ]; then
+				rsync -e 'ssh -4' $options ~/$item  $user_at_host:$item
+			elif [ "$ssh_four_six" = "six" ]; then
+				rsync -e 'ssh -6' $options ~/$item  $user_at_host:$item
+			else
+				rsync             $options ~/$item  $user_at_host:$item
+			fi
 		fi
 	done
 }
