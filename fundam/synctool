@@ -268,14 +268,23 @@ func_syncfromremote() {
 
 	for item in $items; do
 		if [ -d ~/$item ]; then
-			rsync -r $options -e 'ssh -4' $user_at_host:$item/ ~/$item
-			#rsync -r $options             $user_at_host:$item/ ~/$item
+			if [ "$ssh_four_six" = "four" ]; then
+			  rsync -r $options -e 'ssh -4' $user_at_host:$item/ ~/$item
+      elif [ "$ssh_four_six" = "six" ]; then
+			  rsync -r $options -e 'ssh -6' $user_at_host:$item/ ~/$item
+      else
+			  rsync -r $options             $user_at_host:$item/ ~/$item
+      fi
 		else
-			rsync    $options -e 'ssh -4' $user_at_host:$item  ~/$item
-			#rsync    $options             $user_at_host:$item  ~/$item
+			if [ "$ssh_four_six" = "four" ]; then
+			  rsync    $options -e 'ssh -4' $user_at_host:$item  ~/$item
+      elif [ "$ssh_four_six" = "six" ]; then
+			  rsync    $options -e 'ssh -6' $user_at_host:$item  ~/$item
+      else
+			  rsync    $options -e          $user_at_host:$item  ~/$item
+      fi
 		fi
 	done
-}
 
 # ----------------------------------------------------------------
 func_synctoremote() {
