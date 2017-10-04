@@ -1,0 +1,60 @@
+#!/usr/bin/perl -w
+
+# ----------------------------------------------------------------
+# John Kerl
+# kerl.john.r@gmail.com
+# 2005-04-07
+#
+# This is an implementation of extended GCD, using the Blankinship algorithm
+# (following Knuth).
+# ----------------------------------------------------------------
+
+while (@ARGV) {
+	last unless ($ARGV[0] =~ m/^-/);
+	if ($ARGV[0] =~ m/^-[0-9]+/) {
+		# Negative inputs are data, not options.
+		last;
+	}
+	else {
+		usage();
+	}
+}
+
+usage() unless (@ARGV >= 1);
+$m = shift @ARGV;
+for my $b (@ARGV) {
+	$m = lcm($m, $b);
+}
+print "$m\n";
+
+# ----------------------------------------------------------------
+sub usage
+{
+	die "Usage: $0 {one or more integers}.\n";
+}
+
+# ----------------------------------------------------------------
+sub gcd
+{
+	my ($a, $b) = @_;
+	my ($r);
+
+	return $b if ($a == 0);
+	return $a if ($b == 0);
+
+	while (1) {
+		$r = $a % $b;
+		last if ($r == 0);
+		$a = $b;
+		$b = $r;
+	}
+
+	return $b;
+}
+
+# ----------------------------------------------------------------
+sub lcm
+{
+	my ($a, $b) = @_;
+	return $a * $b / gcd($a, $b);
+}

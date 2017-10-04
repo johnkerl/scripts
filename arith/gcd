@@ -26,10 +26,11 @@ while (@ARGV) {
 	}
 }
 
-usage() unless (@ARGV == 2);
-$a = shift @ARGV;
-$b = shift @ARGV;
 if ($do_ext) {
+	usage() unless (@ARGV == 2);
+	$a = shift @ARGV;
+	$b = shift @ARGV;
+
 	($d, $m, $n) = ext_gcd($a, $b);
 	if (($m * $a + $n * $b) != $d) {
 		die "$0:  overflow.\n";
@@ -37,15 +38,19 @@ if ($do_ext) {
 	print "$d = $m * $a + $n * $b\n";
 }
 else {
-	$d = gcd($a, $b);
+	usage() unless (@ARGV >= 1);
+	$d = shift @ARGV;
+	for my $b (@ARGV) {
+		$d = gcd($d, $b);
+	}
 	print "$d\n";
 }
 
 # ----------------------------------------------------------------
 sub usage
 {
-	die "Usage: $0 [-x] {a} {b}.\n" .
-		"Use -x for extended GCD.\n";
+	die "Usage: $0 -x {a} {b}  (for extended GCD)\n" .
+		"Or $0 {one or more integers}.\n";
 }
 
 # ----------------------------------------------------------------
