@@ -37,7 +37,7 @@ $Units_to_value = {'K' => 1024, 'M' => 1024**2, 'G' => 1024**3}
 def line_to_count_and_units(line)
    count = nil
    rest  = nil
-   if line =~ /^(\d+)([KMG])\s*(.*)/
+   if line =~ /^\s*(\d+)([KMG])\s*(.*)/
       count = Integer($1) * $Units_to_value[$2]
       rest = $3
    elsif line =~ /^(\d+\.\d+)([KMG])\s*(.*)/
