@@ -23,19 +23,22 @@ $stdout.sync = true
 # ==============================================================================
 
 i = 0
-while true
-	begin
-		line = $stdin.readline
-		i += 1
-	rescue EOFError
-		break
+begin
+	while true
+		begin
+			line = $stdin.readline
+			i += 1
+		rescue EOFError
+			break
+		end
+		line.chomp!
+		if (i % 2) == 1
+			print line
+		else
+			print " "
+			puts line
+		end
 	end
-	line.chomp!
-	if (i % 2) == 1
-		print line
-	else
-		print " "
-		puts line
-	end
+	puts if (i % 2) == 1
+rescue Errno::EPIPE
 end
-puts if (i % 2) == 1
