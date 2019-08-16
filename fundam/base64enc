@@ -1,6 +1,13 @@
 #!/usr/bin/env ruby
-# Simple base-64 decoder
+# Simple base-64 encoder
 require 'base64'
-ARGV.each do |arg|
-   puts Base64.encode64 arg
+if ARGV.length == 0
+  # Ruby readline chomps newlines for us
+  $stdin.readlines.each do |line|
+    puts Base64.encode64 line
+  end
+else
+  ARGV.each do |arg|
+     puts Base64.encode64 arg
+  end
 end

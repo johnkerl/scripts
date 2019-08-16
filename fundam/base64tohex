@@ -1,13 +1,19 @@
 #!/usr/bin/env ruby
 # Simple base-64 decoder
 require 'base64'
+
+def do_item(input)
+  binary = Base64.decode64 input
+  binary.each_byte.map { |b| b.to_s(16).rjust(2,'0') }.join
+end
+
 if ARGV.length == 0
   # Ruby readline chomps newlines for us
   $stdin.readlines.each do |line|
-    puts Base64.decode64 line
+    puts do_item line
   end
 else
   ARGV.each do |arg|
-     puts Base64.decode64 arg
+     puts do_item arg
   end
 end
