@@ -6,7 +6,7 @@ us = os.path.basename(sys.argv[0])
 
 # ----------------------------------------------------------------
 def usage():
-	print >> sys.stderr, "Usage: %s {one or more shift seconds ...}" % us
+	sys.stderr.write("Usage: %s {one or more shift seconds ...}\n" % us)
 	sys.exit(1)
 
 # ----------------------------------------------------------------
@@ -16,18 +16,20 @@ def main():
 	ok = True
 	if len(sys.argv) < 2:
 		usage()
+	if sys.argv[1] == '-h' or sys.argv[1] == '--help':
+		usage()
 	for arg in sys.argv[1:]:
 		shift_seconds = 0
 		try:
 			shift_seconds = int(arg)
 		except:
-			print >> sys.stderr, "%s: can't parse \"%s\" as integer." % (us, arg)
+			sys.stderr.write("%s: can't parse \"%s\" as integer.\n" % (us, arg))
 			ok = False
 			continue
 
 		t = time.gmtime(now_epoch + shift_seconds)
 		s = time.strftime("%Y-%m-%dT%H:%M:%S", t)
-		print s
+		print(s)
 	if ok:
 		sys.exit(0)
 	else:

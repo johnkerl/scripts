@@ -19,9 +19,7 @@ else:
 			try:
 				file_handle = open(filename, mode)
 			except:
-				print >> sys.stderr, \
-					"%s: couldn't open file \"%s\" for mode \"%s\"." \
-					% (sys.argv[0], filename, mode)
+				sys.stderr.write("%s: couldn't open file \"%s\" for mode \"%s\".\n" % (sys.argv[0], filename, mode))
 				sys.exit(1)
 			while True:
 				line = file_handle.readline()

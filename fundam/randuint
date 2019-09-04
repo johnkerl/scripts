@@ -8,13 +8,13 @@ default_hi = 100
 
 # ----------------------------------------------------------------
 def usage():
-    print >> sys.stderr, "Usage: %s [-n n] [-l lower] [-u upper] [-8] [-x]" % os.path.basename(sys.argv[0])
-    print >> sys.stderr, "Generates uniformly distributed pseudorandom integers."
-    print >> sys.stderr, "n defaults to %d." % (default_n)
-    print >> sys.stderr, "Lower bound is inclusive and defaults to %d." % (default_lo)
-    print >> sys.stderr, "Upper bound is exclusive and defaults to %d." % (default_hi)
-    print >> sys.stderr, "The -8 option bypasses lower/upper and generates 32-bit integer."
-    print >> sys.stderr, "The -x option is for hex output (default decimal)."
+    sys.stderr.write("Usage: %s [-n n] [-l lower] [-u upper] [-8] [-x]\n" % os.path.basename(sys.argv[0]))
+    sys.stderr.write("Generates uniformly distributed pseudorandom integers.\n")
+    sys.stderr.write("n defaults to %d.\n" % (default_n))
+    sys.stderr.write("Lower bound is inclusive and defaults to %d.\n" % (default_lo))
+    sys.stderr.write("Upper bound is exclusive and defaults to %d.\n" % (default_hi))
+    sys.stderr.write("The -8 option bypasses lower/upper and generates 32-bit integer.\n")
+    sys.stderr.write("The -x option is for hex output (default decimal).\n")
 
 # ----------------------------------------------------------------
 n  = default_n
@@ -25,8 +25,8 @@ use_randbits = False
 
 try:
   optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:l:u:x8", ['help'])
-except getopt.GetoptError, err:
-  print str(err)
+except getopt.GetoptError as err:
+  print(str(err))
   usage()
   sys.exit(1)
 
@@ -45,7 +45,7 @@ for opt, arg in optargs:
   elif opt == '-8':
     use_randbits = True
   else:
-    print >> sys.stderr, "Unhandled option \"%s\"." % opt
+    sys.stderr.write("Unhandled option \"%s\"." % opt)
     sys.exit(1)
 
 non_option_arg_count = len(non_option_args)
@@ -53,12 +53,12 @@ if non_option_arg_count != 0:
   usage()
   sys.exit(0)
 
-for n in xrange(0, n):
+for n in range(0, n):
     if use_randbits:
         u = random.getrandbits(32)
     else:
         u = random.randint(lo, hi-1)
     if print_hex:
-        print "%08x" % u
+        print("%08x" % u)
     else:
-        print u
+        print(u)

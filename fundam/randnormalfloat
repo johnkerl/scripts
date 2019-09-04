@@ -8,11 +8,11 @@ default_sigma = 1.0
 
 # ----------------------------------------------------------------
 def usage():
-    print >> sys.stderr, "Usage: %s {-n n} {-m mu} {-s sigma}" % os.path.basename(sys.argv[0])
-    print >> sys.stderr, "Generates normally distributed pseudorandom floating-point numbers."
-    print >> sys.stderr, "n defaults to %d." % (default_n)
-    print >> sys.stderr, "mu defaults to %lf." % (default_mu)
-    print >> sys.stderr, "sigma defaults to %lf." % (default_sigma)
+    sys.stderr.write("Usage: %s {-n n} {-m mu} {-s sigma}\n" % os.path.basename(sys.argv[0]))
+    sys.stderr.write("Generates normally distributed pseudorandom floating-point numbers.\n")
+    sys.stderr.write("n defaults to %d.\n" % (default_n))
+    sys.stderr.write("mu defaults to %lf.\n" % (default_mu))
+    sys.stderr.write("sigma defaults to %lf.\n" % (default_sigma))
 
 # ----------------------------------------------------------------
 n     = default_n
@@ -21,8 +21,8 @@ sigma = default_sigma
 
 try:
   optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:m:s:", ['help'])
-except getopt.GetoptError, err:
-  print str(err)
+except getopt.GetoptError as err:
+  print(str(err))
   usage()
   sys.exit(1)
 
@@ -37,7 +37,7 @@ for opt, arg in optargs:
   elif opt == '-s':
     sigma = float(arg)
   else:
-    print >> sys.stderr, "Unhandled option \"%s\"." % opt
+    sys.stderr.write("Unhandled option \"%s\".\n" % opt)
     sys.exit(1)
 
 non_option_arg_count = len(non_option_args)
@@ -45,6 +45,6 @@ if non_option_arg_count != 0:
   usage()
   sys.exit(0)
 
-for n in xrange(0, n):
+for n in range(0, n):
     u = random.normalvariate(mu, sigma)
-    print u
+    print(u)

@@ -8,11 +8,11 @@ default_hi = 1.0
 
 # ----------------------------------------------------------------
 def usage():
-    print >> sys.stderr, "Usage: %s {-n n} {-l lower} {-u upper}" % os.path.basename(sys.argv[0])
-    print >> sys.stderr, "Generates uniformly distributed pseudorandom floating-point numbers."
-    print >> sys.stderr, "n defaults to %d." % (default_n)
-    print >> sys.stderr, "Lower bound is inclusive and defaults to %lf." % (default_lo)
-    print >> sys.stderr, "Upper bound is exclusive and defaults to %lf." % (default_hi)
+    sys.stderr.write("Usage: %s {-n n} {-l lower} {-u upper}\n" % os.path.basename(sys.argv[0]))
+    sys.stderr.write("Generates uniformly distributed pseudorandom floating-point numbers.\n")
+    sys.stderr.write("n defaults to %d.\n" % (default_n))
+    sys.stderr.write("Lower bound is inclusive and defaults to %lf.\n" % (default_lo))
+    sys.stderr.write("Upper bound is exclusive and defaults to %lf.\n" % (default_hi))
 
 # ----------------------------------------------------------------
 n  = default_n
@@ -21,8 +21,8 @@ hi = default_hi
 
 try:
   optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:l:u:", ['help'])
-except getopt.GetoptError, err:
-  print str(err)
+except getopt.GetoptError as err:
+  print(str(err))
   usage()
   sys.exit(1)
 
@@ -37,7 +37,7 @@ for opt, arg in optargs:
   elif opt == '-u':
     hi = float(arg)
   else:
-    print >> sys.stderr, "Unhandled option \"%s\"." % opt
+    sys.stderr.write("Unhandled option \"%s\".\n" % opt)
     sys.exit(1)
 
 non_option_arg_count = len(non_option_args)
@@ -45,6 +45,6 @@ if non_option_arg_count != 0:
   usage()
   sys.exit(0)
 
-for n in xrange(0, n):
+for n in range(0, n):
     u = random.uniform(lo, hi)
-    print u
+    print(u)

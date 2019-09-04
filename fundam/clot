@@ -18,8 +18,8 @@
 
 import random
 
-for i in xrange(0, 30): # Height
+for i in range(0, 30): # Height
 	s = ""
-	for j in xrange(0, 78): # Width
+	for j in range(0, 78): # Width
 		s += random.choice(".*o@")
-	print s
+	print(s)
