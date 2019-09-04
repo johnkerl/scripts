@@ -31,7 +31,6 @@ else:
 					lines_seen.add(line)
 			file_handle.close()
 
-
 # Ruby version (much slower -- 5x so for me):
 # require 'set'
 # lines_seen = Set.new
