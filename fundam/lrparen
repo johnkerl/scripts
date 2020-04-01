@@ -1,0 +1,111 @@
+#!/usr/bin/env ruby
+
+require 'getoptlong'
+$us = File.basename $0
+
+# ================================================================
+# This is a simple formatter for LISP-like s-expressions.
+#
+# Sample input:
+# (and (or (> x 1) (> y 2)) (or (< x 0) (< y 0)))
+#
+# Sample output without -r:
+#
+#   (and
+#     (or
+#       (> x 1)
+#       (> y 2)
+#     )
+#     (or
+#       (< x 0)
+#       (< y 0)
+#     )
+#   )
+#
+# Sample output with -r:
+#
+#   (and
+#     (or
+#       (> x 1)
+#       (> y 2) )
+#     (or
+#       (< x 0)
+#       (< y 0) ) )
+#
+#
+# Issues:
+# * Trailing whitespace is printed and should not be
+# * With -r, there is extraneous whitespace before right parentheses.
+#
+# John Kerl
+# 2020-04-01
+# ================================================================
+
+# ================================================================
+def usage(rc)
+   $stderr.puts "Usage: #{$us} [options] {filenames ...}"
+   $stderr.puts "Simple formatter for LISP-like s-expressions."
+   $stderr.puts "If no filenames are given, stdin is read."
+   $stderr.puts "Options:"
+   $stderr.puts "-r: Put non-leaf-node right parentheses on same line."
+   $stderr.puts "    Without -r, non-leaf-node right parentheses are placed on"
+   $stderr.puts "    a line of their own."
+   $stderr.puts "-h|--help: Show this message"
+   exit rc
+end
+
+# ================================================================
+flags = GetoptLong.new(
+  [ '-r',     GetoptLong::NO_ARGUMENT ],
+  [ '-h',     GetoptLong::NO_ARGUMENT ],
+  [ '--help', GetoptLong::NO_ARGUMENT ]
+)
+
+rparen_alone = true
+begin
+  flags.each do |opt, arg|
+    case opt
+      when '-r'; rparen_alone = false;
+      when '-h'; usage(0)
+      when '--help'; usage(0)
+    end
+  end
+rescue GetoptLong::Error
+  usage(1)
+end
+
+# ----------------------------------------------------------------
+string = ARGF.readlines.join(' ').gsub("\n", ' ').gsub("\t", " ").gsub(/  */, ' ').strip()
+chars = string.split('')
+
+last = nil
+indent = '  '
+level = 0
+chars.each do |c|
+  if c == '('
+    if level > 0
+      puts
+    end
+    print indent * level
+    print c
+    level += 1
+    last = c
+  elsif c == ')'
+    level -= 1
+
+    if rparen_alone
+      if last == ')' # put (...) for leaf nodes
+        puts
+        print indent * level
+      end
+      print c
+    else
+      print c
+    end
+    last = c
+
+  else
+    print c
+  end
+end
+puts
