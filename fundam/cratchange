@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# Prints a carriage return after a line in which the first field has
+# changed since the previous line. This groups the lines into paragraphs
+# having the same first field.
+# ================================================================
+
+last = nil
+ARGF.each do |line|
+  fields = line.split
+  current = fields.length == 0 ? '' : fields[0]
+  if current != last
+    puts
+  end
+  puts line
+  last = current
+end
