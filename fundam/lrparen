@@ -77,6 +77,7 @@ end
 # ----------------------------------------------------------------
 string = ARGF.readlines.join(' ').gsub("\n", ' ').gsub("\t", " ").gsub(/  */, ' ').strip()
 chars = string.split('')
+output = ''
 
 last = nil
 indent = '  '
@@ -84,10 +85,10 @@ level = 0
 chars.each do |c|
   if c == '('
     if level > 0
-      puts
+      output <<= "\n"
     end
-    print indent * level
-    print c
+    output <<= (indent * level)
+    output <<= c
     level += 1
     last = c
   elsif c == ')'
@@ -95,17 +96,21 @@ chars.each do |c|
 
     if rparen_alone
       if last == ')' # put (...) for leaf nodes
-        puts
-        print indent * level
+        output <<= "\n"
+        output <<= (indent * level)
       end
-      print c
+      output <<= c
     else
-      print c
+      output <<= c
     end
     last = c
 
   else
-    print c
+    output <<= c
   end
 end
-puts
+output <<= "\n"
+
+output.split("\n").each do |line|
+  puts line.rstrip()
+end

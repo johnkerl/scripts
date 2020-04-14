@@ -15,19 +15,13 @@ default_format = '%11.7f'
 
 # ----------------------------------------------------------------
 def usage():
-	print >> sys.stderr, 'Usage: %s [-fmt newfmt] [numbers ...]' \
-		% (sys.argv[0])
-	print >> sys.stderr, '  Default format is %s.' % (default_format)
-	print >> sys.stderr, '  Newfmt can be %11.7f, %9.6e, etc.'
-	print >> sys.stderr, \
-'  If numbers are on the command line, they are reformatted and printed out;'
-	print >> sys.stderr, \
-'  otherwise, numbers are read from stdin, reformatted, and printed out.'
-	print >> sys.stderr, \
-'  If multiple formats are specified, e.g. %s -fmt \'%%.3f %%.9e\', they are ' \
-% (sys.argv[0])
-	print >> sys.stderr, \
-'  applied to the numbers cyclically.'
+	sys.stderr.write('Usage: %s [-fmt newfmt] [numbers ...]' % (sys.argv[0]))
+	sys.stderr.write('  Default format is %s.' % (default_format))
+	sys.stderr.write('  Newfmt can be %11.7f, %9.6e, etc.')
+	sys.stderr.write('  If numbers are on the command line, they are reformatted and printed out;')
+	sys.stderr.write('  otherwise, numbers are read from stdin, reformatted, and printed out.')
+	sys.stderr.write('  If multiple formats are specified, e.g. %s -fmt \'%%.3f %%.9e\', they are ' % (sys.argv[0]))
+	sys.stderr.write('  applied to the numbers cyclically.')
 	sys.exit(1)
 
 # ----------------------------------------------------------------
@@ -64,9 +58,9 @@ if argb < argc: # Read from the command line
 		try:
 			number = float(sys.argv[argi])
 		except:
-			print >> sys.stderr, "Couldn't read \"%s\" as float." % (string)
+			sys.stderr.write("Couldn't read \"%s\" as float." % (string))
 			sys.exit(1)
-		print fmts[number_i % num_fmts] % number,
+		sys.stdout.write(" ", fmts[number_i % num_fmts] % number)
 		number_i += 1
 	print
 
@@ -81,6 +75,6 @@ else: # Read from stdin
 		numbers = sackmat_m.row_vector_from_string(line, float)
 		number_i = 0
 		for number in numbers:
-			print fmts[number_i % num_fmts] % number,
+			print(fmts[number_i % num_fmts] % number)
 			number_i += 1
 		print

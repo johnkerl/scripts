@@ -24,8 +24,8 @@ elif argc == 3:
 	format    = sys.argv[1]
 	file_name = sys.argv[2]
 else:
-	print >> sys.stderr, "Usage: %s {format [file name]}" % (sys.argv[0])
-	print >> sys.stderr, "Use \"-\" as file name, or omit, to read from stdin."
+	sys.stderr.write("Usage: %s {format [file name]}\n" % (sys.argv[0]))
+	sys.stderr.write("Use \"-\" as file name, or omit, to read from stdin.\n")
 	sys.exit(1)
 
 columns = tabutil_m.float_columns_from_file(file_name)

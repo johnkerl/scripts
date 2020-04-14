@@ -12,7 +12,7 @@ last = nil
 ARGF.each do |line|
   fields = line.split
   current = fields.length == 0 ? '' : fields[0]
-  if current != last
+  if current != last && last != nil
     puts
   end
   puts line

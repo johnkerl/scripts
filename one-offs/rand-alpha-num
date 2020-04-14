@@ -35,8 +35,8 @@ elif argc == 3:
 	length = int(sys.argv[1])
 	count  = int(sys.argv[2])
 
-for i in xrange(0, count):
+for i in range(0, count):
 	word = ""
-	for j in xrange(0, length):
+	for j in range(0, length):
 		 word += random.choice(choices)
-	print word
+	print(word)
