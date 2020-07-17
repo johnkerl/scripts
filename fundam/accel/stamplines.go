@@ -1,5 +1,10 @@
 // ================================================================
-// Build instructions: go build stamplines.go
+// Build instructions:
+//   export GOPATH=${GOPATH}:$(pwd)
+// or
+//   export GOPATH=$(pwd)
+// then
+//   go build stamplines.go
 
 // Example usage:
 // stamplines -d repeat 100 ./foo
