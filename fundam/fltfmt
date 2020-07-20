@@ -62,7 +62,7 @@ if argb < argc: # Read from the command line
             sys.exit(1)
         sys.stdout.write(" ", fmts[number_i % num_fmts] % number)
         number_i += 1
-    print
+    print()
 
 else: # Read from stdin
     while True:
@@ -75,6 +75,6 @@ else: # Read from stdin
         numbers = sackmat_m.row_vector_from_string(line, float)
         number_i = 0
         for number in numbers:
-            print(fmts[number_i % num_fmts] % number)
+            print((fmts[number_i % num_fmts] % number))
             number_i += 1
-        print
+        print()

@@ -8,7 +8,6 @@
 # as a nice columnar matrix.
 # ================================================================
 
-from __future__ import division # 1/2 = 0.5, not 0.
 import sys
 import tabutil_m
 

@@ -22,7 +22,7 @@ hi = default_hi
 try:
     optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:l:u:", ['help'])
 except getopt.GetoptError as err:
-    print(str(err))
+    print((str(err)))
     usage()
     sys.exit(1)
 
