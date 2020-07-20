@@ -3,16 +3,17 @@
 # Like comm -23 but accepts out-of-order input.
 
 import sys
+import typing as t
 
 # ----------------------------------------------------------------
-def usage(rc):
+def usage(rc: int):
     sys.stderr.write("""Usage: %s {file1} {more files ...}
 Prints all lines of file1 except those which appear in any of
 the subsequent files.\n""")
     sys.exit(rc)
 
 # ----------------------------------------------------------------
-def fold_in_contents(filename, lineset):
+def fold_in_contents(filename: str, lineset: t.Set[str]):
     mode = 'r'
     try:
         file_handle = open(filename, mode)
