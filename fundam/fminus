@@ -6,30 +6,30 @@ import sys
 
 # ----------------------------------------------------------------
 def usage(rc):
-	sys.stderr.write("""Usage: %s {file1} {more files ...}
+    sys.stderr.write("""Usage: %s {file1} {more files ...}
 Prints all lines of file1 except those which appear in any of
 the subsequent files.\n""")
-	sys.exit(rc)
+    sys.exit(rc)
 
 # ----------------------------------------------------------------
 def fold_in_contents(filename, lineset):
-	mode = 'r'
-	try:
-		file_handle = open(filename, mode)
-	except:
-		sys.stderr.write("%s: couldn't open file \"%s\" for mode \"%s\".\n" % (sys.argv[0], filename, mode))
-		sys.exit(1)
-	while True:
-		line = file_handle.readline()
-		if line == '':
-			break
-		if not line in lineset:
-			lineset.add(line)
-	file_handle.close()
+    mode = 'r'
+    try:
+        file_handle = open(filename, mode)
+    except:
+        sys.stderr.write("%s: couldn't open file \"%s\" for mode \"%s\".\n" % (sys.argv[0], filename, mode))
+        sys.exit(1)
+    while True:
+        line = file_handle.readline()
+        if line == '':
+            break
+        if not line in lineset:
+            lineset.add(line)
+    file_handle.close()
 
 # ----------------------------------------------------------------
 if len(sys.argv) < 3:
-	usage(0)
+    usage(0)
 
 left_filename = sys.argv[1]
 right_filenames = sys.argv[2:]
@@ -37,21 +37,21 @@ right_filenames = sys.argv[2:]
 right_lines = set()
 
 for right_filename in right_filenames:
-	fold_in_contents(right_filename, right_lines)
+    fold_in_contents(right_filename, right_lines)
 
 mode = 'r'
 try:
-	left_file_handle = open(left_filename, mode)
+    left_file_handle = open(left_filename, mode)
 except:
-	sys.stderr.write("%s: couldn't open file \"%s\" for mode \"%s\".\n" % (sys.argv[0], left_filename, mode))
-	sys.exit(1)
+    sys.stderr.write("%s: couldn't open file \"%s\" for mode \"%s\".\n" % (sys.argv[0], left_filename, mode))
+    sys.exit(1)
 while True:
-	line = left_file_handle.readline()
-	if line == '':
-		break
-	if not line in right_lines:
-		sys.stdout.write(line)
-		sys.stdout.flush()
+    line = left_file_handle.readline()
+    if line == '':
+        break
+    if not line in right_lines:
+        sys.stdout.write(line)
+        sys.stdout.flush()
 left_file_handle.close()
 
 # ----------------------------------------------------------------

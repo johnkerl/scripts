@@ -5,8 +5,8 @@ import os, sys, getopt, random, time
 from math import *
 
 if len(sys.argv) < 2:
-	sys.stderr.write("Usage: %s {expression}\n" % sys.argv[0])
-	sys.exit(1) 
+    sys.stderr.write("Usage: %s {expression}\n" % sys.argv[0])
+    sys.exit(1) 
 
 string = str.join(' ', sys.argv[1:])
 print(eval(string))

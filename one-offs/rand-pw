@@ -22,13 +22,13 @@ specl_regex = ".*[#$!.].*"
 
 # ----------------------------------------------------------------
 def usage():
-    print >> sys.stderr, "Usage: %s [length [count]]" % (sys.argv[0])
+    sys.stderr.write("Usage: %s [length [count]]\n" % (sys.argv[0]))
     sys.exit(1)
 
 # ----------------------------------------------------------------
 def get_word_unfiltered(length):
     word = ""
-    for j in xrange(0, length):
+    for j in range(0, length):
          word += random.choice(choices)
     return word
 
@@ -52,8 +52,8 @@ def get_word_filtered(length):
         word = get_word_unfiltered(length)
         if accept(word):
             return word
-    print >> sys.stderr, "%s: Failed to produce an acceptable word of length %d after %d tries." % \
-        (sys.argv[0], length, max_tries)
+    sys.stderr.write("%s: Failed to produce an acceptable word of length %d after %d tries." % \
+        (sys.argv[0], length, max_tries))
     sys.exit(1)
 
 # ----------------------------------------------------------------
@@ -73,7 +73,7 @@ elif argc == 3:
     length = int(sys.argv[1])
     count  = int(sys.argv[2])
 
-for i in xrange(0, count):
+for i in range(0, count):
     #word = get_word_unfiltered(length)
     word = get_word_filtered(length)
-    print word
+    print(word)

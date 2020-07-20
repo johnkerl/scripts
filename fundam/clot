@@ -19,7 +19,7 @@
 import random
 
 for i in range(0, 30): # Height
-	s = ""
-	for j in range(0, 78): # Width
-		s += random.choice(".*o@")
-	print(s)
+    s = ""
+    for j in range(0, 78): # Width
+        s += random.choice(".*o@")
+    print(s)

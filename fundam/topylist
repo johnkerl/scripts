@@ -20,14 +20,14 @@ import re
 
 words = []
 for line in sys.stdin:
-	line = re.sub(r'^\s+', '', line)
-	line = re.sub(r'\s+$', '', line)
-	words += line.split()
+    line = re.sub(r'^\s+', '', line)
+    line = re.sub(r'\s+$', '', line)
+    words += line.split()
 
 n = len(words)
 sys.stdout.write('[')
 for i in range(0, n-1):
-	sys.stdout.write(" '%s'," % (words[i]))
+    sys.stdout.write(" '%s'," % (words[i]))
 if n > 0:
-	sys.stdout.write(" '%s'" % (words[n-1]))
+    sys.stdout.write(" '%s'" % (words[n-1]))
 sys.stdout.write(" ]\n")

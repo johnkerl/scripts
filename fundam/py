@@ -2,9 +2,9 @@
 
 ourdir=$(dirname $0)
 if [ $# -ge 1 ] ; then
-	#rlwrap python $ourdir/py-from-args "$@"
-	python $ourdir/py-from-args "$@"
+    #rlwrap python $ourdir/py-from-args "$@"
+    python $ourdir/py-from-args "$@"
 else
-	#rlwrap python -i $ourdir/py-from-interp
-	python -i $ourdir/py-from-interp
+    #rlwrap python -i $ourdir/py-from-interp
+    python -i $ourdir/py-from-interp
 fi

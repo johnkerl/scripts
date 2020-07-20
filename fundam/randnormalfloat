@@ -20,30 +20,30 @@ mu    = default_mu
 sigma = default_sigma
 
 try:
-  optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:m:s:", ['help'])
+    optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:m:s:", ['help'])
 except getopt.GetoptError as err:
-  print(str(err))
-  usage()
-  sys.exit(1)
+    print(str(err))
+    usage()
+    sys.exit(1)
 
 for opt, arg in optargs:
-  if opt == '-h' or opt == '--help':
-    usage()
-    sys.exit(0)
-  elif opt == '-n':
-    n = int(arg)
-  elif opt == '-m':
-    mu = float(arg)
-  elif opt == '-s':
-    sigma = float(arg)
-  else:
-    sys.stderr.write("Unhandled option \"%s\".\n" % opt)
-    sys.exit(1)
+    if opt == '-h' or opt == '--help':
+        usage()
+        sys.exit(0)
+    elif opt == '-n':
+        n = int(arg)
+    elif opt == '-m':
+        mu = float(arg)
+    elif opt == '-s':
+        sigma = float(arg)
+    else:
+        sys.stderr.write("Unhandled option \"%s\".\n" % opt)
+        sys.exit(1)
 
 non_option_arg_count = len(non_option_args)
 if non_option_arg_count != 0:
-  usage()
-  sys.exit(0)
+    usage()
+    sys.exit(0)
 
 for n in range(0, n):
     u = random.normalvariate(mu, sigma)

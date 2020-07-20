@@ -24,34 +24,34 @@ print_hex = False
 use_randbits = False
 
 try:
-  optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:l:u:x8", ['help'])
+    optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:l:u:x8", ['help'])
 except getopt.GetoptError as err:
-  print(str(err))
-  usage()
-  sys.exit(1)
+    print(str(err))
+    usage()
+    sys.exit(1)
 
 for opt, arg in optargs:
-  if opt == '-h' or opt == '--help':
-    usage()
-    sys.exit(0)
-  elif opt == '-n':
-    n = int(arg, 0)
-  elif opt == '-l':
-    lo = int(arg, 0)
-  elif opt == '-u':
-    hi = int(arg, 0)
-  elif opt == '-x':
-    print_hex = True
-  elif opt == '-8':
-    use_randbits = True
-  else:
-    sys.stderr.write("Unhandled option \"%s\"." % opt)
-    sys.exit(1)
+    if opt == '-h' or opt == '--help':
+        usage()
+        sys.exit(0)
+    elif opt == '-n':
+        n = int(arg, 0)
+    elif opt == '-l':
+        lo = int(arg, 0)
+    elif opt == '-u':
+        hi = int(arg, 0)
+    elif opt == '-x':
+        print_hex = True
+    elif opt == '-8':
+        use_randbits = True
+    else:
+        sys.stderr.write("Unhandled option \"%s\"." % opt)
+        sys.exit(1)
 
 non_option_arg_count = len(non_option_args)
 if non_option_arg_count != 0:
-  usage()
-  sys.exit(0)
+    usage()
+    sys.exit(0)
 
 for n in range(0, n):
     if use_randbits:

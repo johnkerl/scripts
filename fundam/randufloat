@@ -20,30 +20,30 @@ lo = default_lo
 hi = default_hi
 
 try:
-  optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:l:u:", ['help'])
+    optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:l:u:", ['help'])
 except getopt.GetoptError as err:
-  print(str(err))
-  usage()
-  sys.exit(1)
+    print(str(err))
+    usage()
+    sys.exit(1)
 
 for opt, arg in optargs:
-  if opt == '-h' or opt == '--help':
-    usage()
-    sys.exit(0)
-  elif opt == '-n':
-    n = int(arg)
-  elif opt == '-l':
-    lo = float(arg)
-  elif opt == '-u':
-    hi = float(arg)
-  else:
-    sys.stderr.write("Unhandled option \"%s\".\n" % opt)
-    sys.exit(1)
+    if opt == '-h' or opt == '--help':
+        usage()
+        sys.exit(0)
+    elif opt == '-n':
+        n = int(arg)
+    elif opt == '-l':
+        lo = float(arg)
+    elif opt == '-u':
+        hi = float(arg)
+    else:
+        sys.stderr.write("Unhandled option \"%s\".\n" % opt)
+        sys.exit(1)
 
 non_option_arg_count = len(non_option_args)
 if non_option_arg_count != 0:
-  usage()
-  sys.exit(0)
+    usage()
+    sys.exit(0)
 
 for n in range(0, n):
     u = random.uniform(lo, hi)
