@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ "$1" = "-b" ]; then
+  echo -n ". "
+  find . -type f | wc -l
+elif [ "$1" = "-a" ]; then
+  for x in * .*; do
+    if [ -d $x ]; then
+      count=$(find $x -type f | wc -l)
+      printf "%-32s %d\n" $x $count
+    fi
+  done
+else
+  for x in *; do
+    if [ -d $x ]; then
+      count=$(find $x -type f | wc -l)
+      printf "%-32s %d\n" $x $count
+    fi
+  done
+fi
