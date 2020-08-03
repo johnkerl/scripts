@@ -1,0 +1,271 @@
+#!/usr/bin/env python
+
+# So we can use typing on class methods which refer to the class name:
+from __future__ import annotations
+
+from enum import Enum
+import getopt
+import os
+import sys
+
+import typing as t
+
+# ================================================================
+# Copyright (c) 1995 John Kerl
+# Ported from C to Python 2020
+# kerl.john.r@gmail.com
+#
+# This code and information is provided as is without warranty of
+# any kind, either expressed or implied, including but not limited to
+# the implied warranties of merchantability and/or fitness for a
+# particular purpose.
+#
+# No restrictions are placed on copy or reuse of this code, as long
+# as these paragraphs are included in the code.
+# ================================================================
+
+# ================================================================
+# A workalike for du, which avoids following symlinks etc.  The intent is
+# to work around shortcomings in the SunOS du command.
+# John Kerl
+# 1995
+#
+# Example output:
+#
+# $ treedu -l 3 .
+# _ 6592             ./
+# _ _ 512            ./accel/
+# _ _ _ 192          ./accel/lib/
+# _ _ _ 96           ./accel/src/
+# _ _ 128            ./.mypy_cache/
+# _ _ _ 1280         ./.mypy_cache/3.8/
+# _ _ 128            ./doc/
+# _ _ _ 256          ./doc/yamm_ex1/
+# _ _ _ 576          ./doc/yamm_ex2/
+# ================================================================
+
+# Dev notes:
+# * mypy --strict treedu 
+# * pylint treedu
+# * treedu . /tmp
+
+# ================================================================
+def usage(exit_code: int) -> None:
+    '''Usage message for the main program'''
+    stream = sys.stdout if exit_code == 0 else sys.stderr
+    stream.write("Usage: %s [options] [filenames/directories ...]\n" % sys.argv[0])
+    stream.write(
+"""If no filenames/directories are provided, \".\" is traversed.
+Symlinks are not followed.
+
+Options:
+-h|--help    Show this message
+-a           Print directories and files both (default: directories only)
+-d           Print directories only, not files (this is the default)
+-f           Print files only, not directories
+-s           Print neither files nor directories
+-e           Print errors (default is not so)
+-r           Sort ascending by recursive disk usage (default is to sort descendingly)
+-u           Don't sort entries at all
+-n           Omit indentation prefixes in program output
+-l {depth}   Maximum recursion level to print details (default 0)
+""")
+    sys.exit(exit_code)
+
+# ================================================================
+def main(argv: t.List[str]) -> None:
+    '''Main script entry point'''
+    options: t.Dict[str, t.Any] = {
+        'print_directories' : True,
+        'print_nondirectories' : False,
+        'print_errors' : False,
+        'sort_style' : SortStyle.SORT_DESCENDING,
+        'print_indentation_prefixes' : True,
+        'print_all_levels' : True,
+        'max_print_depth' : 1,
+    }
+
+    try:
+        optargs, non_option_args = getopt.getopt(argv[1:], "hadfserunl:", ['help'])
+    except getopt.GetoptError as err:
+        print(str(err))
+        usage(1)
+
+    for opt, arg in optargs:
+        if opt in ('-h', '--help'):
+            usage(0)
+        elif opt == '-a':
+            options['print_directories'] = True
+            options['print_nondirectories'] = True
+        elif opt == '-d':
+            options['print_directories'] = True
+            options['print_nondirectories'] = False
+        elif opt == '-f':
+            options['print_directories'] = False
+            options['print_nondirectories'] = True
+        elif opt == '-s':
+            options['print_directories'] = False
+            options['print_nondirectories'] = False
+        elif opt == '-e':
+            options['print_errors'] = True
+        elif opt == '-r':
+            options['sort_style'] = SortStyle.SORT_ASCENDING
+        elif opt == '-u':
+            options['sort_style'] = SortStyle.SORT_NONE
+        elif opt == '-n':
+            options['print_indentation_prefixes'] = False
+        elif opt == '-l':
+            options['print_all_levels'] = False
+            try:
+                options['max_print_depth'] = int(arg)
+            except ValueError:
+                usage(1)
+            if options['max_print_depth'] < 0:
+                usage(1)
+        else:
+            sys.stderr.write("%s: unhandled option %s\n" % (argv[0], opt))
+            sys.exit(1)
+
+    if len(non_option_args) == 0:
+        do_one_argument(".", options)
+    else:
+        for index, arg in enumerate(non_option_args):
+            if index > 0:
+                print() # Put a blank line between entries, but not after the last one
+            do_one_argument(arg, options)
+
+# ================================================================
+def do_one_argument(itemname: str, options: t.Dict[str, t.Any]) -> None:
+    '''Runs the recursive disk-usage calculation/display for a single command-line argument'''
+    tree = DiskUsageTreeNode(itemname)
+    tree.build(options)
+    tree.sort(options['sort_style'])
+    tree_depth = tree.compute_depth() # For nice vertical alignment in the display
+    tree.print(options, tree_depth)
+
+# ================================================================
+class SortStyle(Enum):
+    '''For sorting output of disk-usage trees'''
+    SORT_ASCENDING = 1
+    SORT_DESCENDING = 2
+    SORT_NONE = 3
+
+# ================================================================
+class DiskUsageTreeNode:
+    '''
+    This is a tree structure to store disk-usage information.  It contains a file
+    name and recursive disk usage.  If the file is a directory, children is an
+    array of directory entries, otherwise children is None.
+    '''
+    name: str
+    children: t.Optional[t.List[DiskUsageTreeNode]]
+    self_du: int
+    recursive_du: int
+
+    # ----------------------------------------------------------------
+    def __init__(self: DiskUsageTreeNode, name: str) -> None:
+        self.name = name
+        self.children = None
+        self.self_du = 0
+        self.recursive_du = 0
+
+    # ----------------------------------------------------------------
+    def build(self: DiskUsageTreeNode, options: t.Dict[str, t.Any]) -> None:
+        '''Compute recursive disk usage from a given filesystem node'''
+
+        # Find the size of a file itself -- e.g. for a directory, get the
+        # size of the directory file, without traversing the directory.
+        try:
+            self.self_du = os.stat(self.name).st_size
+            self.recursive_du = self.self_du
+        except FileNotFoundError:
+            # We can get here at the root level if the user specified a file
+            # that doesn't exist or to which they don't have access. We can get
+            # here at the non-root level if the recursion took us to a file the
+            # user doesn't have access to, or that was deleted since the
+            # recursion just enumerated its existence.  (Example: running this
+            # program on a directory on one terminal simultaneously with a rm
+            # -rf of the directory in other terminal.)
+
+            if options['print_errors']:
+                print("File not found: " + self.name)
+            return
+        except PermissionError:
+            if options['print_errors']:
+                print("Permissions error: " + self.name)
+            return
+
+        if os.path.isdir(self.name) and not os.path.islink(self.name):
+            self.children = []
+            try:
+                child_names = os.listdir(self.name)
+            except PermissionError:
+                if options['print_errors']:
+                    print("Permissions error: " + self.name)
+                return
+
+            for child_name in child_names:
+                child_node = DiskUsageTreeNode(os.path.join(self.name, child_name))
+                child_node.build(options)
+                self.children.append(child_node)
+                self.recursive_du += child_node.recursive_du
+
+    # ----------------------------------------------------------------
+    def sort(self: DiskUsageTreeNode, sort_style: SortStyle) -> None:
+        '''Sort a disk-usage tree one level at a time'''
+        # Leaf node -- nothing to sort
+        if self.children is None:
+            return
+        if sort_style == SortStyle.SORT_ASCENDING:
+            self.children.sort(key=lambda child: child.self_du)
+        elif sort_style == SortStyle.SORT_DESCENDING:
+            self.children.sort(key=lambda child: -child.self_du)
+        # else SORT_NONE
+
+    # ----------------------------------------------------------------
+    def print(self: DiskUsageTreeNode, options: t.Dict[str, t.Any], tree_depth: int, depth: int = 1) -> None:
+        '''Displays a disk-usage tree'''
+
+        print_this_node = False
+
+        # Always print the top-level disk usage, regardless of -a/-f/-d/-s
+        if depth == 1:
+            print_this_node = True
+        # Does the user want to see this entry?
+        elif depth <= options['max_print_depth']:
+            if self.children is None:
+                if options['print_nondirectories']:
+                    print_this_node = True
+            else:
+                if options['print_directories']:
+                    print_this_node = True
+
+        if print_this_node:
+            if options['print_indentation_prefixes']:
+                sys.stdout.write('_ ' * depth)
+            sys.stdout.write("%-12d" % (self.self_du))
+            if options['print_indentation_prefixes']:
+                #sys.stdout.write('  ' * (tree_depth - depth))
+                sys.stdout.write('  ' * (options['max_print_depth'] - depth))
+            postfix = "" if self.children is None else "/"
+            sys.stdout.write(" %s%s\n" % (self.name, postfix))
+
+        if self.children is not None:
+            for child in self.children:
+                child.print(options, tree_depth, depth + 1)
+
+    # ----------------------------------------------------------------
+    def compute_depth(self: DiskUsageTreeNode) -> int:
+        '''Standard tree depth. Leaves have depth 1'''
+        if self.children is None:
+            return 1
+        else:
+            child_depths = [child.compute_depth() for child in self.children]
+            if len(child_depths) == 0:
+                return 1
+            else:
+                return 1 + max(child_depths)
+
+# ================================================================
+if __name__ == '__main__':
+    main(sys.argv)
