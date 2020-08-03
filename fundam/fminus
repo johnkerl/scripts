@@ -6,14 +6,14 @@ import sys
 import typing as t
 
 # ----------------------------------------------------------------
-def usage(rc: int):
+def usage(rc: int) -> None:
     sys.stderr.write("""Usage: %s {file1} {more files ...}
 Prints all lines of file1 except those which appear in any of
 the subsequent files.\n""")
     sys.exit(rc)
 
 # ----------------------------------------------------------------
-def fold_in_contents(filename: str, lineset: t.Set[str]):
+def fold_in_contents(filename: str, lineset: t.Set[str]) -> None:
     mode = 'r'
     try:
         file_handle = open(filename, mode)
@@ -35,7 +35,7 @@ if len(sys.argv) < 3:
 left_filename = sys.argv[1]
 right_filenames = sys.argv[2:]
 
-right_lines = set()
+right_lines: t.Set[str] = set()
 
 for right_filename in right_filenames:
     fold_in_contents(right_filename, right_lines)

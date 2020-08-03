@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-import os, sys, getopt, random
+import os, sys, getopt, random, typing
 
 default_n  = 1
 default_lo = 0.0
 default_hi = 1.0
 
 # ----------------------------------------------------------------
-def usage():
+def usage() -> None:
     sys.stderr.write("Usage: %s {-n n} {-l lower} {-u upper}\n" % os.path.basename(sys.argv[0]))
     sys.stderr.write("Generates uniformly distributed pseudorandom floating-point numbers.\n")
     sys.stderr.write("n defaults to %d.\n" % (default_n))

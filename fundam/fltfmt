@@ -14,7 +14,7 @@ import sackmat_m
 default_format = '%11.7f'
 
 # ----------------------------------------------------------------
-def usage():
+def usage() -> None:
     sys.stderr.write('Usage: %s [-fmt newfmt] [numbers ...]' % (sys.argv[0]))
     sys.stderr.write('  Default format is %s.' % (default_format))
     sys.stderr.write('  Newfmt can be %11.7f, %9.6e, etc.')
