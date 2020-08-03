@@ -227,12 +227,13 @@ class DiskUsageTreeNode:
         '''Displays a disk-usage tree'''
 
         print_this_node = False
+        max_print_depth = options['max_print_depth']
 
         # Always print the top-level disk usage, regardless of -a/-f/-d/-s
         if depth == 1:
             print_this_node = True
         # Does the user want to see this entry?
-        elif depth <= options['max_print_depth']:
+        elif depth <= max_print_depth:
             if self.children is None:
                 if options['print_nondirectories']:
                     print_this_node = True
@@ -245,8 +246,9 @@ class DiskUsageTreeNode:
                 sys.stdout.write('_ ' * depth)
             sys.stdout.write("%-12d" % (self.self_du))
             if options['print_indentation_prefixes']:
-                #sys.stdout.write('  ' * (tree_depth - depth))
-                sys.stdout.write('  ' * (options['max_print_depth'] - depth))
+                # Use the min of these two to avoid printing too many spaces in
+                # case the user does something like -l 100
+                sys.stdout.write('  ' * (min(max_print_depth, tree_depth) - depth))
             postfix = "" if self.children is None else "/"
             sys.stdout.write(" %s%s\n" % (self.name, postfix))
 
