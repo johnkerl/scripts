@@ -224,9 +224,9 @@ class DiskUsageTreeNode:
         if self.children is None:
             return
         if sort_style == SortStyle.SORT_ASCENDING:
-            self.children.sort(key=lambda child: child.self_du)
+            self.children.sort(key=lambda child: child.recursive_du)
         elif sort_style == SortStyle.SORT_DESCENDING:
-            self.children.sort(key=lambda child: -child.self_du)
+            self.children.sort(key=lambda child: -child.recursive_du)
         # else SORT_NONE
 
     # ----------------------------------------------------------------
