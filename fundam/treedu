@@ -68,6 +68,7 @@ Options:
 -r           Sort ascending by recursive disk usage (default is to sort descendingly)
 -u           Don't sort entries at all
 -n           Omit indentation prefixes in program output
+-i           Count number of files/directories, not bytes
 -l {depth}   Maximum recursion level to print details (default 0)
 """)
     sys.exit(exit_code)
@@ -83,10 +84,11 @@ def main(argv: t.List[str]) -> None:
         'print_indentation_prefixes' : True,
         'print_all_levels' : True,
         'max_print_depth' : 1,
+        'count_items' : False,
     }
 
     try:
-        optargs, non_option_args = getopt.getopt(argv[1:], "hadfserunl:", ['help'])
+        optargs, non_option_args = getopt.getopt(argv[1:], "hadfserunil:", ['help'])
     except getopt.GetoptError as err:
         print(str(err))
         usage(1)
@@ -114,6 +116,8 @@ def main(argv: t.List[str]) -> None:
             options['sort_style'] = SortStyle.SORT_NONE
         elif opt == '-n':
             options['print_indentation_prefixes'] = False
+        elif opt == '-i':
+            options['count_items'] = True
         elif opt == '-l':
             options['print_all_levels'] = False
             try:
@@ -176,7 +180,10 @@ class DiskUsageTreeNode:
         # Find the size of a file itself -- e.g. for a directory, get the
         # size of the directory file, without traversing the directory.
         try:
-            self.self_du = os.stat(self.name).st_size
+            if options['count_items']:
+                self.self_du = 1
+            else:
+                self.self_du = os.stat(self.name).st_size
             self.recursive_du = self.self_du
         except FileNotFoundError:
             # We can get here at the root level if the user specified a file
@@ -244,7 +251,7 @@ class DiskUsageTreeNode:
         if print_this_node:
             if options['print_indentation_prefixes']:
                 sys.stdout.write('_ ' * depth)
-            sys.stdout.write("%-12d" % (self.self_du))
+            sys.stdout.write("%-12d" % (self.recursive_du))
             if options['print_indentation_prefixes']:
                 # Use the min of these two to avoid printing too many spaces in
                 # case the user does something like -l 100
