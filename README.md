@@ -1,9 +1,7 @@
-scripts
-=======
+# scripts
 
-Productivity tools for Linux.
-=======
-================================================================
+# Productivity tools for Linux.
+
 Files here are general-purpose Linux productivity tools accumulated from my
 time in the software vocation/avocation.  They are released under the terms of
 the BSD two-clause license (see LICENSE.txt).
