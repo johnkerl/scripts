@@ -21,7 +21,7 @@ least)
 Moreover, items in my suitcase fall into two categories: (a) always useful; (b)
 per-project useful. The `aux` subdirectory is for the latter.
 
-# Suitcase setup on the home machine:
+# Suitcase setup on the home machine
 
 ```
 # Set up always-useful things
