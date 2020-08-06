@@ -31,9 +31,9 @@ Python, Perl, Bash, Ruby, Go.
 There are a few C items at https://github.com/johnkerl/ctools
 
 Language choice is more a function of time than topic: I used C and Perl from
-the early/mid-1990's onward; many of the math/stats tools I wrote while in
-grad school 2005-2010 are in Python; most of my scripting since then is in
-Python, with some Ruby.
+the early/mid-1990's onward; many of the math/stats tools I wrote while in grad
+school 2005-2010 are in Python; most of my scripting since then is Python, with
+some Ruby.
 
 ----------------------------------------------------------------
 
