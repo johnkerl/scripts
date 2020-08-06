@@ -13,4 +13,6 @@ are faster and thus are more pleasant to use for gigascale file sizes.  Using
 these I can put `scripts/fundam/accel` in my `$PATH` ahead of `scripts/fundam`
 and then any accelerators (if they exist) will get picked up automatically.
 
+----------------------------------------------------------------
+
 John Kerl 2012-07-19
