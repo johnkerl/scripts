@@ -1,19 +1,20 @@
 # Productivity tools for Linux/Darwin
 
-Files here are general-purpose Linux/Darwin productivity tools accumulated from my time in the software vocation/avocation.  They are released under the terms of
-the BSD two-clause license (see LICENSE.txt).
+Files here are general-purpose Linux/Darwin productivity tools accumulated from
+my time in the software vocation/avocation.  They are released under the terms
+of the BSD two-clause license (see LICENSE.txt).
 
 # Subdirectories
 
 * `fundam` -- Filters I use each and every day in my work as a software
   developer.  Many of them are intended to be used as editor filters, e.g. one
-  may left-align a paragraph of text columns by using `!}left` in `vim`.  Another
-  primary use is for logsnarfing: who knows what will be in a particular set of
-  log file, but powerful things can be done with a set of general-purpose
-  text-manipulation tools (including `grep`/`sed`/etc.).
+  may left-align a paragraph of text columns by using `!}left` in `vim`.
+  Another primary use is for logsnarfing: who knows what will be in a
+  particular set of log file, but powerful things can be done with a set of
+  general-purpose text-manipulation tools (including `grep`/`sed`/etc.).
 
 * `abbrevs` -- Essentially aliases, but available from contexts in which
-aliases are not evaluable.
+  aliases are not evaluable.
 
 * `arith` -- Simple pipe-oriented tools for things like sums and GCDs.
 
