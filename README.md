@@ -22,6 +22,7 @@ of the BSD two-clause license (see LICENSE.txt).
 
 # See also
 
+* http://github.com/johnkerl/dotfiles
 * http://github.com/johnkerl/scripts-math
 * http://github.com/johnkerl/scripts-misc
 
