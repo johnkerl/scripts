@@ -60,6 +60,8 @@ Symlinks are not followed.
 
 Options:
 -h|--help    Show this message
+-H           Use more human-readable kilo/mega/giga suffixes (default without -i)
+-b           Use less human-readable bytes-only output (default with -i)
 -a           Print directories and files both (default: directories only)
 -d           Print directories only, not files (this is the default)
 -f           Print files only, not directories
@@ -85,10 +87,11 @@ def main(argv: t.List[str]) -> None:
         'print_all_levels' : True,
         'max_print_depth' : 2,
         'count_items' : False,
+        'print_kmg' : None,
     }
 
     try:
-        optargs, non_option_args = getopt.getopt(argv[1:], "hadfserunil:", ['help'])
+        optargs, non_option_args = getopt.getopt(argv[1:], "hHbadfserunil:", ['help'])
     except getopt.GetoptError as err:
         print(str(err))
         usage(1)
@@ -96,6 +99,10 @@ def main(argv: t.List[str]) -> None:
     for opt, arg in optargs:
         if opt in ('-h', '--help'):
             usage(0)
+        elif opt == '-H':
+            options['print_kmg'] = True
+        elif opt == '-b':
+            options['print_kmg'] = False
         elif opt == '-a':
             options['print_directories'] = True
             options['print_nondirectories'] = True
@@ -129,6 +136,14 @@ def main(argv: t.List[str]) -> None:
         else:
             sys.stderr.write("%s: unhandled option %s\n" % (argv[0], opt))
             sys.exit(1)
+
+    # Default things like 4.3K, 2.7M for file sizes; plain integers for file
+    # counts.
+    if options['print_kmg'] is None:
+        if options['count_items'] == True:
+            options['print_kmg'] = False
+        else:
+            options['print_kmg'] = True
 
     if len(non_option_args) == 0:
         do_one_argument(".", options)
@@ -251,7 +266,10 @@ class DiskUsageTreeNode:
         if print_this_node:
             if options['print_indentation_prefixes']:
                 sys.stdout.write('_ ' * depth)
-            sys.stdout.write("%-12d" % (self.recursive_du))
+            if options['print_kmg']:
+                sys.stdout.write("%-12s" % (self.print_kmg(self.recursive_du)))
+            else:
+                sys.stdout.write("%-12d" % (self.recursive_du))
             if options['print_indentation_prefixes']:
                 # Use the min of these two to avoid printing too many spaces in
                 # case the user does something like -l 100
@@ -262,6 +280,17 @@ class DiskUsageTreeNode:
         if self.children is not None:
             for child in self.children:
                 child.print(options, tree_depth, depth + 1)
+
+    # ----------------------------------------------------------------
+    def print_kmg(self: DiskUsageTreeNode, n: int):
+        if n < 1000:
+            return n
+        elif n < 1000000:
+            return "%.1fK" % (n / 1000.0)
+        elif n < 1000000000:
+            return "%.1fM" % (n / 1000000.0)
+        else:
+            return "%.1fG" % (n / 1000000000.0)
 
     # ----------------------------------------------------------------
     def compute_depth(self: DiskUsageTreeNode) -> int:
