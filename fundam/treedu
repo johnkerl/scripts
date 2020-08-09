@@ -69,7 +69,7 @@ Options:
 -u           Don't sort entries at all
 -n           Omit indentation prefixes in program output
 -i           Count number of files/directories, not bytes
--l {depth}   Maximum recursion level to print details (default 0)
+-l {depth}   Maximum recursion level to print details (default 2)
 """)
     sys.exit(exit_code)
 
@@ -83,7 +83,7 @@ def main(argv: t.List[str]) -> None:
         'sort_style' : SortStyle.SORT_DESCENDING,
         'print_indentation_prefixes' : True,
         'print_all_levels' : True,
-        'max_print_depth' : 1,
+        'max_print_depth' : 2,
         'count_items' : False,
     }
 
