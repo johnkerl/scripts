@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+
+import os, sys, getopt, random, typing
+
+default_n  = 1
+
+# ----------------------------------------------------------------
+def usage() -> None:
+    sys.stderr.write("Usage: %s [-n n]\n" % os.path.basename(sys.argv[0]))
+    sys.stderr.write("Generates uniformly distributed IPv4 addresses.\n")
+    sys.stderr.write("n defaults to %d.\n" % (default_n))
+
+# ----------------------------------------------------------------
+n  = default_n
+
+try:
+    optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:", ['help'])
+except getopt.GetoptError as err:
+    print((str(err)))
+    usage()
+    sys.exit(1)
+
+for opt, arg in optargs:
+    if opt == '-h' or opt == '--help':
+        usage()
+        sys.exit(0)
+    elif opt == '-n':
+        n = int(arg, 0)
+    else:
+        sys.stderr.write("Unhandled option \"%s\"." % opt)
+        sys.exit(1)
+
+non_option_arg_count = len(non_option_args)
+if non_option_arg_count != 0:
+    usage()
+    sys.exit(0)
+
+for n in range(0, n):
+    a = random.randint(0, 255)
+    b = random.randint(0, 255)
+    c = random.randint(0, 255)
+    d = random.randint(0, 255)
+    print("%d.%d.%d.%d" % (a,b,c,d))
