@@ -1,4 +1,6 @@
-// Build instructions: go build uniqm.go
+// Build instructions:
+// export GOPATH=$(pwd)
+// go build uniqm
 
 package main
 
@@ -8,40 +10,33 @@ import (
 	"os"
 	"bufio"
 	"io"
+	"argf"
 )
 
 // ----------------------------------------------------------------
 func main() {
 	args := os.Args[1:]
 
-	ok := true
-	if len(args) == 0 {
-		ok = uniqm("-") && ok
-	} else {
-		for _, arg := range args {
-			ok = uniqm(arg) && ok // ok && uniqm(arg): not called after error
-		}
-	}
-	if ok {
-		os.Exit(0)
-	} else {
+	istream, err := argf.Open(args)
+	if err != nil {
+		log.Println(err)
 		os.Exit(1)
+	}
+
+	err = uniqm(istream)
+
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	} else {
+		os.Exit(0)
 	}
 }
 
 // ----------------------------------------------------------------
-func uniqm(sourceName string) (ok bool) {
+func uniqm(istream io.Reader) error {
 	set := make(map[string]bool)
-	sourceStream := os.Stdin
-	if sourceName != "-" {
-		var err error
-		if sourceStream, err = os.Open(sourceName); err != nil {
-			log.Println(err)
-			return false
-		}
-	}
-
-	reader := bufio.NewReader(sourceStream)
+	reader := bufio.NewReader(istream)
 	eof := false
 
 	for !eof {
@@ -50,11 +45,7 @@ func uniqm(sourceName string) (ok bool) {
 			err = nil
 			eof = true
 		} else if err != nil {
-			log.Println(err)
-			if sourceName != "-" {
-				sourceStream.Close()
-			}
-			return false
+			return err
 		} else {
 			// This is how to do a chomp:
 			//line = strings.TrimRight(line, "\n")
@@ -65,9 +56,6 @@ func uniqm(sourceName string) (ok bool) {
 			}
 		}
 	}
-	if sourceName != "-" {
-		sourceStream.Close()
-	}
 
-	return true
+	return nil
 }
