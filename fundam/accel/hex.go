@@ -5,9 +5,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 	"io"
 	"log"
+	"os"
 )
 
 // ----------------------------------------------------------------
@@ -57,7 +57,7 @@ func hexDump(sourceName string, doRaw bool) (ok bool) {
 
 	bytesPerClump := 4
 	clumpsPerLine := 4
-	bufferSize    := bytesPerClump * clumpsPerLine
+	bufferSize := bytesPerClump * clumpsPerLine
 
 	buffer := make([]byte, bufferSize)
 	eof := false
@@ -76,8 +76,8 @@ func hexDump(sourceName string, doRaw bool) (ok bool) {
 			return false
 		} else {
 			// Print offset "pre" part
-			if (!doRaw) {
-				fmt.Printf("%08x: ",  offset)
+			if !doRaw {
+				fmt.Printf("%08x: ", offset)
 			}
 
 			// Print hex payload
@@ -95,11 +95,11 @@ func hexDump(sourceName string, doRaw bool) (ok bool) {
 			}
 
 			// Print ASCII-dump "post" part
-			if (!doRaw) {
+			if !doRaw {
 				fmt.Printf("|")
 
 				for i := 0; i < numBytesRead; i++ {
-					if buffer[i] >= 0x20 &&  buffer[i] <= 0x7e {
+					if buffer[i] >= 0x20 && buffer[i] <= 0x7e {
 						fmt.Printf("%c", buffer[i])
 					} else {
 						fmt.Printf(".")

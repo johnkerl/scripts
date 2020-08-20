@@ -1,13 +1,16 @@
 package argf
 
-import("os";"io")
+import (
+	"io"
+	"os"
+)
 
 func Open(filenames []string) (io.Reader, error) {
 	if len(filenames) == 0 {
 		return os.Stdin, nil
 	} else {
 		readers := make([]io.Reader, len(filenames))
-		for i, filename := range(filenames) {
+		for i, filename := range filenames {
 			handle, err := os.Open(filename)
 			if err == nil {
 				readers[i] = handle

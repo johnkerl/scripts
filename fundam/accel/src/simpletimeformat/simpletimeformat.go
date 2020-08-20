@@ -1,14 +1,18 @@
 package simpletimeformat
-import ("fmt"; "time")
+
+import (
+	"fmt"
+	"time"
+)
 
 func YMDhmsnzStamp(t time.Time) string {
 	YYYY := t.Year()
-	MM   := int(t.Month())
-	DD   := t.Day()
-	hh   := t.Hour()
-	mm   := t.Minute()
-	ss   := t.Second()
-	nnn  := t.Nanosecond()
+	MM := int(t.Month())
+	DD := t.Day()
+	hh := t.Hour()
+	mm := t.Minute()
+	ss := t.Second()
+	nnn := t.Nanosecond()
 
 	_, offSecs := t.Zone()
 
@@ -22,5 +26,5 @@ func YMDhmsnzStamp(t time.Time) string {
 	return fmt.Sprintf(
 		"%04d%02d%02d %02d:%02d:%02d.%09d %s%02d%02d",
 		YYYY, MM, DD, hh, mm, ss, nnn, offSign,
-		absOffHrMin / 60, absOffHrMin % 60)
+		absOffHrMin/60, absOffHrMin%60)
 }

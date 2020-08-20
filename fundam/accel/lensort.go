@@ -8,16 +8,16 @@
 package main
 
 import (
+	"argf"
+	"bufio"
+	"container/list"
 	"flag"
 	"fmt"
-	"strings"
+	"io"
 	"log"
 	"os"
-	"bufio"
-	"io"
-	"argf"
-    "container/list"
 	"sort"
+	"strings"
 )
 
 // ----------------------------------------------------------------
@@ -56,7 +56,7 @@ func main() {
 
 // ----------------------------------------------------------------
 type lineAndLength struct {
-	line string
+	line   string
 	length int
 }
 
@@ -93,7 +93,7 @@ func lensort(istream io.Reader, doReverse bool) error {
 	}
 
 	// Sort them
-	if (doReverse) {
+	if doReverse {
 		sort.Slice(linesAndLengths, func(i, j int) bool {
 			return linesAndLengths[i].length > linesAndLengths[j].length
 		})

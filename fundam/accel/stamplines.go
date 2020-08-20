@@ -46,9 +46,13 @@ func main() {
 	} else {
 		pcmd := exec.Command("bash", "-c", strings.Join(args, " "))
 		o, oerr := pcmd.StdoutPipe()
-		if oerr != nil { log.Fatal(oerr) }
+		if oerr != nil {
+			log.Fatal(oerr)
+		}
 		serr := pcmd.Start()
-		if serr != nil { log.Fatal(serr) }
+		if serr != nil {
+			log.Fatal(serr)
+		}
 		ok = stampLinesFilter(o, doDeltas)
 
 		// E.g. "stamplines ls /no/such/path".
@@ -84,10 +88,10 @@ func stampLinesFilter(sourceStream io.Reader, doDeltas bool) (ok bool) {
 			log.Println(err)
 			return false
 		} else {
-			if (doDeltas) {
+			if doDeltas {
 				t2 := time.Now().UnixNano()
-				deltaSec := float64(t2 - t1) * 1e-9
-				fmt.Printf("%.9f  %s", deltaSec, line);
+				deltaSec := float64(t2-t1) * 1e-9
+				fmt.Printf("%.9f  %s", deltaSec, line)
 				t1 = t2
 			} else {
 				fmt.Printf("[%s] %s",

@@ -5,12 +5,12 @@
 package main
 
 import (
+	"argf"
+	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"os"
-	"bufio"
-	"io"
-	"argf"
 )
 
 // ----------------------------------------------------------------
