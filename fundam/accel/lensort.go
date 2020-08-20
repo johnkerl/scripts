@@ -1,6 +1,9 @@
 // Build instructions:
 // export GOPATH=$(pwd)
 // go build lensort
+//
+// Sorts lines by length.
+// Compiled accelerator for ../lensort.
 
 package main
 
