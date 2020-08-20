@@ -6,7 +6,19 @@
 # Sorts lines by length.
 # ================================================================
 
-@lines = sort lensort <>;
+$do_reverse = 0;
+if (@ARGV > 0) {
+  if ($ARGV[0] eq "-r") {
+    $do_reverse = 1;
+    shift @ARGV;
+  }
+}
+
+if ($do_reverse) {
+  @lines = sort lensort_reverse <>;
+} else {
+  @lines = sort lensort <>;
+}
 for my $line (@lines) {
 	print $line;
 }
@@ -21,5 +33,18 @@ sub lensort
 	}
 	else {
 		return $la - $lb;
+	}
+}
+
+# ----------------------------------------------------------------
+sub lensort_reverse
+{
+	my $la = length($a);
+	my $lb = length($b);
+	if ($la == $lb) {
+		return $a cmp $b;
+	}
+	else {
+		return $lb - $la;
 	}
 }

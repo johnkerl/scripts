@@ -8,6 +8,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"strings"
 	"log"
@@ -20,9 +21,22 @@ import (
 )
 
 // ----------------------------------------------------------------
-// TO DO: lensort -r
+func usage() {
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] {filenames ...}\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "If no file name is given, or if filename is \"-\", stdin is used.\n", os.Args[0])
+	flag.PrintDefaults()
+	os.Exit(1)
+}
+
+// ----------------------------------------------------------------
 func main() {
-	args := os.Args[1:]
+	pDoReverse := flag.Bool("r", false, "Reverse sort (longest first)")
+
+	flag.Usage = usage
+	flag.Parse()
+	doReverse := *pDoReverse
+
+	args := flag.Args()
 
 	istream, err := argf.Open(args)
 	if err != nil {
@@ -30,7 +44,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = lensort(istream)
+	err = lensort(istream, doReverse)
 
 	if err != nil {
 		log.Println(err)
@@ -46,7 +60,7 @@ type lineAndLength struct {
 	length int
 }
 
-func lensort(istream io.Reader) error {
+func lensort(istream io.Reader, doReverse bool) error {
 	lines := list.New()
 	numLines := 0
 
@@ -79,9 +93,15 @@ func lensort(istream io.Reader) error {
 	}
 
 	// Sort them
-	sort.Slice(linesAndLengths, func(i, j int) bool {
-		return linesAndLengths[i].length < linesAndLengths[j].length
-	})
+	if (doReverse) {
+		sort.Slice(linesAndLengths, func(i, j int) bool {
+			return linesAndLengths[i].length > linesAndLengths[j].length
+		})
+	} else {
+		sort.Slice(linesAndLengths, func(i, j int) bool {
+			return linesAndLengths[i].length < linesAndLengths[j].length
+		})
+	}
 
 	// Print the lines only
 	for i = 0; i < numLines; i++ {
