@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ $# -lt 2 ]; then
+  echo "Usage: $0 {interpreter pattern} {remaining grep args" 1>&2
+  echo "Greps with grep args all files rooted at '.' containing interpreter pattern" 1>&2
+  echo "in the shebang line." 1>&2
+  echo "Example: \"$0 python readline\" greps for \"readline\" in files having python" 1>>2
+  echo "in their shebang line." 1>&2
+  exit 1
+fi
+sbpattern="$1"
+shift
+
+grep "$@" $(find . -type f -exec grep -hl '#!.*'"$sbpattern" {} \;)
