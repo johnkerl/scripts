@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# See also ./grepr for grepping by extension, e.g. "grepr readline \*.py"
 if [ $# -lt 2 ]; then
   echo "Usage: $0 {interpreter pattern} {remaining grep args" 1>&2
   echo "Greps with grep args all files rooted at '.' containing interpreter pattern" 1>&2
