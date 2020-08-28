@@ -95,11 +95,19 @@ func lensort(istream io.Reader, doReverse bool) error {
 	// Sort them
 	if doReverse {
 		sort.Slice(linesAndLengths, func(i, j int) bool {
-			return linesAndLengths[i].length > linesAndLengths[j].length
+			if linesAndLengths[i].length == linesAndLengths[j].length {
+				return linesAndLengths[i].line > linesAndLengths[j].line
+			} else {
+				return linesAndLengths[i].length > linesAndLengths[j].length
+			}
 		})
 	} else {
 		sort.Slice(linesAndLengths, func(i, j int) bool {
-			return linesAndLengths[i].length < linesAndLengths[j].length
+			if linesAndLengths[i].length == linesAndLengths[j].length {
+				return linesAndLengths[i].line < linesAndLengths[j].line
+			} else {
+				return linesAndLengths[i].length < linesAndLengths[j].length
+			}
 		})
 	}
 
