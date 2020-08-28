@@ -33,7 +33,7 @@ for my $arg (@ARGV) {
 	}
 }
 
-$usage_string = "Usage: $0 {old:new} {old:new} {old:new ...} {file names ... }\n";
+$usage_string = "Usage: $0 [-w] {old:new} {old:new} {old:new ...} {file names ... }\n";
 die $usage_string unless @file_names;
 die $usage_string unless @old_new_pairs;
 
