@@ -1,6 +1,6 @@
 // Build instructions:
 // export GOPATH=$(pwd)
-// go build lensort
+// go build lensort.go
 //
 // Sorts lines by length.
 // Compiled accelerator for ../lensort.
@@ -23,7 +23,7 @@ import (
 // ----------------------------------------------------------------
 func usage() {
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] {filenames ...}\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "If no file name is given, or if filename is \"-\", stdin is used.\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "If no file name is given, or if filename is \"-\", stdin is used.\n")
 	flag.PrintDefaults()
 	os.Exit(1)
 }

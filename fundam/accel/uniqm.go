@@ -1,6 +1,6 @@
 // Build instructions:
 // export GOPATH=$(pwd)
-// go build uniqm
+// go build uniqm.go
 
 package main
 
