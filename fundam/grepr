@@ -18,6 +18,7 @@ sub usage
    print "  If the filename patterns are omitted, all files are searched.\n";
    print "Options:\n";
    print "  -h: show this message.\n";
+   print "  -d {basedir}: defaults to \".\" if omitted\n";
    print "  -s: a shorthand for the filename pattern *.[chsS] or [Mm]akefile.\n";
    print "  -C: a shorthand for the filename pattern *.[ch].\n";
    print "  -g: a shorthand for the filename pattern *.go.\n";
@@ -35,6 +36,7 @@ sub usage
 # ================================================================
 @findopts = ();
 @grepopts = ();
+$basedir = ".";
 $pattern  = "";
 $dryrun   = 0; 
 $show_errors  = 0; 
@@ -82,6 +84,10 @@ while (@ARGV > 0) {
       shift @ARGV;
       $show_errors = 1;
    }
+   elsif ($ARGV[0] =~ m/^-d$/) {
+      shift @ARGV;
+      $basedir = shift @ARGV;
+   }
    else {
       push @grepopts, shift @ARGV;
    }
@@ -111,7 +117,7 @@ if (@findopts) {
    push @findopts, "\\)";
 }
 
-$cmd = "find . -type f -follow @findopts -exec egrep @grepopts '$pattern' {} /dev/null \\;";
+$cmd = "find $basedir -type f -follow @findopts -exec egrep @grepopts '$pattern' {} /dev/null \\;";
 if (!$show_errors) {
    $cmd = $cmd . " 2> /dev/null";
 }
