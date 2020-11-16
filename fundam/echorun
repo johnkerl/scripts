@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+# Echoes a command and also runs it.
+# Nice for paper-trailing in text notebooks.
+
+lines = ARGF.readlines
+
+puts lines
+puts
+system(lines.join(""))
