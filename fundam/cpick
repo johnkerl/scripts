@@ -4,7 +4,8 @@
 # John Kerl
 # http://johnkerl.org
 # Picks out columns by number.  E.g. cpick 3 5 4 is the same as
-# awk '{print $3 " " $5 " " $4}' # but with fewer keystrokes.
+#   awk '{print $3 " " $5 " " $4}'
+# but with fewer keystrokes.
 # Written sometime in the 90s I think.
 # ================================================================
 
