@@ -8,14 +8,19 @@
 
 set -o noglob
 
+types=""
 names=
 for arg
 do
-	if [ -z "$names" ]; then
+  if [ "$arg" = "-f" ]; then
+    types="-type f"
+  elif [ "$arg" = "-d" ]; then
+    types="-type d"
+	elif [ -z "$names" ]; then
 		names="-name $arg"
 	else
 		names="$names -o -name $arg"
 	fi
 done
 
-find . -follow $names
+find . $types -follow $names
