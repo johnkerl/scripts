@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# also git show-branch is built-in -- ?
+git branch

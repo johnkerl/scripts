@@ -16,6 +16,8 @@ do
     types="-type f"
   elif [ "$arg" = "-d" ]; then
     types="-type d"
+  elif [ "$arg" = "-l" ]; then
+    types="-type l"
 	elif [ -z "$names" ]; then
 		names="-name $arg"
 	else
