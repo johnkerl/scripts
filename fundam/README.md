@@ -1,4 +1,4 @@
-Files here are general-purpose Linux productivity tools accumulated from my time in the software vocation/avocation.  They are released under the terms of the BSD two-clause license (see [../LICENSE.txt](LICENSE.txt)).
+Files here are general-purpose Linux productivity tools accumulated from my time in the software vocation/avocation.  They are released under the terms of the BSD two-clause license (see [LICENSE.txt](../LICENSE.txt)).
 
 The `fundam` directory contains filters I use each and every day in my work as a software developer.  Many of them are intended to be used as editor filters, e.g. one may left-align a paragraph of text columns by using `!}left` in `vim`.
 
