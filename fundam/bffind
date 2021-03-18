@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#!/usr/bin/perl
 
 # ================================================================
 # This script does a breadth-first find for filenames matching a
