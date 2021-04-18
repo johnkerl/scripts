@@ -174,6 +174,10 @@ while (@ARGV >= 1) {
 	elsif ($ARGV[0] eq "-m") {
 		$pat = "%";
 	}
+	elsif ($ARGV[0] eq "-dq") {
+		$pat = "\" ";
+	}
+
 	elsif ($ARGV[0] eq "-mv") {
 		$pat = "mv ";
 	}
