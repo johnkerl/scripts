@@ -18,9 +18,59 @@ def usage():
 	sys.exit(1)
 
 # ----------------------------------------------------------------
-choices = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@$%*-_=./"
-length  =  20
-count   = 1
+def string_to_set(string):
+	set_ = set()
+	for char in string:
+		set_.add(char)
+	return set_
+
+lowers = "abcdefghijklmnopqrstuvwxyz"
+uppers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+numbers = "0123456789"
+specials = "!@#$%^&"
+choices = lowers + uppers + numbers + specials
+
+lower_set   = string_to_set(lowers)
+upper_set   = string_to_set(uppers)
+number_set  = string_to_set(numbers)
+special_set = string_to_set(specials)
+
+def generate(length):
+	tries  = 100
+	for i in range(0, length):
+		word = generate_candidate(length)
+		if accept(word):
+			return word
+	sys.stderr.write("%s: could not satisfy constraints after %d tries.\n" % (sys.argv[0], tries))
+	sys.exit(1)
+
+def generate_candidate(length):
+	word = ""
+	for j in range(0, length):
+		 word += random.choice(choices)
+	return word
+
+def accept(word):
+	if not has_at_least_n_of(word, 2, lower_set):
+		return False
+	if not has_at_least_n_of(word, 2, upper_set):
+		return False
+	if not has_at_least_n_of(word, 2, number_set):
+		return False
+	if not has_at_least_n_of(word, 2, special_set):
+		return False
+	return True
+
+def has_at_least_n_of(word, n, set_):
+	count = 0
+	for char in word:
+		if char in set_:
+			count += 1
+	return count >= n
+
+# ----------------------------------------------------------------
+length = 20
+count  = 1
 
 argc = len(sys.argv)
 if argc == 1:
@@ -36,7 +86,5 @@ elif argc == 3:
 	count  = int(sys.argv[2])
 
 for i in range(0, count):
-	word = ""
-	for j in range(0, length):
-		 word += random.choice(choices)
+	word = generate(length)
 	print(word)
