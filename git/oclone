@@ -4,6 +4,7 @@
 # Given https://github.com/ownername/reponame:
 # * Creates ~/git/ownername
 # * Checks out https://github.com/ownername/reponame to ~/git/ownername/reponame
+# This is a keystroke-saver.
 # ================================================================
 
 require 'fileutils'
