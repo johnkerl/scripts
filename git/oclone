@@ -1,0 +1,62 @@
+#!/usr/bin/env ruby
+
+# ================================================================
+# Given https://github.com/ownername/reponame:
+# * Creates ~/git/ownername
+# * Checks out https://github.com/ownername/reponame to ~/git/ownername/reponame
+# ================================================================
+
+require 'fileutils'
+
+$us = File.basename $0
+$gitbase = ENV['HOME'] + '/git'
+
+# ----------------------------------------------------------------
+def split_owner_and_repo(input)
+  if input =~ /^https:\/\/github.com/
+    return extract_owner_and_repo(input, 5, 3, 4)
+  elsif input =~ /^http:\/\/github.com/
+    return extract_owner_and_repo(input, 5, 3, 4)
+  #elsif input =~ /^github.com/
+  #  'github.com/foo/bar' is not cloneable using git clone
+  #  return extract_owner_and_repo(input, 3, 1, 2)
+  else
+    $stderr.puts "#{$us}: could not parse \"#{input}\" as github.com repo URL"
+    exit 1
+  end
+end
+
+def extract_owner_and_repo(input, expected_component_count, owner_index, repo_index)
+  fields = input.split(/\//)
+  if fields.length != expected_component_count
+    $stderr.puts "#{$us}: could not parse \"#{input}\" as github.com repo URL"
+    exit 1
+  end
+  return [fields[owner_index], fields[repo_index]]
+end
+
+# ----------------------------------------------------------------
+if ARGV.length < 1
+  $stderr.puts "Usage: #{$us} {github.com repo URL}"
+  exit 1
+end
+
+# Do this once for usability-check before doing the clones. Otherwise if say
+# the 3rd argument is malformed, its error message won't appear until after
+# other output.
+ARGV.each do |arg|
+  split_owner_and_repo(arg)
+end
+
+ARGV.each do |arg|
+  owner, repo = split_owner_and_repo(arg)
+  gitdir = $gitbase + '/' + owner + '/' + repo
+  begin
+    FileUtils.mkdir_p(gitdir).nil?
+  rescue
+    $stderr.puts "#{$us}: could not create local directory #{gitdir}"
+    exit 1
+  end
+
+  system("git clone #{arg} #{gitdir}")
+end
