@@ -48,6 +48,14 @@ scp -C -r scripts user@away-machine.domain.name:/path/over/there/scripts
 eval $(/path/over/there/scripts/rc)
 ```
 
+If I've access to a persistent `~/.bashrc` on the away machine I can add this to it:
+
+```
+if [ -f ~/scripts/rc ]; then
+  eval $(~/scripts/rc)
+fi
+```
+
 ----------------------------------------------------------------
 
 John Kerl 2013-10-04
