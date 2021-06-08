@@ -3,7 +3,7 @@
 # ================================================================
 # John Kerl
 # http://johnkerl.org
-# Cats out a file in the $PATH.
+# Cats out a file in the $PATH: catwhich foo = cat $(which foo)
 # ================================================================
 
 if [ $# -lt 1 ]; then
