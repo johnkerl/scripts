@@ -117,7 +117,7 @@ if (@findopts) {
    push @findopts, "\\)";
 }
 
-$cmd = "find $basedir -type f -follow @findopts -exec egrep @grepopts '$pattern' {} /dev/null \\;";
+$cmd = "find $basedir -not \\\( -path ./.git -prune \\\) -not \\\( -path ./node_modules -prune \\\) -type f -follow @findopts -exec egrep @grepopts '$pattern' {} /dev/null \\;";
 if (!$show_errors) {
    $cmd = $cmd . " 2> /dev/null";
 }
