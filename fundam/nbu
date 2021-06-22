@@ -18,6 +18,14 @@ $fmt = "%%0%dd" % ($width) # No "%0*d" in Ruby?
 
 # ----------------------------------------------------------------
 def make_numbered_backup(file_path, dest_dir)
+   unless test(?e, file_path)
+      $stderr.puts "#{$us}:  could not find #{file_path} to back up."
+      return false
+   end
+   unless test(?f, file_path)
+      $stderr.puts "#{$us}:  #{file_path} is not a plain file."
+      return false
+   end
    i = 0
    while i <= $max_extension
       extension = $fmt % i
