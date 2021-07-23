@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+# Changes Esperanto cx into ĉ, etc. -- particularly useful since these
+# circumflex letters aren't available on all keyboards.
+
+ARGF.each do |line|
+   line = line.
+      gsub(/cx/, 'ĉ').
+      gsub(/gx/, 'ĝ').
+      gsub(/hx/, 'ĥ').
+      gsub(/jx/, 'ĵ').
+      gsub(/sx/, 'ŝ').
+      gsub(/ux/, 'ŭ').
+
+      gsub(/CX/, 'Ĉ').
+      gsub(/GX/, 'Ĝ').
+      gsub(/HX/, 'Ĥ').
+      gsub(/JX/, 'Ĵ').
+      gsub(/SX/, 'Ŝ').
+      gsub(/UX/, 'Ŭ').
+
+      gsub(/Cx/, 'Ĉ').
+      gsub(/Gx/, 'Ĝ').
+      gsub(/Hx/, 'Ĥ').
+      gsub(/Jx/, 'Ĵ').
+      gsub(/Sx/, 'Ŝ').
+      gsub(/Ux/, 'Ŭ')
+   puts line
+end
