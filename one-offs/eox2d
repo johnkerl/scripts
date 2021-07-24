@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 
 # Changes Esperanto cx into ĉ, etc. -- particularly useful since these
-# circumflex letters aren't available on all keyboards.
+# circumflex letters aren't available on all keyboards.  See also the sibling
+# eod2x script.
 
 ARGF.each do |line|
    line = line.
