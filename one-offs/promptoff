@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+# Given copypastes from my terminal history, replaces my prompt string with vanilla '$ '.
+
+ARGF.each {|line| puts line.gsub(/^kerl.*\$ /, "$ ")}
