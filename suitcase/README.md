@@ -7,6 +7,7 @@ The tools in this package are meant for two purposes:
 
 The intent of this package in the latter is to make myself at home, and
 productive, as quickly as possible: a **suitcase**, or a toolbox.
+(See also https://github.com/johnkerl/away which is simpler.)
 
 What makes a house a home?  A home environment consists of (at
 least)
