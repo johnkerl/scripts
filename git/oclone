@@ -60,4 +60,5 @@ ARGV.each do |arg|
   end
 
   system("git clone #{arg} #{gitdir}")
+  puts gitdir
 end
