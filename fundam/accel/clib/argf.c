@@ -1,6 +1,5 @@
 /*
-Build instructions:
-gcc -Wall -D ARGF_TEST_MAIN argf.c -o argf_test
+Build instructions: see Makefile
 */
 
 #include <stdio.h>
