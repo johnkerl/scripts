@@ -29,7 +29,7 @@ import (
 	"strings"
 	"time"
 
-	"simpletimeformat"
+	"github.com/johnkerl/scripts/fundam/accel/golib/simpletimeformat"
 )
 
 func main() {

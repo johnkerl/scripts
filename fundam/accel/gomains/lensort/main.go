@@ -8,7 +8,6 @@
 package main
 
 import (
-	"argf"
 	"bufio"
 	"container/list"
 	"flag"
@@ -18,6 +17,8 @@ import (
 	"os"
 	"sort"
 	"strings"
+
+	"github.com/johnkerl/scripts/fundam/accel/golib/argf"
 )
 
 // ----------------------------------------------------------------

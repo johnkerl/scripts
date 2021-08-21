@@ -1,4 +1,4 @@
-// Build instructions: go build hex.go
+// Build instructions: go build
 
 package main
 
