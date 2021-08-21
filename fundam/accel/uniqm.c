@@ -1,6 +1,5 @@
 /*
-Build instructions:
-gcc -std=c99 -O3 -Ilib lib/util.c lib/hss.c argf.c uniqm.c -o uniqm
+Build instructions: see Makefile
 */
 
 #include <stdio.h>

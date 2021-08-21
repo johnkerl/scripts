@@ -21,6 +21,7 @@
 /*
 Build instructions:
 gcc -O3 -Wall hex.c -o hex
+or see Makefile
 */
 
 #include <stdio.h>
