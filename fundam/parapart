@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Reorders input paragraphs stably sorted (i.e. partitioned) by having/not-having specified pattern
-pattern="$1"
+export pattern="$1"
 shift
 mlr --nidx --rs '\n\n' --fs '\001' put -q -S '
   if ($1 =~ ENV["pattern"]) {

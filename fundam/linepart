@@ -3,7 +3,6 @@
 # Reorders input lines stably sorted (i.e. partitioned) by having/not-having specified pattern
 export pattern="$1"
 shift
-set -x
 mlr --nidx --fs '\001' put -q -S '
   if ($1 =~ ENV["pattern"]) {
     @with[NR] = $*;
@@ -12,6 +11,7 @@ mlr --nidx --fs '\001' put -q -S '
   }
   end {
     emit @with;
+    print;
     emit @without;
   }
 ' "$@"
