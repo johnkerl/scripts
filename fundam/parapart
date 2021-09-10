@@ -4,7 +4,7 @@
 pattern="$1"
 shift
 mlr --nidx --rs '\n\n' --fs '\001' put -q -S '
-  if ($1 =~ "'$pattern'") {
+  if ($1 =~ ENV["pattern"]) {
     @with[NR] = $*;
   } else {
     @without[NR] = $*;

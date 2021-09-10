@@ -1,10 +1,11 @@
 #!/bin/bash
 
 # Reorders input lines stably sorted (i.e. partitioned) by having/not-having specified pattern
-pattern="$1"
+export pattern="$1"
 shift
+set -x
 mlr --nidx --fs '\001' put -q -S '
-  if ($1 =~ "'$pattern'") {
+  if ($1 =~ ENV["pattern"]) {
     @with[NR] = $*;
   } else {
     @without[NR] = $*;
