@@ -1,17 +1,30 @@
-#!/bin/bash
+#!/usr/bin/env ruby
+
+# ================================================================
+# Reorders input lines stably sorted (i.e. partitioned) by having/not-having specified pattern
+# ================================================================
+
+def usage()
+  $stderr.puts "Usage: #{File.basename $0} {pattern} [file names]"
+  exit 1
+end
 
 # Reorders input lines stably sorted (i.e. partitioned) by having/not-having specified pattern
-export pattern="$1"
-shift
-mlr --nidx --fs '\001' put -q -S '
-  if ($1 =~ ENV["pattern"]) {
-    @with[NR] = $*;
-  } else {
-    @without[NR] = $*;
-  }
-  end {
-    emit @with;
-    print;
-    emit @without;
-  }
-' "$@"
+usage if ARGV.length < 1
+pattern = ARGV.shift
+
+matching_lines = []
+non_matching_lines = []
+
+ARGF.each do |line|
+  line.chomp!
+  if line =~ /#{pattern}/
+    matching_lines.append(line)
+  else
+    non_matching_lines.append(line)
+  end
+end
+
+matching_lines.each{|line| puts line}
+puts if matching_lines.length > 0 && non_matching_lines.length > 0
+non_matching_lines.each{|line| puts line}
