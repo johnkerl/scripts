@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# ================================================================
+# Renames filename1 and filename2 to have swapped names.
+# ================================================================
+
+if [ $# -ne 2 ]; then
+  echo "Usage: $0 {filename1} {filename2}" 1>&2
+  echo "Renames filename1 and filename2 to have swapped names." 1>&2
+  exit 1
+fi
+
+a="$1"
+b="$2"
+t=$a.$$
+
+if [ ! -w "$a" ]; then
+  echo "$0: no write access to $a" 1>&2
+  exit 1
+fi
+if [ ! -w "$b" ]; then
+  echo "$0: no write access to $b" 1>&2
+  exit 1
+fi
+
+mv $a $t
+if [ $? -ne 0 ]; then
+  echo "$0: could not rename $a to $t" 1>&2
+  exit 1
+fi
+
+mv $b $a
+if [ $? -ne 0 ]; then
+  echo "$0: could not rename $b to $a" 1>&2
+  exit 1
+fi
+
+mv $t $b
+if [ $? -ne 0 ]; then
+  echo "$0: could not rename $t to $b" 1>&2
+  exit 1
+fi
