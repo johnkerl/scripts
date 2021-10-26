@@ -165,6 +165,10 @@ while (@ARGV >= 1) {
 		$pat = "\t\t\t\t\# ";
 	}
 
+	elsif ($ARGV[0] eq "-rdoc") {
+		$pat = "\#\#' ";
+	}
+
 	elsif ($ARGV[0] eq "-T") {
 		$pat = "%";
 	}

@@ -4,5 +4,9 @@ if [ $# -ne 1 ]; then
   echo "Need branch name" 1>&2
   exit 1
 fi
-# arg 2 is optional branch-from
-git checkout -b "$1" "$2"
+if [ $# -eq 1 ]; then
+  git checkout -b "$1"
+else
+  # arg 2 is optional branch-from
+  git checkout -b "$1" "$2"
+fi
