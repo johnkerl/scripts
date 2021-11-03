@@ -215,7 +215,7 @@ func_pullpwd() {
 		exit 1
 	fi
 	if [ $(pwd) = $HOME ]; then
-		echo "Sorry, I'm unwilling to push all of $HOME" 1>&2
+		echo "Sorry, I'm unwilling to pull all of $HOME" 1>&2
 		exit 1
 	fi
 	func_syncfromremote "$ssh_four_six" --delete $(func_get_relative_path $(pwd))
