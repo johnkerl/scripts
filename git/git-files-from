@@ -2,9 +2,9 @@
 
 # Like 'git diff -r ...' but only shows the filenames modified, not their contents
 
-if [ $# -ne 1 ]; then
-  echo "Usage: $0 {branch/commit}" 1>&2
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 {-r branch/commit}" 1>&2
   exit 1
 fi
 
-git diff -r "$1" | grep ^diff | awk '{print $NF}' | sed 's:^./::'
+git diff "$1" | grep ^diff | awk '{print $NF}' | sed 's:^./::'
