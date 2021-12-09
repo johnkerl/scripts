@@ -64,6 +64,10 @@ while (@ARGV >= 1) {
 		$pat = ";;;";
 	}
 
+	elsif ($ARGV[0] eq "-rox") {
+		$pat = "##' ";
+	}
+
 	elsif ($ARGV[0] eq "-gp") {
 		$pat = "\\\\ ";
 	}
