@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# A filter to strip leading whitespace.
+# ================================================================
+
+if [ $(uname) == Darwin ]; then
+   sed -E 's/^[[:space:]]+//'
+else
+   sed -r 's/^\s+//'
+fi
