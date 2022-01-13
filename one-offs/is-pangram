@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+
+require 'set'
+
+ALPHA_ARRAY = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+
+def get_counts(text)
+  letters_present_set = Set.new
+  text.downcase.split(//).each do |letter|
+    letters_present_set.add(letter)
+  end
+
+  letters_present_vec = []
+  letters_absent_vec  = []
+
+  ALPHA_ARRAY.each do |letter|
+    if letters_present_set.include?(letter)
+      letters_present_vec.push(letter)
+    else
+      letters_absent_vec.push(letter)
+    end
+  end
+  return {"present" => letters_present_vec, "absent" => letters_absent_vec}
+end
+
+def is_pangram(line)
+  counts = get_counts(line)
+  return counts['absent'].length == 0
+end
+
+ARGF.each do |line|
+  ok = is_pangram(line)
+  if ok
+    print "YES "
+  else
+    print "no  "
+  end
+  puts line
+end
+
