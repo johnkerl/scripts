@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+# Error-check
+
+letters  = ARGV[0].split(//)
+filename = ENV['HOME'] +'/misc/words'
+matches = File.readlines(filename).map{|line| line.chomp}.filter{|line| letters.all?{|letter| line.include?(letter)}}.sort{|a,b| a.length == b.length ? a <=> b : a.length <=> b.length}
+matches.each{|match| puts match}

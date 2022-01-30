@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# 2022-01-30
+# Sorts lines from the end, not from the beginning.
+# Example:
+# input:
+#
+#   lucid
+#   lala
+#   comb
+#   aspic
+#   rebase
+#
+# output:
+#
+#   lala
+#   comb
+#   aspic
+#   lucid
+#   rebase
+# ================================================================
+
+ARGF.readlines.map{|line| line.chomp.reverse}.sort.map{|line| line.reverse}.each{|line| puts line}
