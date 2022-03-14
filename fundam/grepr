@@ -6,6 +6,10 @@
 # Recursive grep, written back in the 90s.
 # Also note (Linux):
 # grep -nr -e pattern --include='*.[c|h]' directoryname
+#
+# Update 2022-03-14: ag and rg are _far_ faster, and they do recursive
+# search naturally. Thank you for your service, grepr -- you've served
+# me well for many years.
 # ================================================================
 
 # ----------------------------------------------------------------
