@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+
+import yaml, json
+import sys
+
+# ----------------------------------------------------------------
+def convert(filename, handle, quiet):
+    try:
+        d = yaml.full_load(handle)
+    except yaml.parser.ParserError as e:
+        print('Parse file on %s:' % (filename))
+        print(e)
+        return False
+    if quiet:
+        print('OK %s' % (filename))
+    else:
+        print(json.dumps(d))
+    return True
+
+# ----------------------------------------------------------------
+args = sys.argv[1:]
+quiet = False
+if len(args) >= 1 and args[0] == '-q':
+    quiet = True
+    args = args[1:]
+
+if len(args) == 0:
+    convert('(stdin)', sys.stdin, quiet)
+else:
+    for arg in args:
+        handle = open(arg)
+        convert(arg, handle, quiet)
+        handle.close()
