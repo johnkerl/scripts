@@ -17,4 +17,5 @@ else
 fi
 
 # xxx cmt re mac ...
-echo -e $starttitle '[[' $text ']]' $endtitle
+#echo -e $starttitle '[[' $text ']]' $endtitle
+echo -e $starttitle $text $endtitle

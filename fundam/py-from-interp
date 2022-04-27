@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 import os, sys, getopt, random, time
 from math import *
 
