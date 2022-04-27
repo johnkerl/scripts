@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+# ================================================================
+# See ./py for context
+# ================================================================
+
 import os, sys, getopt, random, time
 from math import *
 

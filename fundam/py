@@ -1,5 +1,31 @@
 #!/bin/bash
 
+# ================================================================
+# This wrapper enables me to do:
+#
+#   $ py '123**4'
+#   228886641
+#
+# or
+#
+#   $ py
+#   >>> log10(11)
+#   1.0413926851582251
+#   >>> sqrt(5)
+#   2.23606797749979
+#
+# Namely:
+#
+# * With args, eval each arg
+#
+# * Without args, be interactive
+#
+# * In either case, import the following so I don't have to:
+#
+#   import os, sys, getopt, random, time
+#   from math import *
+# ================================================================
+
 ourdir=$(dirname $0)
 if [ $# -ge 1 ] ; then
     #rlwrap python $ourdir/py-from-args "$@"
