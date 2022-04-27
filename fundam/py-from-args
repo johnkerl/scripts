@@ -6,6 +6,7 @@
 
 import os, sys, getopt, random, time
 from math import *
+import tiledb, tiledb.cloud, tiledbsc
 
 if len(sys.argv) < 2:
     sys.stderr.write("Usage: %s {expression}\n" % sys.argv[0])
