@@ -6,10 +6,6 @@
 
 import os, sys, getopt, random, time
 from math import *
-import tiledb, tiledb.cloud, tiledbsc
-
-print('tiledb.__version__       ', tiledb.__version__)
-print('tiledb.cloud.__version__ ', tiledb.cloud.__version__)
 
 pass
 # Take further stuff from the '>>> ' prompt

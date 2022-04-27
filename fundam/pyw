@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# ================================================================
+# Same as ./py but with auto-load of more work-related modules
+# ================================================================
+
+ourdir=$(dirname $0)
+python -i $ourdir/py-from-interp-work
