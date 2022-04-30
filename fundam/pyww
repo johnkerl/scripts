@@ -1,8 +1,0 @@
-#!/bin/bash
-
-# ================================================================
-# Same as ./pyw but with auto-load of even more work-related modules
-# ================================================================
-
-ourdir=$(dirname $0)
-python -i $ourdir/py-from-interp-work-long

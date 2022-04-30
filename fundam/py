@@ -20,7 +20,7 @@
 #
 # * Without args, be interactive
 #
-# * In either case, import the following so I don't have to:
+# * In either case, import things like the following so I don't have to:
 #
 #   import os, sys, getopt, random, time
 #   from math import *
