@@ -6,13 +6,14 @@
 
 import os, sys, getopt, random, time, math
 
-import tiledb, tiledb.cloud, tiledbsc
-import anndata as ad
-import numpy   as np
-import pandas  as pd
-import pyarrow as pa
-import scanpy  as sc
-import scipy   as sp
+import tiledb, tiledb.cloud
+import tiledbsc as t
+import anndata  as ad
+import numpy    as np
+import pandas   as pd
+import pyarrow  as pa
+import scanpy   as sc
+import scipy    as sp
 
 print('tiledb.__version__       ', tiledb.__version__)
 print('core version             ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())))
