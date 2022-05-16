@@ -8,8 +8,8 @@ import os, sys, getopt, random, time, math
 
 import tiledb
 
-print('tiledb.__version__       ', tiledb.__version__)
-print('core version             ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())))
+print('tiledb.__version__', tiledb.__version__)
+print('core version      ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())))
 
 pass
 # Take further stuff from the '>>> ' prompt
