@@ -25,5 +25,14 @@ print('pyarrow.__version__  (pa)', pa.__version__)
 print('scanpy.__version__   (sc)', sc.__version__)
 print('scipy.__version__    (sp)', sp.__version__)
 
+# ----------------------------------------------------------------
+import readline
+def history(n=10):
+    history_length = readline.get_current_history_length()
+    history_range = range(history_length - n, history_length)
+    lines = [str(readline.get_history_item(i + 1)) for i in history_range]
+    print('\n'.join(lines))
+# ----------------------------------------------------------------
+
 pass
 # Take further stuff from the '>>> ' prompt

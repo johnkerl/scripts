@@ -11,5 +11,14 @@ import tiledb
 print('tiledb.__version__', tiledb.__version__)
 print('core version      ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())))
 
+# ----------------------------------------------------------------
+import readline
+def history(n=10):
+    history_length = readline.get_current_history_length()
+    history_range = range(history_length - n, history_length)
+    lines = [str(readline.get_history_item(i + 1)) for i in history_range]
+    print('\n'.join(lines))
+# ----------------------------------------------------------------
+
 pass
 # Take further stuff from the '>>> ' prompt
