@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+
+# ================================================================
+# Takes filenames like 'Foo Bar .ext' (e.g. from various web downloads)
+# and renames them to 'foo-bar.ext'.
+# ================================================================
+
+import sys, os, re
+
+# ----------------------------------------------------------------
+def usage():
+    sys.stderr.write("Usage: %s \{one or more file names}\n" % sys.argv[0])
+
+# ----------------------------------------------------------------
+def neaten_name(name: str) -> str:
+    name = name.rstrip('/')
+    dirn = os.path.dirname(name)
+    base = os.path.basename(name)
+
+    base = base.lower()
+    base = base.replace(" ", "-")
+    base = base.replace("(", "")
+    base = base.replace(")", "")
+    base = base.replace(":", "")
+    base = base.replace("'", "")
+    base = base.replace('"', "")
+    base = base.replace("-.", ".")
+    base = re.sub("--*", "-", base)
+    return os.path.join(dirn, base)
+
+# ----------------------------------------------------------------
+if len(sys.argv) < 2:
+    usage()
+for name in sys.argv[1:]:
+    new_name = neaten_name(name)
+    if new_name != name:
+        os.rename(name, new_name)
+        print(new_name)
