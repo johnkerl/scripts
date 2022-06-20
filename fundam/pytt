@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# ================================================================
+# Same as ./py but with auto-load of tiledb
+# ================================================================
+
+ourdir=$(dirname $0)
+python -i $ourdir/py-from-interp-import-tiledb-and-tiledbsc
