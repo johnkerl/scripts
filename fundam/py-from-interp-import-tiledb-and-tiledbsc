@@ -10,6 +10,9 @@ import tiledb
 import tiledbsc
 import tiledbsc.io
 
+import numpy  as np
+import pandas as pd
+
 print('tiledbsc.__version__', tiledbsc.__version__)
 print('tiledb.__version__  ', tiledb.__version__)
 print('core version        ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())))
