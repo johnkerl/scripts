@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+
+# ================================================================
+# See ./pyw for context
+# ================================================================
+
+import os, sys, getopt, random, time, math
+
+import tiledb
+import tiledb.cloud
+import tiledbsc
+import tiledbsc.io
+
+import numpy  as np
+import pandas as pd
+
+print('tiledbsc.__version__      ', tiledbsc.__version__)
+print('tiledb.cloud.__version__  ', tiledb.cloud.__version__)
+print('tiledb.__version__        ', tiledb.__version__)
+print('core version              ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())))
+
+# ----------------------------------------------------------------
+import readline
+def history(n=10):
+    history_length = readline.get_current_history_length()
+    history_range = range(history_length - n, history_length)
+    lines = [str(readline.get_history_item(i + 1)) for i in history_range]
+    print('\n'.join(lines))
+# ----------------------------------------------------------------
+
+pass
+# Take further stuff from the '>>> ' prompt
