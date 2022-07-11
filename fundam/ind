@@ -116,6 +116,10 @@ while (@ARGV >= 1) {
 		$pat = "//";
 	}
 
+	elsif ($ARGV[0] eq "-1p") {
+		$pat = "// ";
+	}
+
 	elsif ($ARGV[0] eq "-plus") {
 		$pat = "\+";
 	}
