@@ -7,6 +7,10 @@
 import os, sys, getopt, random, time
 from math import *
 
+import numpy   as np
+import pandas  as pd
+import pyarrow as pa
+
 # ----------------------------------------------------------------
 import readline
 def history(n=10):

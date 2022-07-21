@@ -11,8 +11,9 @@ import tiledb.cloud
 import tiledbsc
 import tiledbsc.io
 
-import numpy  as np
-import pandas as pd
+import numpy   as np
+import pandas  as pd
+import pyarrow as pa
 
 print('tiledbsc.__version__      ', tiledbsc.__version__)
 print('tiledb.cloud.__version__  ', tiledb.cloud.__version__)
