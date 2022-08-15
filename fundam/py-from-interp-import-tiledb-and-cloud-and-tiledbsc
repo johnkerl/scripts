@@ -11,6 +11,9 @@ import tiledb.cloud
 import tiledbsc
 import tiledbsc.io
 
+import anndata as ad
+import scanpy as sp
+
 import numpy   as np
 import pandas  as pd
 import pyarrow as pa
