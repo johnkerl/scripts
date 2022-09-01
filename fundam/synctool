@@ -32,7 +32,45 @@
 #
 # The -r argument, e.g. mylogin@some-server.net, is required but tedious. The
 # way I actually use this this script is in separately set-up aliases, with -r
-# included.  E.g. alias synctothere="synctool -r kerl@there synctoremote".
+# included.
+#
+# The -i argument is for PEM keys, e.g. for accessing EC2 instances.
+#
+# ----------------------------------------------------------------
+# I don't use this script directly from the command line -- instead I use
+# keystroke-saving aliases such as the following:
+#
+# Personals on my ISP account, e.g. publishing web docs to johnkerl.org:
+#
+#   export isp=u9999999@home888888.1and1-data.host
+#     # So I can do 'ssh $isp'
+#
+#   alias  relfromisp="synctool -r $isp relfromremote"
+#   alias    reltoisp="synctool -r $isp reltoremote"
+#   alias   reldelisp="synctool -r $isp reldelremote"
+#   alias syncfromisp="synctool -r $isp syncfromremote"
+#   alias   synctoisp="synctool -r $isp synctoremote"
+#   alias  pullpwdisp="synctool -r $isp pullpwd"
+#   alias  pushpwdisp="synctool -r $isp pushpwd"
+#
+# Synchronizing files to/from an EC2 instance:
+#
+#   ec2ip=1.2.3.4 # whatever IP address from the AWS console
+#   export myec2="ubuntu@${ec2ip}"
+#   pem="$HOME/.ssh/my.pem"
+#   alias sshpem="ssh -i $pem"
+#     # So I can do 'sshpem $myec2'
+#   alias  myec2='sshpem $myec2'
+#     # Even quicker: ssh via 'myec2'
+#   alias scppem="scp -i $pem"
+#
+#   alias  relfrommyec2="synctool -i $pem -r $myec2 relfromremote"
+#   alias    reltomyec2="synctool -i $pem -r $myec2 reltoremote"
+#   alias   reldelmyec2="synctool -i $pem -r $myec2 reldelremote"
+#   alias syncfrommyec2="synctool -i $pem -r $myec2 syncfromremote"
+#   alias   synctomyec2="synctool -i $pem -r $myec2 synctoremote"
+#   alias  pullpwdmyec2="synctool -i $pem -r $myec2 pullpwd"
+#   alias  pushpwdmyec2="synctool -i $pem -r $myec2 pushpwd"
 #
 # ----------------------------------------------------------------
 # John Kerl
@@ -43,7 +81,9 @@
 us=$(basename $0)
 ourdir=$(dirname $0)
 
-user_at_host=unset
+user_at_host="unset"
+pem="unset"
+sshpem=""
 
  relfromremote_usage="relfromremote {one or more remote \$HOME-relative filenames}"
    reltoremote_usage="reltoremote {one or more local \$HOME-relative filenames}"
@@ -80,9 +120,10 @@ main() {
 	# Parse the command line.
 	local do_setx=false
 	local ssh_four_six=""
-	while getopts r:46vh? f; do
+	while getopts r:i:46vh? f; do
 		case $f in
 		r)      user_at_host="$OPTARG"; continue;;
+		i)      pem="$OPTARG"; continue;;
 		4)      ssh_four_six=four; continue;;
 		6)      ssh_four_six=six;  continue;;
 		v)      do_setx=true;      continue;;
@@ -115,6 +156,11 @@ main() {
 	if [ "$do_setx" = true ]; then
 		set -x
 	fi
+
+    if [ "$pem" != "unset" ]; then
+        export RSYNC_RSH="ssh -i $pem"
+        sshpem="-i $pem"
+    fi
 
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# Execute the verb.
@@ -158,7 +204,7 @@ func_relfromremote() {
 	for file; do
 		local_path=$(pwd)/$file
 		remote_scp_path=$(func_get_remote_scp_path $local_path)
-		scp $remote_scp_path $file
+		scp $sshpem $remote_scp_path $file
 		echo ""
 	done
 }
@@ -179,7 +225,7 @@ func_reltoremote() {
 	for file; do
 		local_path=$(pwd)/$file
 		remote_scp_path=$(func_get_remote_scp_path $local_path)
-		scp $file $remote_scp_path
+		scp $sshpem $file $remote_scp_path
 		echo ""
 	done
 }
@@ -201,7 +247,7 @@ func_reldelremote() {
 		local_abs_path=$(pwd)/$rel_file
 		rel_path=$(func_get_relative_path $local_abs_path)
 
-		ssh $user_at_host rm $rel_path
+		ssh $sshpem $user_at_host rm $rel_path
 		echo ""
 	done
 }
