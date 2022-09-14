@@ -10,6 +10,8 @@ import tiledb
 import tiledb.cloud
 import tiledbsc
 import tiledbsc.io
+import tiledbsoma
+import tiledbsoma.io
 
 import anndata as ad
 import scanpy as sp
