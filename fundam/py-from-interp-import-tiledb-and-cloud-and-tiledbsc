@@ -20,6 +20,7 @@ import numpy   as np
 import pandas  as pd
 import pyarrow as pa
 
+print('tiledbsoma.__version__    ', tiledbsoma.__version__)
 print('tiledbsc.__version__      ', tiledbsc.__version__)
 print('tiledb.cloud.__version__  ', tiledb.cloud.__version__)
 print('tiledb.__version__        ', tiledb.__version__)
