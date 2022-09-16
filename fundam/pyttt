@@ -5,4 +5,4 @@
 # ================================================================
 
 ourdir=$(dirname $0)
-python -i $ourdir/py-from-interp-import-tiledb-and-cloud-and-tiledbsc
+python -i $ourdir/py-from-interp-import-tiledb-and-cloud-and-tiledbsoma
