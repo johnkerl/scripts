@@ -7,8 +7,6 @@
 import os, sys, getopt, random, time, math
 
 import tiledb, tiledb.cloud
-import tiledbsc
-import tiledbsc.io
 import tiledbsoma
 import tiledbsoma.io
 import anndata  as ad

@@ -7,24 +7,18 @@
 import os, sys, getopt, random, time, math
 
 import tiledb
-import tiledb.cloud
-import tiledbsc
-import tiledbsc.io
 import tiledbsoma
 import tiledbsoma.io
-
-import anndata as ad
-import scanpy as sp
 
 import numpy   as np
 import pandas  as pd
 import pyarrow as pa
+import anndata as ad
+import scanpy  as sp
 
-print('tiledbsoma.__version__    ', tiledbsoma.__version__)
-print('tiledbsc.__version__      ', tiledbsc.__version__)
-print('tiledb.cloud.__version__  ', tiledb.cloud.__version__)
-print('tiledb.__version__        ', tiledb.__version__)
-print('core version              ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())))
+print('tiledbsoma.__version__', tiledbsoma.__version__)
+print('tiledb.__version__    ', tiledb.__version__)
+print('core version          ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())))
 
 # ----------------------------------------------------------------
 import readline
