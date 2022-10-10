@@ -6,7 +6,6 @@
 # 2012-02-22
 # Prints {count} words of {length} characters each, with characters selected
 # uniformly randomly from uppercase A-Z, lowercase a-z, and 0-9.
-# See also xyxyx in this same directory for slightly more pronounceable output.
 # ================================================================
 
 import sys

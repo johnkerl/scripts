@@ -1,3 +1,4 @@
 #!/bin/bash
 
 sed 's/\\r\\n/\n/g' "$@"
+echo # final newline
