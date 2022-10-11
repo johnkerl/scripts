@@ -10,6 +10,7 @@ import tiledb
 import tiledb.cloud
 import tiledbsoma
 import tiledbsoma.io
+t = tiledbsoma
 
 import anndata as ad
 import scanpy as sp
