@@ -27,6 +27,7 @@ print('pandas.__version__   (pd)', pd.__version__)
 print('pyarrow.__version__  (pa)', pa.__version__)
 print('scanpy.__version__   (sc)', sc.__version__)
 print('scipy.__version__    (sp)', sp.__version__)
+print('python__version__        ', ".".join([str(e) for e in [sys.version_info.major, sys.version_info.minor, sys.version_info.micro]]))
 
 # ----------------------------------------------------------------
 import readline
