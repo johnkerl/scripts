@@ -9,7 +9,7 @@ import os, sys, getopt, random, time, math
 import tiledb
 import tiledbsoma
 import tiledbsoma.io
-t = tiledbsoma
+soma = tiledbsoma
 
 import numpy   as np
 import pandas  as pd
