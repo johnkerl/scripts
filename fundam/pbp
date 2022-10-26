@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# pbpaste but without the annoying missing final newline
+
+pbpaste
+echo
