@@ -10,6 +10,10 @@ import tiledb
 import tiledbsoma
 import tiledbsoma.io
 soma = tiledbsoma
+try:
+    import tiledbsoma.libtiledbsoma as clib
+except ModuleNotFoundError:
+    pass
 
 import numpy   as np
 import pandas  as pd
