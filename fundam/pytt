@@ -5,4 +5,7 @@
 # ================================================================
 
 ourdir=$(dirname $0)
+if [ -z "$DYLD_LIBRARY_PATH" ]; then
+    export DYLD_LIBRARY_PATH="/usr/local/lib"
+fi
 python -i $ourdir/py-from-interp-import-tiledb-and-tiledbsoma
