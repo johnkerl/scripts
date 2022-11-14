@@ -15,6 +15,9 @@ try:
 except ModuleNotFoundError:
     # main-old
     pass
+except ImportError:
+    # main-old
+    pass
 
 import numpy   as np
 import pandas  as pd
