@@ -5,4 +5,8 @@
 # ================================================================
 
 ourdir=$(dirname $0)
-python -i $ourdir/py-from-interp-import-tiledb
+if [ "$1" = "-z" ]; then
+    python    $ourdir/py-from-interp-import-tiledb
+else
+    python -i $ourdir/py-from-interp-import-tiledb
+fi

@@ -11,4 +11,8 @@ fi
 if [ -z "$LD_LIBRARY_PATH" ]; then
     export LD_LIBRARY_PATH="/usr/local/lib"
 fi
-python -i $ourdir/py-from-interp-import-tiledb-and-tiledbsoma
+if [ "$1" = "-z" ]; then
+    python    $ourdir/py-from-interp-import-tiledb-and-tiledbsoma
+else
+    python -i $ourdir/py-from-interp-import-tiledb-and-tiledbsoma
+fi
