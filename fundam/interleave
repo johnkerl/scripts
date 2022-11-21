@@ -65,5 +65,5 @@ for ($j = 0; $j < $maxrows; $j++) {
 		}
 		print "$val\n";
 	}
-	print "\n" if $printcr;
+	print "\n" if $printcr && $j < ($maxrows - 1);
 }
