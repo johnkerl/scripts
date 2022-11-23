@@ -56,7 +56,7 @@ def history(n=10):
     print('\n'.join(lines))
 # ----------------------------------------------------------------
 
-# kctx = tiledb.Ctx(
+# ctx = tiledb.Ctx(
 #     {
 #         "sm.mem.total_budget": 4 * 1024 ** 3,
 #         "sm.consolidation.buffer_size": 512 * 1024 ** 2,
@@ -68,7 +68,7 @@ def history(n=10):
 #     }
 # )
 
-kctx = tiledb.Ctx({
+ctx = tiledb.Ctx({
     "py.init_buffer_bytes": 4 * 1024**3,
     # "rest.use_refactored_array_open": True,
     "sm.mem.reader.sparse_global_order.ratio_array_data": 0.3,
