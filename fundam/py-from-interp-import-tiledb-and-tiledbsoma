@@ -56,17 +56,16 @@ def history(n=10):
     print('\n'.join(lines))
 # ----------------------------------------------------------------
 
-# ctx = tiledb.Ctx(
-#     {
-#         "sm.mem.total_budget": 4 * 1024 ** 3,
-#         "sm.consolidation.buffer_size": 512 * 1024 ** 2,
-
-#         # "sm.consolidation.mode": "fragments", # This is the default -- ?
-#         # "sm.consolidation.mode": "fragment_meta",
-#         "sm.consolidation.mode": "commits",
-#         # "sm.consolidation.mode": "array_meta",
-#     }
-# )
+#ctx = tiledb.Ctx(
+#    {
+#        "sm.mem.total_budget": 4 * 1024 ** 3,
+#        "sm.consolidation.buffer_size": 512 * 1024 ** 2,
+#        # "sm.consolidation.mode": "fragments", # This is the default -- ?
+#        # "sm.consolidation.mode": "fragment_meta",
+#        "sm.consolidation.mode": "commits",
+#        # "sm.consolidation.mode": "array_meta",
+#    }
+#)
 
 ctx = tiledb.Ctx({
     "py.init_buffer_bytes": 4 * 1024**3,

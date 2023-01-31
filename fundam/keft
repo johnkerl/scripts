@@ -7,6 +7,8 @@ ARGF.each do |line|
   line.chomp!
   if line.start_with?('<<<<<<<')
     emit = true
+  elsif line.start_with?('|||||||')
+    emit=false
   elsif line.start_with?('=======')
     emit=false
   elsif line.start_with?('>>>>>>>')
