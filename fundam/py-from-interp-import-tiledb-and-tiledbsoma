@@ -10,6 +10,7 @@ import tiledb
 import tiledbsoma
 import tiledbsoma.io
 soma = tiledbsoma
+import somacore
 try:
     import tiledbsoma.libtiledbsoma as clib
 except ModuleNotFoundError:
@@ -27,6 +28,7 @@ import scanpy  as sc
 import scipy   as sp
 
 print('tiledbsoma.__version__   ', tiledbsoma.__version__, tiledbsoma.__file__)
+print('somacore.__version__     ', somacore.__version__, somacore.__file__)
 print('tiledb.__version__       ', tiledb.__version__, tiledb.__file__)
 print('core version             ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())), tiledb.libtiledb.__file__)
 if clib is not None:
