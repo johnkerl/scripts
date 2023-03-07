@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# Paragraphwise sort
+# Given a sequence of paragraphs, sorts lines within each paragraph
 
 ARGF.each("\n\n") do |paragraph|
    puts paragraph.split(/\n/).sort.join("\n")
