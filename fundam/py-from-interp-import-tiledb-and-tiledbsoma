@@ -75,6 +75,13 @@ except ModuleNotFoundError:
     sys.exit(1)
 
 try:
+    import numba
+    print('numba.__version__    (np)', numba.__version__)
+except ModuleNotFoundError:
+    print("numba module not found")
+    sys.exit(1)
+
+try:
     import pandas  as pd
     print('pandas.__version__   (pd)', pd.__version__)
 except ModuleNotFoundError:
