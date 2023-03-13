@@ -9,7 +9,7 @@ import os, sys, getopt, random, time, math
 # ----------------------------------------------------------------
 try:
     import tiledb
-    print('tiledb.__version__       ', ".".join(str(e) for e in tiledb.version()), tiledb.__file__)
+    print('tiledb.version           ', ".".join(str(e) for e in tiledb.version()), tiledb.__file__)
     print('core version             ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())), tiledb.libtiledb.__file__)
 except ModuleNotFoundError:
     print("tiledb module not found")

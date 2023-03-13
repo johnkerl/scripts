@@ -12,7 +12,7 @@ if [ -z "$LD_LIBRARY_PATH" ]; then
     export LD_LIBRARY_PATH="/usr/local/lib"
 fi
 if [ "$1" = "-z" ]; then
-    python    $ourdir/py-from-interp-import-tiledb-and-tiledbsoma
+    python    $ourdir/pytt.py
 else
-    python -i $ourdir/py-from-interp-import-tiledb-and-tiledbsoma
+    python -i $ourdir/pytt.py
 fi
