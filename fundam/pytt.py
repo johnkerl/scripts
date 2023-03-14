@@ -12,7 +12,7 @@ try:
     print('tiledb.version           ', ".".join(str(e) for e in tiledb.version()), tiledb.__file__)
     print('core version             ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())), tiledb.libtiledb.__file__)
 except ModuleNotFoundError:
-    print("tiledb module not found")
+    print(">>>>>>>> tiledb module not found")
 
 # ----------------------------------------------------------------
 try:
@@ -20,12 +20,12 @@ try:
     print('tiledbsoma.__version__   ', tiledbsoma.__version__, tiledbsoma.__file__)
     soma = tiledbsoma
 except ModuleNotFoundError:
-    print("tiledbsoma module not found")
+    print(">>>>>>>> tiledbsoma module not found")
 
 try:
     import tiledbsoma.io
 except ModuleNotFoundError:
-    print("tiledbsoma.io module not found")
+    print(">>>>>>>> tiledbsoma.io module not found")
 
 # ----------------------------------------------------------------
 try:
@@ -56,50 +56,50 @@ try:
     import somacore
     print('somacore.__version__     ', somacore.__version__, somacore.__file__)
 except ModuleNotFoundError:
-    print("somacore module not found")
+    print(">>>>>>>> somacore module not found")
 
 # ----------------------------------------------------------------
 try:
     import anndata as ad
     print('anndata.__version__  (ad)', ad.__version__)
 except ModuleNotFoundError:
-    print("anndata module not found")
+    print(">>>>>>>> anndata module not found")
 
 try:
     import numpy   as np
     print('numpy.__version__    (np)', np.__version__)
 except ModuleNotFoundError:
-    print("numpy module not found")
+    print(">>>>>>>> numpy module not found")
 
 try:
     import numba
     print('numba.__version__    (np)', numba.__version__)
 except ModuleNotFoundError:
-    print("numba module not found")
+    print(">>>>>>>> numba module not found")
 
 try:
     import pandas  as pd
     print('pandas.__version__   (pd)', pd.__version__)
 except ModuleNotFoundError:
-    print("pandas module not found")
+    print(">>>>>>>> pandas module not found")
 
 try:
     import pyarrow as pa
     print('pyarrow.__version__  (pa)', pa.__version__)
 except ModuleNotFoundError:
-    print("pyarrow module not found")
+    print(">>>>>>>> pyarrow module not found")
 
 try:
     import scanpy  as sc
     print('scanpy.__version__   (sc)', sc.__version__)
 except ModuleNotFoundError:
-    print("scanpy module not found")
+    print(">>>>>>>> scanpy module not found")
 
 try:
     import scipy   as sp
     print('scipy.__version__    (sp)', sp.__version__)
 except ModuleNotFoundError:
-    print("scipy module not found")
+    print(">>>>>>>> scipy module not found")
 
 print('python__version__        ', ".".join([str(e) for e in [sys.version_info.major, sys.version_info.minor, sys.version_info.micro]]))
 
