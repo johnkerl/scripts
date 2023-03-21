@@ -6,7 +6,7 @@
 
 ourdir=$(dirname $0)
 if [ "$1" = "-z" ]; then
-    python    $ourdir/py-from-interp-import-tiledb
+    python    $ourdir/pyt.py
 else
-    python -i $ourdir/py-from-interp-import-tiledb
+    python -i $ourdir/pyt.py
 fi

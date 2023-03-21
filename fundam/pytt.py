@@ -29,7 +29,7 @@ except ModuleNotFoundError:
 
 # ----------------------------------------------------------------
 try:
-    import tiledbsoma.libtiledbsoma as clib
+    import tiledbsoma.pytiledbsoma as clib
 except ModuleNotFoundError:
     # main-old
     clib = None
@@ -40,15 +40,15 @@ except ImportError:
 if clib is not None:
     # Example:
     # 'libtiledbsoma=2be3147\nlibtiledb=2.12.2'
-    lines = tiledbsoma.libtiledbsoma.version().split("\n")
+    lines = tiledbsoma.pytiledbsoma.version().split("\n")
     if len(lines) == 1:
-        print("%-25s %s %s" % ("libtiledbsoma", lines[0], tiledbsoma.libtiledbsoma.__file__))
+        print("%-25s %s %s" % ("libtiledbsoma", lines[0], tiledbsoma.pytiledbsoma.__file__))
     else:
         for line in lines:
             name, version = line.split("=")
             path = ""
             if name == "libtiledbsoma":
-                path = " " + tiledbsoma.libtiledbsoma.__file__
+                path = " " + tiledbsoma.pytiledbsoma.__file__
             print("%-25s %s %s" % (name, version, path))
 
 # ----------------------------------------------------------------

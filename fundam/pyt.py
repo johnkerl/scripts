@@ -12,7 +12,7 @@ import numpy   as np
 import pandas  as pd
 import pyarrow as pa
 
-print('tiledb.__version__       ', tiledb.__version__, tiledb.__file__)
+print('tiledb.version()         ', tiledb.version(), tiledb.__file__)
 print('core version             ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())), tiledb.libtiledb.__file__)
 print('numpy.__version__    (np)', np.__version__)
 print('pandas.__version__   (pd)', pd.__version__)
