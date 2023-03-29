@@ -1,7 +1,9 @@
 #!/bin/bash
 
-if [ $# -ne 1 ]; then
-  echo "Need branch name" 1>&2
+if [ $# -lt 1 ]; then
+  echo "Need one or more branch names" 1>&2
   exit 1
 fi
-git branch -D "$1"
+for arg; do
+    git branch -D "$arg"
+done
