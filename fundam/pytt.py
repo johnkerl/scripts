@@ -8,14 +8,6 @@ import os, sys, getopt, random, time, math
 
 # ----------------------------------------------------------------
 try:
-    import tiledb
-    print('tiledb.version           ', ".".join(str(e) for e in tiledb.version()), tiledb.__file__)
-    print('core version             ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())), tiledb.libtiledb.__file__)
-except ModuleNotFoundError:
-    print(">>>>>>>> tiledb module not found")
-
-# ----------------------------------------------------------------
-try:
     import tiledbsoma
     print('tiledbsoma.__version__   ', tiledbsoma.__version__, tiledbsoma.__file__)
     soma = tiledbsoma
@@ -57,6 +49,14 @@ try:
     print('somacore.__version__     ', somacore.__version__, somacore.__file__)
 except ModuleNotFoundError:
     print(">>>>>>>> somacore module not found")
+
+# ----------------------------------------------------------------
+try:
+    import tiledb
+    print('tiledb.version           ', ".".join(str(e) for e in tiledb.version()), tiledb.__file__)
+    print('core version             ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())), tiledb.libtiledb.__file__)
+except ModuleNotFoundError:
+    print(">>>>>>>> tiledb module not found")
 
 # ----------------------------------------------------------------
 try:
