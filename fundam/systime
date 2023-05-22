@@ -29,12 +29,14 @@ end
 # ----------------------------------------------------------------
 do_millis      = false
 do_float       = false
+do_hex         = false
 offset_seconds = 0.0
 
 opts = GetoptLong.new(
   [ '-m', '--millis', GetoptLong::NO_ARGUMENT ],
   [ '-f', '--float',  GetoptLong::NO_ARGUMENT ],
   [ '-o', '--offset', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '-x', '--hex',    GetoptLong::NO_ARGUMENT ],
   [ '-h', '--help',   GetoptLong::NO_ARGUMENT ]
 )
 
@@ -47,6 +49,8 @@ begin
       when '--float';  do_float  = true
       when '-o';       offset_seconds = Float(arg)
       when '--offset'; offset_seconds = Float(arg)
+      when '-x';       do_hex  = true
+      when '--hex';    do_hex  = true
       when '-h';       usage
       when '--help';   usage
     end
@@ -62,6 +66,8 @@ offset_seconds *= 0.001 if do_millis
 f = Time::now.to_f + offset_seconds
 if do_millis
   puts Integer(f * 1000)
+elsif do_hex
+  puts "%x" % Integer(f)
 elsif do_float
   puts "%.3f" % f
 else
