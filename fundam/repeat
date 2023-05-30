@@ -12,13 +12,22 @@ $us = File.basename $0
 
 # ------------------------------------------------------------------------------
 def usage()
-   $stderr.puts " Usage: #{$us} {count} {command ...}"
+   $stderr.puts " Usage: #{$us} [-e] {count} {command ...}"
    exit 1
 end
 
 # ------------------------------------------------------------------------------
 $stdout.sync = true
 $stderr.sync = true
+
+break_on_error = false
+
+if ARGV.length >= 1
+    if ARGV[0] == "-e"
+        ARGV.shift
+        break_on_error = true
+    end
+end
 
 usage unless ARGV.length >= 2;
 usage unless ARGV[0] =~ /^[0-9]+$/
@@ -34,5 +43,11 @@ cmd = ARGV.join(' ')
       # E.g. control-C.  Note that maybe a child process of system()
       # got the control-C, so we might not get it here.
       exit 1
+   end
+
+   if break_on_error
+       if not status.success?
+           break
+       end
    end
 end
