@@ -1,0 +1,8 @@
+#!/bin/bash
+
+n=1
+if [ "$#" = 1 ]; then
+  n="$1"
+fi
+
+ls -rt | tail -n $n
