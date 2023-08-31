@@ -11,6 +11,7 @@ import tiledb
 import numpy   as np
 import pandas  as pd
 import pyarrow as pa
+import anndata as ad
 
 print('tiledb.version()         ', tiledb.version(), tiledb.__file__)
 print('core version             ', ".".join(str(ijk) for ijk in list(tiledb.libtiledb.version())), tiledb.libtiledb.__file__)
