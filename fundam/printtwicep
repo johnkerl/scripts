@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+
+# ================================================================
+# John Kerl
+# http://johnkerl.org
+# ================================================================
+
+import sys
+
+
+def handle(line):
+    line = line.strip()
+    print(f"{line}={line},")
+
+
+if len(sys.argv) == 1:
+    while True:
+        line = sys.stdin.readline()
+        if line == "":
+            break
+        handle(line)
+else:
+    for filename in sys.argv[1:]:
+        mode = "r"
+        try:
+            file_handle = open(filename, mode)
+        except:
+            sys.stderr.write(
+                '%s: couldn\'t open file "%s" for mode "%s".\n'
+                % (sys.argv[0], filename, mode)
+            )
+            sys.exit(1)
+        while True:
+            line = file_handle.readline()
+            if line == "":
+                break
+        handle(line)
