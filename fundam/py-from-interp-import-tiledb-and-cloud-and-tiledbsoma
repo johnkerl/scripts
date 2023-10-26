@@ -8,6 +8,7 @@ import os, sys, getopt, random, time, math
 
 import tiledb
 import tiledb.cloud
+import tiledb.cloud.dag as dag
 import tiledbsoma
 import tiledbsoma.io
 soma = tiledbsoma
