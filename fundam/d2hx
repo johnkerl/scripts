@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+# ================================================================
+# John Kerl, 2004
+# Ported from C to Ruby 2013-06-10.
+# ================================================================
+
+$us = File.basename $0
+
+# ----------------------------------------------------------------
+def usage()
+	$stderr.puts "Usage: #{$us} {one or more integers ...}"
+	$stderr.puts "Converts from decimal to hex."
+	exit 1
+end
+
+# ----------------------------------------------------------------
+usage unless ARGV.length >= 1
+
+ARGV.each do |arg|
+	i = Integer(arg)
+	printf("%02x", i)
+end
+printf("\n")
