@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 {dir} {epub}" 1>&2
+    exit 1
+fi
+
+dir="$1"
+epub="$2"
+
+if [ ! -d "$dir" ]; then
+    echo "$0: cannot find dir $dir" 1>&2
+    exit 1
+fi
+
+cd $dir
+zip -r ../$epub .
