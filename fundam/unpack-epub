@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 {epub} {dir}" 1>&2
+    exit 1
+fi
+
+epub="$1"
+dir="$2"
+
+if [ ! -f "$epub" ]; then
+    echo "$0: cannot find epub $epub" 1>&2
+    exit 1
+fi
+
+if [ -d "$dir" ]; then
+    rm -rf $dir
+fi
+
+mkdir $dir
+cd $dir
+unzip ../$epub

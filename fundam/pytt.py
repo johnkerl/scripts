@@ -11,12 +11,12 @@ try:
     import tiledbsoma
     print('tiledbsoma.__version__   ', tiledbsoma.__version__, tiledbsoma.__file__)
     soma = tiledbsoma
-except ModuleNotFoundError:
+except (ModuleNotFoundError, AttributeError):
     print(">>>>>>>> tiledbsoma module not found")
 
 try:
     import tiledbsoma.io
-except ModuleNotFoundError:
+except (ModuleNotFoundError, AttributeError):
     print(">>>>>>>> tiledbsoma.io module not found")
 
 # ----------------------------------------------------------------
