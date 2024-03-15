@@ -21,11 +21,15 @@ $stdout.sync = true
 $stderr.sync = true
 
 break_on_error = false
+break_on_not_error = false
 
 if ARGV.length >= 1
     if ARGV[0] == "-e"
         ARGV.shift
         break_on_error = true
+    elsif ARGV[0] == "-x"
+        ARGV.shift
+        break_on_not_error = true
     end
 end
 
@@ -47,6 +51,11 @@ cmd = ARGV.join(' ')
 
    if break_on_error
        if not status.success?
+           break
+       end
+   end
+   if break_on_not_error
+       if status.success?
            break
        end
    end

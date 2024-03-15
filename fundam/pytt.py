@@ -103,6 +103,9 @@ except ModuleNotFoundError:
 
 print('python__version__        ', ".".join([str(e) for e in [sys.version_info.major, sys.version_info.minor, sys.version_info.micro]]))
 
+print()
+tiledbsoma.show_package_versions()
+
 # ----------------------------------------------------------------
 import readline
 def history(n=10):
