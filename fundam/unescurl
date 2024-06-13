@@ -3,3 +3,8 @@ require 'cgi'
 ARGF.each do |line|
   puts CGI::unescape(line)
 end
+
+# TO PORT
+# >>> import urllib
+# >>> import urllib.parse
+# >>> urllib.parse.unquote(line, encoding='utf-8', errors='replace')

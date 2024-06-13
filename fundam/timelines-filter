@@ -19,7 +19,7 @@ require 'date'
 cutoff = nil
 if ARGV.length >= 2
   if ARGV[0] == "-g"
-    cutoff = ARGV[1].to_i
+    cutoff = ARGV[1].to_f
     ARGV.shift
     ARGV.shift
   end
