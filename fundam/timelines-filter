@@ -9,9 +9,22 @@ $stdin.sync = true
 # Prefixes each line of output with the floating-point number of seconds since
 # the previous line.  Useful for elementary stdio-based profiling.  See also
 # the timelines script which nominally invokes this.
+#
+# Invoke with -g {n} to highlight all lines taking {n} seconds or more,
+# e.g. -g 1.5 or -g 10.
 # ==============================================================================
 
 require 'date'
+
+cutoff = nil
+if ARGV.length >= 2
+  if ARGV[0] == "-g"
+    cutoff = ARGV[1].to_i
+    ARGV.shift
+    ARGV.shift
+  end
+end
+
 t1 = Time::now.to_f
 while true
 	begin
@@ -20,6 +33,21 @@ while true
 		break
 	end
 	t2 = Time::now.to_f
-	printf("%11.6f %s", t2-t1, line)
+
+  diff = t2 - t1
+  colorize = false
+
+  unless cutoff.nil?
+    colorize = true if diff >= cutoff
+  end
+
+  if colorize
+    pre = "\e[31;01m"
+    post = "\e[0m"
+  else
+    pre = ""
+    post = ""
+  end
+	  printf("%s%11.6f %s%s", pre, diff, line, post)
 	t1 = t2
 end

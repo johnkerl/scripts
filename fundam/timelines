@@ -34,11 +34,23 @@
 #    0.000043 is the end
 #    0.000015 of the script
 #
+# Invoke with -g {n} to highlight all lines taking {n} seconds or more,
+# e.g. -g 1.5 or -g 10.
+#
 # ==============================================================================
 
 ourdir=$(dirname $0)
+
+args=
+if [ $# -ge 2 ]; then
+  if [ "$1" = "-g" ]; then
+    args="$1 $2"
+    shift; shift
+  fi
+fi
+
 if [ $# -eq 0 ]; then
-	exec $ourdir/timelines-filter
+	exec $ourdir/timelines-filter $args
 else
-	"$@" | $ourdir/timelines-filter
+	"$@" | $ourdir/timelines-filter $args
 fi

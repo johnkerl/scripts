@@ -1,4 +1,17 @@
 #!/bin/bash
 
+how="--sort=-committerdate"
+if [ $# -ge 1 ]; then
+    if [ "$1" = "-a" ]; then
+        # Alphabetical by branch name is default
+        how=""
+        shift
+    elif [ "$1" = "-d" ]; then
+        # Chronological is opt-in
+        how="--sort=-committerdate"
+        shift
+    fi
+fi
+
 # also git show-branch is built-in -- ?
-git branch "$@"
+git branch $how "$@"
