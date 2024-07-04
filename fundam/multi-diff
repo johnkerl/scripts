@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ $# -lt 2 ]; then
+  echo "Usage: $0 {two or more file names}" 1>&2
+  echo "Example: given files a b c d, diffs a b, b c, c d." 1>&2
+  exit 1
+fi
+
+prev=""
+for arg; do
+  if [ "$prev" != "" ]; then
+    echo
+    echo ================================================================ diff $prev $arg
+    diff $prev $arg
+  fi
+  prev="$arg"
+done
