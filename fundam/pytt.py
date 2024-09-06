@@ -11,6 +11,9 @@ try:
     import tiledbsoma
     print('tiledbsoma.__version__   ', tiledbsoma.__version__, tiledbsoma.__file__)
     soma = tiledbsoma
+    t = tiledbsoma
+    import tiledbsoma.io
+    tio = tiledbsoma.io
 except (ModuleNotFoundError, AttributeError):
     print(">>>>>>>> tiledbsoma module not found")
 
