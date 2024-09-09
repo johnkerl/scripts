@@ -39,6 +39,10 @@ if status.signaled? and status.termsig == 2
    exit 1
 end
 
+if status.termsig != 0
+  $stderr.puts "NON-ZERO EXIT"
+end
+
 seconds = t2.to_f - t1.to_f
 if raw
     puts "%.3f" % seconds
