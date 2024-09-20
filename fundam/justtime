@@ -39,7 +39,7 @@ if status.signaled? and status.termsig == 2
    exit 1
 end
 
-if status.termsig != 0
+if status.termsig != nil
   $stderr.puts "NON-ZERO EXIT"
 end
 
