@@ -115,6 +115,9 @@ while (@ARGV >= 1) {
 	elsif ($ARGV[0] eq "-p") {
 		$pat = "//";
 	}
+	elsif ($ARGV[0] eq "-pr") {
+		$pat = "//'";
+	}
 
 	elsif ($ARGV[0] eq "-1p") {
 		$pat = "// ";
