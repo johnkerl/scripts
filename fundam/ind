@@ -115,6 +115,9 @@ while (@ARGV >= 1) {
 	elsif ($ARGV[0] eq "-p") {
 		$pat = "//";
 	}
+	elsif ($ARGV[0] eq "-pp") {
+		$pat = "////";
+	}
 
 	elsif ($ARGV[0] eq "-1p") {
 		$pat = "// ";
@@ -171,6 +174,10 @@ while (@ARGV >= 1) {
 
 	elsif ($ARGV[0] eq "-tttts") {
 		$pat = "\t\t\t\t\# ";
+	}
+
+	elsif ($ARGV[0] eq "-xxx") {
+		$pat = "### XXX ";
 	}
 
 	elsif ($ARGV[0] eq "-rdoc") {
