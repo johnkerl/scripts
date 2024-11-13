@@ -76,11 +76,12 @@ end
 # For each item, find item age
 items.each do |item|
    begin
-     #puts "item=#{item}"
-     mtime = File.new(item).stat.mtime
+     handle = File.new(item)
+     mtime = handle.stat.mtime
      now = Time.now
      agesec = now - mtime
      names_to_agesecs[item] = agesec
+     handle.close
    rescue Errno::EACCES => e
      $stderr.puts e
    rescue Errno::ENOENT => e # e.g. dangling symlinks
@@ -92,7 +93,8 @@ end
 
 # List filenames, or directory contents, from oldest to newest.
 names_to_agesecs.keys.sort{|a,b| names_to_agesecs[b] <=> names_to_agesecs[a]}.each do |item|
-  stat = File.new(item).stat
+  handle = File.new(item)
+  stat = handle.stat
   mtime = stat.mtime
   size = stat.size
   now = Time.now
@@ -100,4 +102,5 @@ names_to_agesecs.keys.sort{|a,b| names_to_agesecs[b] <=> names_to_agesecs[a]}.ea
   agehrs = agesec / 3600.0
   dhms = get_dhms(agesec)
   puts "#{'%7.2f' % agehrs}h #{dhms.rjust 14} #{size.to_s.rjust 10} #{item}"
+  handle.close
 end
