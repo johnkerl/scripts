@@ -39,13 +39,13 @@ if status.signaled? and status.termsig == 2
    exit 1
 end
 
-if status.termsig != nil
-  $stderr.puts "NON-ZERO EXIT"
-end
-
 seconds = t2.to_f - t1.to_f
-if raw
-    puts "%.3f" % seconds
+if status.success?
+  if raw
+      puts "%.3f" % seconds
+  else
+      $stderr.puts "TIME IN SECONDS %.3f -- %s" % [seconds, cmd]
+  end
 else
-    $stderr.puts "TIME IN SECONDS %.3f -- %s" % [seconds, cmd]
+      $stderr.puts "NON-ZERO EXIT: SECONDS %.3f -- %s" % [seconds, cmd]
 end
