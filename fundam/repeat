@@ -33,6 +33,7 @@ if ARGV.length >= 1
     end
 end
 
+rc = 0
 usage unless ARGV.length >= 2;
 usage unless ARGV[0] =~ /^[0-9]+$/
 count = ARGV.shift.to_i;
@@ -51,6 +52,7 @@ cmd = ARGV.join(' ')
 
    if break_on_error
        if not status.success?
+           rc = 1
            break
        end
    end
@@ -60,3 +62,5 @@ cmd = ARGV.join(' ')
        end
    end
 end
+
+exit rc
