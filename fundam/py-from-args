@@ -4,7 +4,7 @@
 # See ./py for context
 # ================================================================
 
-import os, sys, getopt, random, time
+import os, sys, getopt, random, time, json
 from math import *
 
 if len(sys.argv) < 2:
