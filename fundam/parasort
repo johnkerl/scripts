@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+# Ingests paragraphs, sorts them lexically, and prints them out
+
+paragraphs = []
+ARGF.each("\n\n") do |paragraph|
+   paragraphs << paragraph
+end
+
+paragraphs.sort!
+puts paragraphs.join("\n")
