@@ -17,9 +17,13 @@ $stdin.sync = true
 require 'date'
 
 cutoff = nil
+below = ""
+above = ""
 if ARGV.length >= 2
   if ARGV[0] == "-g"
     cutoff = ARGV[1].to_f
+    below = "below"
+    above = "above"
     ARGV.shift
     ARGV.shift
   end
@@ -36,18 +40,24 @@ while true
 
   diff = t2 - t1
   colorize = false
+  prefix = ""
 
   unless cutoff.nil?
-    colorize = true if diff >= cutoff
+    if diff >= cutoff
+      colorize = true
+      prefix = above
+    else
+      prefix = below
+    end
   end
 
   if colorize
-    pre = "\e[31;01m"
-    post = "\e[0m"
+    color_pre = "\e[31;01m"
+    color_post = "\e[0m"
   else
-    pre = ""
-    post = ""
+    color_pre= ""
+    color_post = ""
   end
-	  printf("%s%11.6f %s%s", pre, diff, line, post)
+  printf("%s%s%11.6f %s%s", prefix, color_pre, diff, line, color_post )
 	t1 = t2
 end
