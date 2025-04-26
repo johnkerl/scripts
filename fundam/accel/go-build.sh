@@ -4,7 +4,8 @@
 
 set -xeuo pipefail
 
-for x in hex lensort stamplines uniqm; do
+# for x in hex lensort stamplines uniqm; do
+for x in lensort stamplines uniqm; do
   cd gomains/$x
   go build
   mv $x ../..
