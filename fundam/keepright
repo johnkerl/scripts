@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+# Accept left-hand side of git rebase.
+# Keystroke-saver for keepleft
+
+emit=true
+ARGF.each do |line|
+  line.chomp!
+  if line.start_with?('<<<<<<<')
+    emit = false
+  elsif line.start_with?('|||||||')
+    emit=false
+  elsif line.start_with?('=======')
+    emit=true
+  elsif line.start_with?('>>>>>>>')
+    emit=true
+  else
+    puts line if emit
+  end
+end
