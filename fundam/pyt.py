@@ -4,7 +4,7 @@
 # See ./pyt for context
 # ================================================================
 
-import os, sys, getopt, random, time, math, json
+import os, sys, shutil, getopt, random, time, math, json
 
 import tiledb
 

@@ -15,6 +15,7 @@ my $prev_blank = 0;
 my $curr_blank = 0;
 while ($line = <>) {
    chomp $line;
+   $line =~ s/\s+$//;
 
    if ($line =~ m/^\s*$/) {
       $curr_blank = 1;

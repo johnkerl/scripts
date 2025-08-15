@@ -134,8 +134,12 @@ while (@ARGV >= 1) {
 		$pat = "\t// ";
 	}
 
-	elsif ($ARGV[0] eq "-ttp") {
+	elsif ($ARGV[0] eq "-ttp1") {
 		$pat = "\t\t// ";
+	}
+
+	elsif ($ARGV[0] eq "-ttp") {
+		$pat = "\t\t//";
 	}
 
 	elsif ($ARGV[0] eq "-tttp") {

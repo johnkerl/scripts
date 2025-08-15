@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Suitable for use in PS1 contexts
-git rev-parse --abbrev-ref HEAD 2> /dev/null
+git rev-parse --abbrev-ref HEAD 2> /dev/null || exit 0
