@@ -1,4 +1,5 @@
 #!/bin/bash
 
 # git rev-parse --abbrev-ref HEAD
-git name-rev --name-only HEAD
+# git name-rev --name-only HEAD
+git branch --show-current
