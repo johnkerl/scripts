@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+
+import os, sys, getopt, random, typing
+
+# ----------------------------------------------------------------
+default_n = 1
+n  = default_n
+
+# ----------------------------------------------------------------
+def usage() -> None:
+    sys.stderr.write("Usage: %s [-n n]\n" % os.path.basename(sys.argv[0]))
+    sys.stderr.write("Generates XXX.\n")
+    sys.stderr.write("n defaults to %d.\n" % (default_n))
+
+# ----------------------------------------------------------------
+ALPHABET = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
+def make_phrase():
+    x = random.sample(ALPHABET, 25)
+    return "%s-%s-%s-%s-%s" % ("".join(x[0:5]), "".join(x[5:10]), "".join(x[10:15]), "".join(x[15:20]), "".join(x[20:25]))
+
+# ----------------------------------------------------------------
+try:
+    optargs, non_option_args = getopt.getopt(sys.argv[1:], "hn:", ['help'])
+except getopt.GetoptError as err:
+    print((str(err)))
+    usage()
+    sys.exit(1)
+
+for opt, arg in optargs:
+    if opt == '-h' or opt == '--help':
+        usage()
+        sys.exit(0)
+    elif opt == '-n':
+        n = int(arg, 0)
+    else:
+        sys.stderr.write("Unhandled option \"%s\"." % opt)
+        sys.exit(1)
+
+non_option_arg_count = len(non_option_args)
+if non_option_arg_count != 0:
+    usage()
+    sys.exit(0)
+
+for n in range(0, n):
+    print(make_phrase())
