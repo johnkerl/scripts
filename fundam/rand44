@@ -9,7 +9,7 @@ n  = default_n
 # ----------------------------------------------------------------
 def usage() -> None:
     sys.stderr.write("Usage: %s [-n n]\n" % os.path.basename(sys.argv[0]))
-    sys.stderr.write("Generates XXX.\n")
+    sys.stderr.write("Generates 16 random uppercase letters, sampled with replacement.\n")
     sys.stderr.write("n defaults to %d.\n" % (default_n))
 
 # ----------------------------------------------------------------
