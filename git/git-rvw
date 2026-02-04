@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+  echo "Need one or more branch names" 1>&2
+  exit 1
+fi
+name_of_branch="$1"
+
+git fetch -f origin ${name_of_branch}:${name_of_branch}
+git checkout ${name_of_branch}
