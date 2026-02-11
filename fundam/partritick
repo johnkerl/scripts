@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+# Given a sequence of paragraphs, sorts the paragraphs lexically
+
+longest_first = true
+if ARGV.length >= 1 && ARGV[0] == '-r'
+  longest_first = false
+  ARGV.shift
+end
+
+paragraphs = []
+ARGF.read.split(/\n\n+/).each do |paragraph|
+   paragraphs << paragraph.chomp
+end
+
+n = 1
+paragraphs.each do |paragraph|
+  if n > 1
+    puts("")
+  end
+  puts("```")
+  puts(paragraph)
+  puts("```")
+  n = n + 1
+end
