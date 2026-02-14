@@ -13,7 +13,6 @@ import typing as t
 # ================================================================
 # Copyright (c) 1995 John Kerl
 # Ported from C to Python 2020
-# kerl.john.r@gmail.com
 #
 # This code and information is provided as is without warranty of
 # any kind, either expressed or implied, including but not limited to

@@ -2,7 +2,6 @@
 
 # ================================================================
 # John Kerl
-# kerl.john.r@gmail.com
 # 2005-01-25
 #
 # This program prints binomial coefficients, optionally reduced mod p.

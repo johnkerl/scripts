@@ -4,7 +4,6 @@ $us = File.basename $0
 
 # ================================================================
 # Copyright (c) 2004 John Kerl.
-# kerl.john.r@gmail.com
 # Example: Given ASCII input "68 65 6c 6c 6f", writes the five bytes "hello".
 #
 # Ported from C to Ruby 2013-06-10.
