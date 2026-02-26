@@ -2,7 +2,6 @@
 
 # ================================================================
 # John Kerl
-# kerl.john.r@gmail.com
 # 2012-02-22
 # Prints {count} words of {length} characters each, with characters selected
 # uniformly randomly from uppercase A-Z, lowercase a-z, 0-9, and some symbols

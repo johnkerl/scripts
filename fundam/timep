@@ -6,7 +6,6 @@
 # interactively, but "time" in the path as /usr/bin/time, in scripted contexts.
 # does something ugly.  This script does the same thing both places.
 # John Kerl
-# kerl.john.r@gmail.com
 # 2012-12-24
 # ================================================================
 
