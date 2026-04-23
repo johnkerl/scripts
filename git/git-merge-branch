@@ -1,0 +1,9 @@
+#!/bin/bash
+
+us=$(basename $0)
+if [ $# -ne 1 ]; then
+  echo "Usage: $us {branch name}" 1>&2
+  exit 1
+fi
+branch_name="$1"
+git merge -m "Merge $branch_name" $branch_name
