@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for x in $(find . -name '*.qmd'); do
+for x in $(find . -name '*.qmd' -o -name '*.md'); do
     sed -i .emd \
       -e 's/—/---/' \
       -e 's/—/---/' \
