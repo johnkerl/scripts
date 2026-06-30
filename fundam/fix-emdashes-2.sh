@@ -6,4 +6,4 @@ flag=""
 if [ $# -gt 0 ]; then
   flag="-i .emd"
 fi
-sed $flag -e 's/—/ -- /' "$@"
+sed $flag -e 's/—/ -- /g' "$@"
