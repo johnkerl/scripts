@@ -49,7 +49,7 @@ func uniqm(istream io.Reader) error {
 			return err
 		} else {
 			// This is how to do a chomp:
-			//line = strings.TrimRight(line, "\n")
+			// line = strings.TrimRight(line, "\n")
 			if set[line] {
 			} else {
 				fmt.Print(line)

@@ -1,7 +1,10 @@
 #!/bin/bash
 
-if [ $# -eq 0 ]; then
-   find . -follow -type f
-else
-   find "$@" -follow -type f
+dir="."
+if [ $# -ne 0 ]; then
+  dir="$@"
 fi
+
+# find $dir -follow -type f
+# Avoid dot files
+find $dir -path '*/.*' -prune -o -type f -print
