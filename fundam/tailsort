@@ -23,4 +23,5 @@
 #   rebase
 # ================================================================
 
+ARGF.set_encoding('UTF-8')
 ARGF.readlines.map{|line| line.chomp.reverse}.sort.map{|line| line.reverse}.each{|line| puts line}

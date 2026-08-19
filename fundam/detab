@@ -7,6 +7,9 @@
 # NT days.
 # ================================================================
 
+use open ':std', ':encoding(UTF-8)';
+use feature 'unicode_strings';
+
 $tab_width = 8;
 if (@ARGV) {
    if ($ARGV[0] =~ m/^[\/-]/) {
