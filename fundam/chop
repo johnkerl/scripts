@@ -38,32 +38,31 @@ def get_terminal_width
 end
 
 # ----------------------------------------------------------------
-# From my "retab" script.
+# From my "retab" script.  Returns an array of display units (grapheme
+# clusters, with tabs expanded to individual space units) rather than a
+# joined string, so the caller can count/truncate by user-perceived
+# character rather than by raw codepoint -- otherwise a base letter plus
+# a combining mark (e.g. "e" + acute accent) would count as two.
 def expand_tabs(old_line, tab_width)
    output_char_count = 0
    new_chars = []
-   #new_line = ""
 
-   chars = (RUBY_VERSION =~ /^1\.8.*/) ? old_line : old_line.chars
+   chars = (RUBY_VERSION =~ /^1\.8.*/) ? old_line : old_line.each_grapheme_cluster.to_a
    chars.each do |c|
 
       if c == "\t"
-         #new_line += " "
          new_chars << " "
          output_char_count += 1
          while (output_char_count % tab_width) != 0
-            #new_line += " "
             new_chars << " "
             output_char_count += 1
          end
       else
-         #new_line += c
          new_chars << c
          output_char_count += 1
       end
    end
-   #new_line
-   new_chars.join('')
+   new_chars
 end
 
 # ----------------------------------------------------------------
@@ -159,16 +158,17 @@ def main()
 
       line.chomp!
 
-      # Below I will count characters one per position.  This is wrong for
-      # UTF-8 (no big problem for me) but also for tabs (a bigger problem for
-      # me).  So at very least, I can expand tabs.
-      line = expand_tabs(line, tab_width)
+      # Below I count grapheme clusters (user-perceived characters) one per
+      # position, and also expand tabs.  This still under-counts
+      # double-width characters (e.g. CJK) as a single column, but no
+      # longer splits a base character from its combining marks.
+      units = expand_tabs(line, tab_width)
 
-      len = line.length
-      line = line[0..(chop_width-1)] if len >= chop_width
+      len = units.length
+      units = units[0..(chop_width-1)] if len >= chop_width
 
       begin
-          puts line
+          puts units.join('')
       rescue Errno::EPIPE
           # E.g. we're piped to head.  Don't complain.
           exit 0

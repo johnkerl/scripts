@@ -29,6 +29,9 @@
 # Occasionally incredibly useful during coding.
 # ================================================================
 
+use open ':std', ':encoding(UTF-8)';
+use feature 'unicode_strings';
+
 # Make input records paragraphs, not lines.
 $/="";
 

@@ -6,6 +6,9 @@
 # Sorts lines by length.
 # ================================================================
 
+use open ':std', ':encoding(UTF-8)';
+use feature 'unicode_strings';
+
 $do_reverse = 0;
 if (@ARGV > 0) {
   if ($ARGV[0] eq "-r") {

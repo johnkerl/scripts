@@ -7,6 +7,9 @@
 # Camel (I forget which), sometime in the mid 1990s.
 # ================================================================
 
+use open ':std', ':encoding(UTF-8)';
+use feature 'unicode_strings';
+
 $usage="Usage goes here.";
 
 if ( "$0" eq "left" || $0 =~ /.*\/left$/ ) {

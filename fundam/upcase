@@ -6,6 +6,9 @@
 # Uppercasing filter.
 # ================================================================
 
+use open ':std', ':encoding(UTF-8)';
+use feature 'unicode_strings';
+
 while (<>) {
 	print uc;
 }
