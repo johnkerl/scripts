@@ -7,9 +7,9 @@
 import os, sys, getopt, random, time, json
 from math import *
 
-import numpy   as np
-import pandas  as pd
-import pyarrow as pa
+# import numpy   as np
+# import pandas  as pd
+# import pyarrow as pa
 
 # ----------------------------------------------------------------
 import readline
