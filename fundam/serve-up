@@ -16,4 +16,5 @@ if lsof -iTCP:$port -sTCP:LISTEN >/dev/null 2>&1; then
   exit 1
 fi
 
+echo "Serving on localhost:$port"
 nohup npx http-server "$dir" -o -p $port > "$logdir/nohup.out" 2>&1 &
