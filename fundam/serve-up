@@ -1,0 +1,11 @@
+#!/bin/bash
+
+us=$(basename $0)
+if [ $# -ne 1 ]; then
+  echo "Usage: $us {dir}" 1>&2
+  exit 1
+fi
+dir="$1"
+port=9999
+
+nohup npx http-server $dir -o -p $port &
