@@ -1,20 +1,35 @@
 #!/bin/bash
 
 us=$(basename $0)
-if [ $# -ne 1 ]; then
-  echo "Usage: $us {dir}" 1>&2
+
+# ----------------------------------------------------------------
+usage() {
+  echo "Usage: $us [-p port] {dir}" 1>&2
   exit 1
-fi
-dir="$1"
+}
+
+# ----------------------------------------------------------------
+logdir="$HOME/tmp"
 port=9999
 
-logdir="$HOME/tmp"
-mkdir -p "$logdir"
+while getopts "p:" opt; do
+  case "$opt" in
+    p) port="$OPTARG" ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ $# -ne 1 ]; then
+  usage
+fi
+dir="$1"
 
 if lsof -iTCP:$port -sTCP:LISTEN >/dev/null 2>&1; then
   echo "$us: port $port is already in use" 1>&2
   exit 1
 fi
 
+mkdir -p "$logdir"
 echo "Serving on localhost:$port"
 nohup npx http-server "$dir" -o -p $port > "$logdir/nohup.out" 2>&1 &
