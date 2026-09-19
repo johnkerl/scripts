@@ -8,4 +8,12 @@ fi
 dir="$1"
 port=9999
 
-nohup npx http-server $dir -o -p $port &
+logdir="$HOME/tmp"
+mkdir -p "$logdir"
+
+if lsof -iTCP:$port -sTCP:LISTEN >/dev/null 2>&1; then
+  echo "$us: port $port is already in use" 1>&2
+  exit 1
+fi
+
+nohup npx http-server "$dir" -o -p $port > "$logdir/nohup.out" 2>&1 &
